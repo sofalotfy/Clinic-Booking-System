@@ -19,21 +19,11 @@ return new class extends Migration
     $table->foreignId('patient_id')
           ->constrained('patients')
           ->cascadeOnDelete();
-    // $table->enum('status', [
-    //     'pending',
-    //     'confirmed',
-    //     'completed',
-    //     'cancelled'
-    // ]);
+    $table->string('status')->default('pending');
     $table->dateTime('date');
     $table->integer('delay')->default(0);
     $table->integer('duration');
-    // $table->enum('grade', [
-    //     'excellent',
-    //     'good',
-    //     'average',
-    //     'poor'
-    // ])->nullable();
+    $table->string('grade')->nullable();
     $table->timestamps();
         });
     }

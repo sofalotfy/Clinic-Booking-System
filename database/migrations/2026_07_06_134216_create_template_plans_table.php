@@ -17,7 +17,7 @@ return new class extends Migration
             ->constrained('doctors')
             ->cascadeOnDelete();
 
-        // $table->enum('status', ['active', 'inactive']);
+        $table->string('status')->default('active');
         $table->timestamps();
      });
     }

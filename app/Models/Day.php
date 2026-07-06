@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Day extends Model
 {
-    //
+    protected $fillable = ['doctor_id', 'date', 'start_time', 'end_time', 'appointment_duration', 'queue_length'];
+
+    /**
+     * Get the doctor for this day schedule.
+     */
+    public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Doctor::class);
+    }
 }
