@@ -20,7 +20,7 @@ return new class extends Migration
                 ->constrained('patients')
                 ->cascadeOnDelete();
             $table->timestamps();
-            $table->string('test');
+            $table->text('text');
         });
     }
 
