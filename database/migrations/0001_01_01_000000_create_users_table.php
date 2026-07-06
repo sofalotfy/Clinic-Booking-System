@@ -14,11 +14,54 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('image')->nullable();
             $table->string('email')->unique();
+            $table->string('phone');
+            $table->integer('age');
             $table->timestamp('email_verified_at')->nullable();
+            $table->enum('gender', ['male', 'female']);
+            $table->text('address');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+        });
+
+        Schema::create('patients', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('doctors', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+            $table->timestamps();
+        });
+        
+        Schema::create('flags', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('doctor_id')
+                ->constrained('doctors')
+                ->cascadeOnDelete();
+            $table->string('name');
+            $table->string('color');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('notes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('doctor_id')
+                ->constrained('doctors')
+                ->cascadeOnDelete();
+             $table->foreignId('patient_id')
+                ->constrained('patients')
+                ->cascadeOnDelete();
+            $table->timestamps();
+            $table->string('test');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -42,6 +85,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('notes');
+        Schema::dropIfExists('flags');
+        Schema::dropIfExists('doctors');
+        Schema::dropIfExists('patients');
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
