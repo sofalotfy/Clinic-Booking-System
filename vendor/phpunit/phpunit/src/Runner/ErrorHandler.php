@@ -30,7 +30,6 @@ use function assert;
 use function debug_backtrace;
 use function defined;
 use function error_reporting;
-use function preg_match;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
@@ -39,9 +38,6 @@ use PHPUnit\Event\Code\IssueTrigger\Code;
 use PHPUnit\Event\Code\IssueTrigger\IssueTrigger;
 use PHPUnit\Event\Code\NoTestCaseObjectOnCallStackException;
 use PHPUnit\Event\Code\TestMethod;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Metadata\IgnoreDeprecations;
-use PHPUnit\Metadata\Parser\Registry as MetadataParserRegistry;
 use PHPUnit\Runner\Baseline\Baseline;
 use PHPUnit\Runner\Baseline\Issue;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
@@ -55,25 +51,14 @@ use PHPUnit\Util\ExcludeList;
  */
 final class ErrorHandler
 {
-    private const int UNHANDLEABLE_LEVELS   = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
-    private const int INSUPPRESSIBLE_LEVELS = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
-    private static ?self $instance          = null;
-    private ?Baseline $baseline             = null;
+    private const UNHANDLEABLE_LEVELS   = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING;
+    private const INSUPPRESSIBLE_LEVELS = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR;
+    private static ?self $instance      = null;
+    private ?Baseline $baseline         = null;
     private ExcludeList $excludeList;
     private bool $enabled                     = false;
     private ?int $originalErrorReportingLevel = null;
     private readonly bool $identifyIssueTrigger;
-
-    /**
-     * @var list<array{int, string, string, int}>
-     */
-    private array $globalDeprecations = [];
-
-    /**
-     * @var array<string, list<array{int, string, string, int}>>
-     */
-    private array $testCaseContextDeprecations = [];
-    private ?string $testCaseContext           = null;
 
     /**
      * @var ?array{functions: list<non-empty-string>, methods: list<array{className: class-string, methodName: non-empty-string}>}
@@ -129,14 +114,8 @@ final class ErrorHandler
 
         $test = Event\Code\TestMethodBuilder::fromCallStack();
 
-        if ($errorNumber === E_USER_DEPRECATED) {
-            $deprecationFrame = $this->guessDeprecationFrame();
-            $errorFile        = $deprecationFrame['file'] ?? $errorFile;
-            $errorLine        = $deprecationFrame['line'] ?? $errorLine;
-        }
-
         $ignoredByBaseline = $this->ignoredByBaseline($errorFile, $errorLine, $errorString);
-        $ignoredByTest     = $this->deprecationIgnoredByTest($test, $errorString);
+        $ignoredByTest     = $test->metadata()->isIgnoreDeprecations()->isNotEmpty();
 
         switch ($errorNumber) {
             case E_NOTICE:
@@ -202,11 +181,13 @@ final class ErrorHandler
                 break;
 
             case E_USER_DEPRECATED:
+                $deprecationFrame = $this->guessDeprecationFrame();
+
                 Event\Facade::emitter()->testTriggeredDeprecation(
                     $test,
                     $errorString,
-                    $errorFile,
-                    $errorLine,
+                    $deprecationFrame['file'] ?? $errorFile,
+                    $deprecationFrame['line'] ?? $errorLine,
                     $suppressed,
                     $ignoredByBaseline,
                     $ignoredByTest,
@@ -234,28 +215,7 @@ final class ErrorHandler
         return false;
     }
 
-    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
-    {
-        if ($this->testCaseContext !== null) {
-            $this->testCaseContextDeprecations[$this->testCaseContext][] = [$errorNumber, $errorString, $errorFile, $errorLine];
-        } else {
-            $this->globalDeprecations[] = [$errorNumber, $errorString, $errorFile, $errorLine];
-        }
-
-        return true;
-    }
-
-    public function registerDeprecationHandler(): void
-    {
-        set_error_handler([self::$instance, 'deprecationHandler'], E_USER_DEPRECATED | E_DEPRECATED);
-    }
-
-    public function restoreDeprecationHandler(): void
-    {
-        restore_error_handler();
-    }
-
-    public function enable(TestCase $test): void
+    public function enable(): void
     {
         assert(!$this->enabled);
 
@@ -269,8 +229,6 @@ final class ErrorHandler
 
         $this->enabled                     = true;
         $this->originalErrorReportingLevel = error_reporting();
-
-        $this->triggerGlobalDeprecations($test);
 
         error_reporting($this->originalErrorReportingLevel & self::UNHANDLEABLE_LEVELS);
     }
@@ -300,16 +258,6 @@ final class ErrorHandler
     public function useDeprecationTriggers(array $deprecationTriggers): void
     {
         $this->deprecationTriggers = $deprecationTriggers;
-    }
-
-    public function enterTestCaseContext(string $className, string $methodName): void
-    {
-        $this->testCaseContext = $this->testCaseContext($className, $methodName);
-    }
-
-    public function leaveTestCaseContext(): void
-    {
-        $this->testCaseContext = null;
     }
 
     /**
@@ -347,7 +295,7 @@ final class ErrorHandler
     }
 
     /**
-     * @param list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}> $trace
+     * @param list<array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}> $trace
      */
     private function triggerForUserlandDeprecation(TestMethod $test, array $trace): IssueTrigger
     {
@@ -386,7 +334,7 @@ final class ErrorHandler
     }
 
     /**
-     * @return list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}>
+     * @return list<array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}>
      */
     private function filteredStackTrace(): array
     {
@@ -418,7 +366,7 @@ final class ErrorHandler
     }
 
     /**
-     * @return ?array{file: non-empty-string, line: positive-int}
+     * @return ?array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}
      */
     private function guessDeprecationFrame(): ?array
     {
@@ -429,19 +377,15 @@ final class ErrorHandler
         $trace = $this->errorStackTrace();
 
         foreach ($trace as $frame) {
-            if (!isset($frame['file']) || $frame['file'] === '' || !isset($frame['line']) || $frame['line'] < 1) {
-                continue;
-            }
-
             foreach ($this->deprecationTriggers['functions'] as $function) {
                 if ($this->frameIsFunction($frame, $function)) {
-                    return ['file' => $frame['file'], 'line' => $frame['line']];
+                    return $frame;
                 }
             }
 
             foreach ($this->deprecationTriggers['methods'] as $method) {
                 if ($this->frameIsMethod($frame, $method)) {
-                    return ['file' => $frame['file'], 'line' => $frame['line']];
+                    return $frame;
                 }
             }
         }
@@ -450,7 +394,7 @@ final class ErrorHandler
     }
 
     /**
-     * @return list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, ...}>
+     * @return list<array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}>
      */
     private function errorStackTrace(): array
     {
@@ -466,8 +410,8 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{class?: class-string, function?: non-empty-string, ...<mixed>} $frame
-     * @param non-empty-string                                                     $function
+     * @param array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object} $frame
+     * @param non-empty-string                                                                                                                $function
      */
     private function frameIsFunction(array $frame, string $function): bool
     {
@@ -475,8 +419,8 @@ final class ErrorHandler
     }
 
     /**
-     * @param array{class?: class-string, function?: non-empty-string, ...<mixed>} $frame
-     * @param array{className: class-string, methodName: non-empty-string}         $method
+     * @param array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object} $frame
+     * @param array{className: class-string, methodName: non-empty-string}                                                                    $method
      */
     private function frameIsMethod(array $frame, array $method): bool
     {
@@ -513,41 +457,5 @@ final class ErrorHandler
         }
 
         return $buffer;
-    }
-
-    private function triggerGlobalDeprecations(TestCase $test): void
-    {
-        foreach ($this->globalDeprecations as $d) {
-            $this->__invoke(...$d);
-        }
-
-        $testCaseContext = $this->testCaseContext($test::class, $test->name());
-
-        foreach ($this->testCaseContextDeprecations[$testCaseContext] ?? [] as $d) {
-            $this->__invoke(...$d);
-        }
-    }
-
-    private function testCaseContext(string $className, string $methodName): string
-    {
-        return "{$className}::{$methodName}";
-    }
-
-    private function deprecationIgnoredByTest(TestMethod $test, string $message): bool
-    {
-        $metadata = MetadataParserRegistry::parser()->forClassAndMethod($test->className(), $test->methodName())->isIgnoreDeprecations()->asArray();
-
-        foreach ($metadata as $metadatum) {
-            assert($metadatum instanceof IgnoreDeprecations);
-
-            $ignoreDeprecationMessagePattern = $metadatum->messagePattern();
-
-            if ($ignoreDeprecationMessagePattern === null ||
-                (bool) preg_match('{' . $ignoreDeprecationMessagePattern . '}', $message)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

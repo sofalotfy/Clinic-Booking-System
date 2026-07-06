@@ -23,8 +23,6 @@ abstract readonly class Test
 
     /**
      * @param non-empty-string $file
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(string $file)
     {

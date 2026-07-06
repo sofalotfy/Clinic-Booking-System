@@ -33,8 +33,6 @@ final readonly class PhpunitErrorTriggered implements Event
 
     /**
      * @param non-empty-string $message
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message)
     {
@@ -61,14 +59,11 @@ final readonly class PhpunitErrorTriggered implements Event
         return $this->message;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function asString(): string
     {
         $message = trim($this->message);
 
-        if ($message !== '') {
+        if (!empty($message)) {
             $message = PHP_EOL . $message;
         }
 

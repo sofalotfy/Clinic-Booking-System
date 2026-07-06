@@ -30,8 +30,6 @@ final readonly class PrintedUnexpectedOutput implements Event
 
     /**
      * @param non-empty-string $output
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, string $output)
     {
@@ -52,9 +50,6 @@ final readonly class PrintedUnexpectedOutput implements Event
         return $this->output;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function asString(): string
     {
         return sprintf(

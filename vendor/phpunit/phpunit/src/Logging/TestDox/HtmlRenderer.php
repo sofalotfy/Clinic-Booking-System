@@ -9,9 +9,6 @@
  */
 namespace PHPUnit\Logging\TestDox;
 
-use const ENT_QUOTES;
-use const ENT_SUBSTITUTE;
-use function htmlspecialchars;
 use function sprintf;
 
 /**
@@ -21,7 +18,10 @@ use function sprintf;
  */
 final readonly class HtmlRenderer
 {
-    private const string PAGE_HEADER = <<<'EOT'
+    /**
+     * @var string
+     */
+    private const PAGE_HEADER = <<<'EOT'
 <!doctype html>
 <html lang="en">
     <head>
@@ -76,42 +76,51 @@ final readonly class HtmlRenderer
     </head>
     <body>
 EOT;
-    private const string CLASS_HEADER = <<<'EOT'
+
+    /**
+     * @var string
+     */
+    private const CLASS_HEADER = <<<'EOT'
 
         <h2>%s</h2>
         <ul>
 
 EOT;
-    private const string CLASS_FOOTER = <<<'EOT'
+
+    /**
+     * @var string
+     */
+    private const CLASS_FOOTER = <<<'EOT'
         </ul>
 EOT;
-    private const string PAGE_FOOTER = <<<'EOT'
+
+    /**
+     * @var string
+     */
+    private const PAGE_FOOTER = <<<'EOT'
 
     </body>
 </html>
 EOT;
 
     /**
-     * @param array<class-string, TestResultCollection> $tests
+     * @param array<string, TestResultCollection> $tests
      */
     public function render(array $tests): string
     {
         $buffer = self::PAGE_HEADER;
 
-        foreach ($tests as $_tests) {
+        foreach ($tests as $prettifiedClassName => $_tests) {
             $buffer .= sprintf(
                 self::CLASS_HEADER,
-                htmlspecialchars(
-                    $_tests->asArray()[0]->test()->testDox()->prettifiedClassName(),
-                    ENT_QUOTES | ENT_SUBSTITUTE,
-                ),
+                $prettifiedClassName,
             );
 
             foreach ($this->reduce($_tests) as $prettifiedMethodName => $outcome) {
                 $buffer .= sprintf(
                     "            <li class=\"%s\">%s</li>\n",
                     $outcome,
-                    htmlspecialchars($prettifiedMethodName, ENT_QUOTES | ENT_SUBSTITUTE),
+                    $prettifiedMethodName,
                 );
             }
 

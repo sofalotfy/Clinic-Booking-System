@@ -23,9 +23,6 @@ final class SystemStopWatchWithOffset implements StopWatch
 {
     private ?HRTime $offset;
 
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
     public function __construct(HRTime $offset)
     {
         $this->offset = $offset;

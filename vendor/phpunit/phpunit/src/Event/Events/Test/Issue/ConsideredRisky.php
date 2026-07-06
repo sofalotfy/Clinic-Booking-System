@@ -32,8 +32,6 @@ final readonly class ConsideredRisky implements Event
 
     /**
      * @param non-empty-string $message
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, Code\Test $test, string $message)
     {
@@ -60,9 +58,6 @@ final readonly class ConsideredRisky implements Event
         return $this->message;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function asString(): string
     {
         return sprintf(

@@ -30,12 +30,11 @@ final class JobRunnerRegistry
     }
 
     /**
-     * @param non-empty-string  $processResultFile
-     * @param ?non-empty-string $processResultNonce
+     * @param non-empty-string $processResultFile
      */
-    public static function runTestJob(Job $job, string $processResultFile, Test $test, ?string $processResultNonce = null): void
+    public static function runTestJob(Job $job, string $processResultFile, Test $test): void
     {
-        self::runner()->runTestJob($job, $processResultFile, $test, $processResultNonce);
+        self::runner()->runTestJob($job, $processResultFile, $test);
     }
 
     public static function set(JobRunner $runner): void

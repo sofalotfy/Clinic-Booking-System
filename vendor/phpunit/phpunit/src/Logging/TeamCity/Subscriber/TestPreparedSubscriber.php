@@ -21,6 +21,6 @@ final readonly class TestPreparedSubscriber extends Subscriber implements Prepar
 {
     public function notify(Prepared $event): void
     {
-        $this->logger()->testPrepared();
+        $this->logger()->testPrepared($event);
     }
 }

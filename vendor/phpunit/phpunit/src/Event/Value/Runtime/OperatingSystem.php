@@ -22,9 +22,6 @@ final readonly class OperatingSystem
     private string $operatingSystem;
     private string $operatingSystemFamily;
 
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
     public function __construct()
     {
         $this->operatingSystem       = PHP_OS;

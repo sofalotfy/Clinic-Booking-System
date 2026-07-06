@@ -22,9 +22,6 @@ final readonly class Runtime
     private PHP $php;
     private PHPUnit $phpunit;
 
-    /**
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
     public function __construct()
     {
         $this->operatingSystem = new OperatingSystem;

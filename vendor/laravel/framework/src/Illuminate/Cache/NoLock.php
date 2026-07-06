@@ -15,17 +15,6 @@ class NoLock extends Lock
     }
 
     /**
-     * Attempt to refresh the lock for the given number of seconds.
-     *
-     * @param  int|null  $seconds
-     * @return bool
-     */
-    public function refresh($seconds = null)
-    {
-        return true;
-    }
-
-    /**
      * Release the lock.
      *
      * @return bool
@@ -43,16 +32,6 @@ class NoLock extends Lock
     public function forceRelease()
     {
         //
-    }
-
-    /**
-     * Determine if the lock is currently held by any process.
-     *
-     * @return bool
-     */
-    public function isLocked(): bool
-    {
-        return false;
     }
 
     /**

@@ -46,8 +46,6 @@ final readonly class ErrorTriggered implements Event
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
     public function __construct(Telemetry\Info $telemetryInfo, Test $test, string $message, string $file, int $line, bool $suppressed)
     {
@@ -98,14 +96,11 @@ final readonly class ErrorTriggered implements Event
         return $this->suppressed;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function asString(): string
     {
         $message = $this->message;
 
-        if ($message !== '') {
+        if (!empty($message)) {
             $message = PHP_EOL . $message;
         }
 
