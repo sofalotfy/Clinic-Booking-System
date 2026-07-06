@@ -12,11 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('template_days', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+    $table->id();
+    $table->foreignId('doctor_id')
+          ->constrained('doctors')
+          ->cascadeOnDelete();
+    $table->tinyInteger('day_of_week'); 
+    $table->time('start_time');
+    $table->time('end_time');
+    $table->integer('appointment_duration');
+    $table->integer('queue_length');
+    $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

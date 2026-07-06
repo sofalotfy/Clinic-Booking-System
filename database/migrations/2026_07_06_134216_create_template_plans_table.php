@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('template_plans', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    Schema::create('template_plans', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('doctor_id')
+            ->constrained('doctors')
+            ->cascadeOnDelete();
+
+        // $table->enum('status', ['active', 'inactive']);
+        $table->timestamps();
+     });
     }
 
     /**

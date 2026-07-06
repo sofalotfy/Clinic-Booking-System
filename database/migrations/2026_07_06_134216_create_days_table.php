@@ -13,8 +13,16 @@ return new class extends Migration
     {
         Schema::create('days', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('doctor_id')
+                ->constrained('doctors')
+                ->cascadeOnDelete();
+            $table->date('date');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->integer('appointment_duration');
+            $table->integer('queue_length');
             $table->timestamps();
-        });
+            });
     }
 
     /**
