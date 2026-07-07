@@ -131,6 +131,11 @@ class UserController extends Controller
             $user->image = $path;
         }
 
+        $validated = array_filter($validated, function ($value) {
+            return !is_null($value);
+        });
+
+
         $user->fill($validated);
         $user->save();
 
