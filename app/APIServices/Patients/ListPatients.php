@@ -13,7 +13,7 @@ class ListPatients
 {
     public static function execute(int $userId)
     {
-        User::findOrFail($userId);
+        $user = User::findOrFail($userId);
         
         $appointments = self::getAuthData($userId);
 
