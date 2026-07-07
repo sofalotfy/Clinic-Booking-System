@@ -112,13 +112,13 @@ class UserController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'email' => [
-                'required',
+                'nullable',
                 'email',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'phone' => 'required|string|max:15',
+            'phone' => 'nullable|string|max:15',
             'age' => 'nullable|integer|min:0|max:150',
             'gender' => ['nullable', Rule::enum(Gender::class)],
             'address' => 'nullable|string',

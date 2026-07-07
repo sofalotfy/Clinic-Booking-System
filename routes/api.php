@@ -5,14 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\TestController;
 
-Route::post('/login', [UserController::class, 'login']);
-Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login'])->name('login');
+Route::post('/register', [UserController::class, 'register'])->name('register');
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::get('/me', [UserController::class, 'me']);
-    Route::post('/edit-profile', [UserController::class, 'editProfile']);
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/me', [UserController::class, 'me'])->name('me');
+    Route::post('/edit-profile', [UserController::class, 'editProfile'])->name('edit-profile');
 
     // Route::get('/tasks', [TaskController::class, 'index']);      // list
     // Route::post('/tasks', [TaskController::class, 'store']);     // create
