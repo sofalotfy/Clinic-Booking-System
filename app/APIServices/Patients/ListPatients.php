@@ -38,7 +38,7 @@ class ListPatients
             return GetDoctorPatients::execute($userId);
         }
         else{
-            return null;
+            return GetDoctorPatients::execute($userId);
         }
     }
 
