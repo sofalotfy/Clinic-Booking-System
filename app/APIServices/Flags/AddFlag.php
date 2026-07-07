@@ -1,13 +1,13 @@
 <?php
 
-namespace App\APIServices\Appointments;
+namespace App\APIServices\Flags;
 
 use App\Models\Flag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class BookAppointment
+class AddFlag
 {
     public static function execute(Request $request): Flag
     {
