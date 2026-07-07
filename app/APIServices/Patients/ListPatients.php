@@ -31,6 +31,8 @@ class ListPatients
 
     private static function getAuthData(int $userId)
     {
+        $user = User::where('id', $userId)->first();
+
         if($user->type == UserType::DOCTOR){
             return GetDoctorPatients::execute($userId);
         }
