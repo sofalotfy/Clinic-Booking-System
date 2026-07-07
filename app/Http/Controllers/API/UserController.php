@@ -81,13 +81,13 @@ class UserController extends Controller
             'type' => $request->type,
         ]);
 
+        dd($request->all(), $validated);
         // 3. Create the related profile
         if (empty($validated['type']) || $validated['type'] === 'patient') {
             Patient::create([
                 'user_id' => $user->id,
             ]);
         } elseif ($validated['type'] === 'doctor') {
-
             Doctor::create([
                 'user_id' => $user->id,
             ]);
