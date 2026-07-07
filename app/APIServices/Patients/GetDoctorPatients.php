@@ -12,7 +12,8 @@ class GetDoctorPatients
     {
         return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
             ->where('appointments.doctor_id', $doctorId)
-            ->groupBy('patients.id');
+            ->distinct()
+
         
     }
 }
