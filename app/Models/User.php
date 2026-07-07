@@ -75,18 +75,4 @@ class User extends Authenticatable
     {
         return $this->doctor ?? $this->patient;
     }
-
-    /**
-     * Get the type of the user ('doctor', 'patient', or 'unknown').
-     */
-    public function getTypeAttribute(): string
-    {
-        if ($this->doctor()->exists()) {
-            return 'doctor';
-        }
-        if ($this->patient()->exists()) {
-            return 'patient';
-        }
-        return 'unknown';
-    }
 }
