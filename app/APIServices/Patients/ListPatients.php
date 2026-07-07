@@ -3,6 +3,7 @@
 namespace App\APIServices\Patients;
 
 use App\Models\Patient;
+use App\Models\User;
 use App\Models\Appointment;
 use App\Enums\UserType;
 
