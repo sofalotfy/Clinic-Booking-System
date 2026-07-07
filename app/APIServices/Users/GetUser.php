@@ -8,7 +8,9 @@ class GetUser
 {
     public static function execute(int $userId)
     {
-        return User::where('id', $userId)->select(self::getSelects())->first();
+        $user = User::where('id', $userId)->select(self::getSelects())->first();
+        $user->image = $user->image ? asset('storage/' . $user->image) : null;
+        return $user;
     }
 
     private static function getSelects()

@@ -122,8 +122,17 @@ class UserController extends Controller
             'age' => 'nullable|integer|min:0|max:150',
             'gender' => ['nullable', Rule::enum(Gender::class)],
             'address' => 'nullable|string',
-            'image' => 'nullable|string', // change this if you're uploading files
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('users', 'public');
+
+            $user->image = $path;
+        }
+
+        $user->fill($validated);
+        $user->save();
 
         $user->update($validated);
 
