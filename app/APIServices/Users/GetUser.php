@@ -8,7 +8,7 @@ class GetUser
 {
     public static function execute(int $userId)
     {
-        return User::where('id', $userId)->select($this->getSelects())->first();
+        return User::where('id', $userId)->select(self::getSelects())->first();
     }
 
     private static function getSelects()
