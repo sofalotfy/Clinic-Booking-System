@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
     Route::get('/me', [UserController::class, 'me'])->name('me');
     Route::post('/edit-profile', [UserController::class, 'editProfile'])->name('edit-profile');
+    Route::post('/delete-user', [UserController::class, 'deleteUser'])->name('delete-user');
 
     // Route::get('/tasks', [TaskController::class, 'index']);      // list
     // Route::post('/tasks', [TaskController::class, 'store']);     // create

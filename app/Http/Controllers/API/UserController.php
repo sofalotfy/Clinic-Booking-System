@@ -147,5 +147,19 @@ class UserController extends Controller
         ]);
     }
 
+    public function deleteUser(Request $request)
+    {
+        $user = $request->user();
 
+        if($user->doctor){
+            $user->doctor()->delete();
+        }
+        if($user->patient){
+            $user->patient()->delete();
+        }
+        $user->delete();
+        return response()->json([
+            'message' => 'Account deleted successfully.',
+        ]);
+    }
 }
