@@ -128,7 +128,7 @@ class UserController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('users', 'public');
 
-            $user->image = $path;
+            $validated['image'] = $path;
         }
 
         $validated = array_filter($validated, function ($value) {
