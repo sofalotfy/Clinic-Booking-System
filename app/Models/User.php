@@ -14,13 +14,13 @@ use App\Enums\Gender;
 use App\Enums\UserType;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'image', 'phone', 'age', 'gender', 'address'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
+    protected $guarded = [];
     /**
      * Get the attributes that should be cast.
      *
