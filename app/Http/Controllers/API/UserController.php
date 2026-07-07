@@ -9,6 +9,9 @@ use App\APIServices\Users\GetUser;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Patient;
+use Illuminate\Validation\Rule;
+use App\Enums\Gender;
+use App\Enums\userType;
 
 class UserController extends Controller
 {
@@ -69,7 +72,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'phone' => 'required|string|max:15',
-            'type' =>  'string',
+            'type' => ['nullable', Rule::enum(userType::class)],
         ]);
 
         // 2. Create new user
@@ -101,6 +104,32 @@ class UserController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token,
+        ]);
+    }
+
+    public function editProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'phone' => 'required|string|max:15',
+            'age' => 'nullable|integer|min:0|max:150',
+            'gender' => ['nullable', Rule::enum(Gender::class)],
+            'address' => 'nullable|string',
+            'image' => 'nullable|string', // change this if you're uploading files
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => GetUser::execute($user->id),
         ]);
     }
 
