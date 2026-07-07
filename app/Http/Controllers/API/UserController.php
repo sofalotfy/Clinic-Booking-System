@@ -11,7 +11,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Validation\Rule;
 use App\Enums\Gender;
-use App\Enums\userType;
+use App\Enums\UserType;
 
 class UserController extends Controller
 {
