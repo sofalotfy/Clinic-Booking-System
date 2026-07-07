@@ -64,7 +64,7 @@ class UserController extends Controller
     public function register(Request $request)
     {
         // 1. Validate input
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
@@ -81,7 +81,6 @@ class UserController extends Controller
             'type' => $request->type,
         ]);
 
-        dd($request->all(), $validated);
         // 3. Create the related profile
         if (empty($validated['type']) || $validated['type'] === 'patient') {
             Patient::create([
