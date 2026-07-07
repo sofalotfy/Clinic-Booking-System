@@ -13,21 +13,30 @@ class ListPatients
 {
     public static function execute(int $userId)
     {
+        User::findOrFail($userId);
+        
         $appointments = self::getAuthData($userId);
 
         if(is_null($appointments)){
             return null;
         }
 
-
+    
         $patients = $appointments->select(self::getSelects())
                         ->groupBy('patients.id')
                         ->get();
 
-        $patients->transform(function ($patient) {
+        $flags = self::getFlagsData($patients, $user->doctor->id);
+        
+
+        $patients->transform(function ($patient) use ($flags) {
             $patient->avatar = $patient->avatar
                 ? asset('storage/' . $patient->avatar)
                 : null;
+
+            $patient->flags = $flags->get($patient->id, collect())->values();
+
+
             return $patient;
         });
 
@@ -37,7 +46,7 @@ class ListPatients
     private static function getSelects()
     {
         return [
-            'users.id as id',
+            'patients.id as id',
             'users.name as name',
             'users.phone as phone',
             'users.email as email',
@@ -80,6 +89,23 @@ class ListPatients
         ->groupBy('patient_id');
 
         return $appointmentSummary;
+    }
+
+    private static function getFlagsData($patients,$doctorId)
+    {
+        return DB::table('flag_patient')
+            ->join('flags', 'flags.id', '=', 'flag_patient.flag_id')
+            ->where('flag_patient.doctor_id', $doctorId)
+            ->whereIn('flag_patient.patient_id', $patients->pluck('id'))
+            ->select(
+                'flag_patient.patient_id',
+                'flags.id',
+                'flags.name',
+                'flags.color',
+                'flags.description'
+            )
+            ->get()
+            ->groupBy('patient_id');
     }
 
 }
