@@ -52,6 +52,7 @@ class ListPatients
 
         if($user->type == UserType::DOCTOR){
             return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
+                        ->leftJoin('users', 'patients.user_id', '=', 'users.id')
                         ->where('appointments.doctor_id', $user->doctor->id);
         }
         else{
