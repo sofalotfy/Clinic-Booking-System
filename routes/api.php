@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');
+    Route::post('/flag-patient', [FlagController::class, 'flagPatient'])->name('flag-patient');
 });
 
 Route::get('/test', [TestController::class, 'test']);
