@@ -13,14 +13,13 @@ class BookAppointment
     {
         $validated = Validator::make($request->all(), [
             'doctor_id' => ['required', 'exists:doctors,id'],
-            'patient_id' => ['required', 'exists:patients,id'],
             'date'       => ['required', 'date'],
             'duration'   => ['required', 'integer'],
         ])->validate();
 
         return Appointment::create([
             'doctor_id' => $validated['doctor_id'],
-            'patient_id' => $validated['patient_id'],
+            'patient_id' => $request->user()->patient->id,
             'date' => $validated['date'],
             'duration' => $validated['duration'],
             // status defaults to pending
