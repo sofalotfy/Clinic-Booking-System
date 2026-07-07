@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointments', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('doctor_id')
-          ->constrained('doctors')
-          ->cascadeOnDelete();
-    $table->foreignId('patient_id')
-          ->constrained('patients')
-          ->cascadeOnDelete();
-    $table->string('status')->default('pending');
-    $table->dateTime('date');
-    $table->integer('delay')->default(0);
-    $table->integer('duration');
-    $table->string('grade')->nullable();
-    $table->timestamps();
+            $table->id();
+            $table->foreignId('doctor_id')
+                ->constrained('doctors')
+                ->cascadeOnDelete();
+            $table->foreignId('patient_id')
+                ->constrained('patients')
+                ->cascadeOnDelete();
+            $table->string('status')->default('pending');
+            $table->dateTime('date');
+            $table->integer('delay')->default(0);
+            $table->integer('duration');
+            $table->string('grade')->nullable();
+            $table->timestamps();
         });
     }
 

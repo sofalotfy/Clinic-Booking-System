@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\TestController;
 use App\Http\Controllers\API\PatientController;
+use App\Http\Controllers\API\AppointmentController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -16,13 +17,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/edit-profile', [UserController::class, 'editProfile'])->name('edit-profile');
     Route::post('/delete-user', [UserController::class, 'deleteUser'])->name('delete-user');
 
-    Route::get('/patients', [PatientController::class, 'index'])->name('patients');
-    // Route::get('/tasks', [TaskController::class, 'index']);      // list
-    // Route::post('/tasks', [TaskController::class, 'store']);     // create
-    // Route::get('/tasks/form', [TaskController::class, 'form']); // form
-    // Route::put('/tasks/{task}', [TaskController::class, 'update']); // update
-    // Route::delete('/tasks/{task}', [TaskController::class, 'destroy']); // delete
 
+    Route::get('/patients', [PatientController::class, 'index'])->name('patients');
+
+
+    Route::post('/appointment', [AppointmentController::class, 'store'])->name('appointment');
 });
 
 Route::get('/test', [TestController::class, 'test']);
