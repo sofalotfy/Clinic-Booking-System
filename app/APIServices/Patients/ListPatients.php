@@ -7,26 +7,42 @@ use App\Models\User;
 use App\Models\Appointment;
 use App\Enums\UserType;
 
+
 class ListPatients
 {
     public static function execute(int $userId)
     {
-        $data = self::getAuthData($userId);
-        return $data->get();
-        // $user = User::where('id', $userId)->select(self::getSelects())->first();
-        // $user->image = $user->image ? asset('storage/' . $user->image) : null;
-        // return $user;
+        $appointments = self::getAuthData($userId);
+
+        if(is_null($appointments)){
+            return null;
+        }
+
+
+        $patients = $appointments->select(self::getSelects())
+                        ->groupBy('patients.id')
+                        ->get();
+
+        $patients->transform(function ($patient) {
+            $patient->avatar = $patient->avatar
+                ? asset('storage/' . $patient->avatar)
+                : null;
+            return $patient;
+        });
+
+        return $patients;
     }
 
     private static function getSelects()
     {
         return [
-            'id',
-            'name',
-            'image',
-            'email',
-            'phone',
-            'type',
+            'users.id as id',
+            'users.name as name',
+            'users.phone as phone',
+            'users.email as email',
+            'users.image as avatar',
+            'users.age as age',
+            'users.address as address',
         ];
     }
 
@@ -35,10 +51,11 @@ class ListPatients
         $user = User::where('id', $userId)->first();
 
         if($user->type == UserType::DOCTOR){
-            return GetDoctorPatients::execute($userId);
+            return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
+                        ->where('appointments.doctor_id', $user->doctor->id);
         }
         else{
-            return GetDoctorPatients::execute($userId);
+            return null;
         }
     }
 
