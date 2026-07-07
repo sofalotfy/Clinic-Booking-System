@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\APIServices\Users\GetUser;
 use App\Models\User;
+use App\Models\Doctor;
+use App\Models\Patient;
 
 class UserController extends Controller
 {
@@ -67,6 +69,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'phone' => 'required|string|max:15',
+            'type' =>  'string',
         ]);
 
         // 2. Create new user
@@ -77,6 +80,17 @@ class UserController extends Controller
             'phone' => $request->phone,
         ]);
 
+        // 3. Create the related profile
+        if (empty($validated['type']) || $validated['type'] === 'patient') {
+            Patient::create([
+                'user_id' => $user->id,
+            ]);
+        } elseif ($validated['type'] === 'doctor') {
+            Doctor::create([
+                'user_id' => $user->id,
+            ]);
+        }
+        
         // 3. Generate token
         $token = $user->createToken('api-token')->plainTextToken;
 
