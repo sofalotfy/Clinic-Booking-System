@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('image', 191)->nullable();
             $table->string('email', 191)->unique();
             $table->string('phone', 191);
-            $table->integer('age');
+            $table->integer('age')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('gender', 191)->default('male');
-            $table->text('address');
+            $table->string('gender', 191)->nullable();
+            $table->text('address')->nullable();
             $table->string('password', 191);
             $table->string('type')->default('patient');
             $table->rememberToken();

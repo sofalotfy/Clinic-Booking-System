@@ -6,6 +6,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\TestController;
 
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
