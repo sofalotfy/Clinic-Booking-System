@@ -78,6 +78,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'phone' => $request->phone,
+            'type' => $request->type,
         ]);
 
         // 3. Create the related profile
@@ -86,6 +87,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
             ]);
         } elseif ($validated['type'] === 'doctor') {
+
             Doctor::create([
                 'user_id' => $user->id,
             ]);
