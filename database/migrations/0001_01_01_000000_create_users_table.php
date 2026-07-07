@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('gender', 191)->default('male');
             $table->text('address');
             $table->string('password', 191);
+            $table->string('type')->default('patient');
             $table->rememberToken();
             $table->timestamps();
         });

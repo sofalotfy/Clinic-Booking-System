@@ -4,8 +4,9 @@ namespace App\Enums;
 
 enum AppointmentGrade: string
 {
-    case EXCELLENT = 'excellent';
-    case GOOD = 'good';
-    case AVERAGE = 'average';
-    case POOR = 'poor';
+    case DONEINTIME = 'Done in Time';
+    case DELAYEDBYDOCTOR = 'Delayed by Doctor';
+    case DELAYERBYPATIENT = 'Delayed by Patient';
+    case CANCLEDBYDOCTOR = 'Cancled by Doctor';
+    case CANCLEDBYPATIENT = 'Cancled by Patient';
 }
