@@ -50,6 +50,11 @@ class FLagController extends Controller
         }
 
         DB::table('flag_patient')->insertOrIgnore($rows);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Flag attached successfully',
+        ]);
     }
 
 }
