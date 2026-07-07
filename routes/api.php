@@ -22,6 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/appointment', [AppointmentController::class, 'store'])->name('appointment');
+    
+
+
+    Route::post('/flag', [FlagController::class, 'store'])->name('flag');
 });
 
 Route::get('/test', [TestController::class, 'test']);
