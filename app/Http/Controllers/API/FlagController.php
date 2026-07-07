@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\APIServices\Appointments\AddFlag;
+use App\APIServices\Flags\AddFlag;
 
 class FLagController extends Controller
 {
