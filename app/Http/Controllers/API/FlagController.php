@@ -8,7 +8,7 @@ use App\APIServices\Appointments\AddFlag;
 
 class FLagController extends Controller
 {
-    public function index(Request $request)
+    public function store(Request $request)
     {
         $flag = AddFlag::execute($request);
         
