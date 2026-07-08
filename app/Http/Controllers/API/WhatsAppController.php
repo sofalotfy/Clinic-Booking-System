@@ -12,18 +12,13 @@ class WhatsAppController extends Controller
      * Verify webhook with Meta.
      */
     public function verify(Request $request)
-    {
-        $verifyToken = config('services.whatsapp.verify_token');
-
-        if (
-            $request->get('hub_mode') === 'subscribe' &&
-            $request->get('hub_verify_token') === $verifyToken
-        ) {
-            return response($request->get('hub_challenge'), 200);
-        }
-
-        return response('Forbidden', 403);
-    }
+{
+    dd([
+        'token_from_meta' => $request->query('hub.verify_token'),
+        'token_from_env' => env('WHATSAPP_VERIFY_TOKEN'),
+        'token_from_config' => config('services.whatsapp.verify_token'),
+    ]);
+}
 
     /**
      * Receive webhook events.
