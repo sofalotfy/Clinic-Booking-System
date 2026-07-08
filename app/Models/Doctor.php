@@ -77,4 +77,10 @@ class Doctor extends Model
     {
         return $this->hasMany(TemplatePlan::class);
     }
+
+    public function whatsappAccount()
+    {
+        return $this->hasOne(DoctorWhatsAppAccount::class);
+    }
+
 }

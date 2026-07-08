@@ -7,6 +7,7 @@ use App\Http\Controllers\API\TestController;
 use App\Http\Controllers\API\PatientController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\FlagController;
+use App\Http\Controllers\API\WhatsAppController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -33,3 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/test', [TestController::class, 'test']);
+
+
+Route::get('/whatsapp/webhook', [WhatsAppController::class, 'verify']);
+Route::post('/whatsapp/webhook', [WhatsAppController::class, 'receive']);
