@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Doctor;
 use App\APIServices\WhatsApp\SendMessage;
+
 class WhatsAppController extends Controller
 {
     /**
@@ -64,8 +65,10 @@ class WhatsAppController extends Controller
                         $doctor = Doctor::find(1);
 
                         SendMessage::execute(
-                            $doctor->whatsappAccount->phone_number_id,
-                            $doctor->whatsappAccount->access_token,
+                            // $doctor->whatsappAccount->phone_number_id,
+                            // $doctor->whatsappAccount->access_token,
+                            "1137805152755860",
+                            "EABBbX1ZCpBBsBRwPPfqDUS7k05zZAw3lg8kUFcU5bsB7faPgrDwhwCQmZAzSmUtZCNKfKm3r3xuxdFO84hlVJY6dh4oMBxqyLwQ6kVrKHsYthuPPYoxRNt3QeO6KSOZAK7Y3Ovpby9vYOlWv1PgYjRAbLBsDjUXQqOLdp8lm9Bs7O47W6Wth2y7LpvTpXn5l0I55JEp5jIU2qbFxfdXaRuPrB6lCCaZC2bOTl7O6f8wfeZBxEpcJufsNPbOIHgocKKOjwXyS2MBIQdfkYKSHr3nZCnct",
                             $from,
                             $text
                         );

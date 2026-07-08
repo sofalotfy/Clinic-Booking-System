@@ -12,6 +12,7 @@ use App\Models\Day;
 use App\Models\TemplateDay;
 use App\Models\TemplatePlan;
 
+
 class Doctor extends Model
 {
     protected $fillable = ['user_id'];
