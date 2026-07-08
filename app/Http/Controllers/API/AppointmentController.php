@@ -34,7 +34,7 @@ class AppointmentController extends Controller
 
     public function update(Request $request)
     {
-        foreach($request->data as $appointment){
+        foreach($request as $appointment){
             UpdateAppointment::execute($appointment);
         }
         
