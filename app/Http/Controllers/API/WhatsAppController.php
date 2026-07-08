@@ -66,8 +66,8 @@ class WhatsAppController extends Controller
                         SendMessage::execute(
                             $doctor->whatsappAccount->phone_number_id,
                             $doctor->whatsappAccount->access_token,
-                            '201012345678',
-                            'Your appointment has been delayed by 30 minutes.'
+                            $from,
+                            $text
                         );
 
                         break;
