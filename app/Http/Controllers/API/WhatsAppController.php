@@ -12,9 +12,9 @@ class WhatsAppController extends Controller
      * Verify webhook with Meta.
      */
     public function verify(Request $request)
-{
-    dd($request->query());
-}
+    {
+        return response('OK', 200);
+    }
 
     /**
      * Receive webhook events.
