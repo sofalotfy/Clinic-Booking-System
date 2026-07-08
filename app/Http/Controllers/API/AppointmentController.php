@@ -34,10 +34,9 @@ class AppointmentController extends Controller
 
     public function update(Request $request)
     {
-        foreach($request as $appointment){
+        foreach ($request->all() as $appointment) {
             UpdateAppointment::execute($appointment);
         }
-        
         
         return response()->json([
             'success' => true,
