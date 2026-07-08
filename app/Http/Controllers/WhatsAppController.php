@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class WhatsAppController extends Controller
 {
-    protected $table = "doctor_whatsapp_accounts";
+    protected $table = 'doctor_whatsapp_accounts';
 
     public function test(Request $request)
     {
