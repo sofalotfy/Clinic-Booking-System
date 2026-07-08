@@ -44,7 +44,7 @@ class ListAppointments
             "users.image as avatar",
             DB::raw('(users.age + TIMESTAMPDIFF(YEAR, users.created_at, CURDATE())) as patient_age'),
             "users.gender as patient_gender",
-            "users.address as patient_address",
+            "users.area as patient_area",
         ];
     }
 }

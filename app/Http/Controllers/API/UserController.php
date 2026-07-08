@@ -121,7 +121,7 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:15',
             'age' => 'nullable|integer|min:0|max:150',
             'gender' => ['nullable', Rule::enum(Gender::class)],
-            'address' => 'nullable|string',
+            'area' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

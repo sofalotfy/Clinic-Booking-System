@@ -52,7 +52,7 @@ class ListPatients
             'users.email as email',
             'users.image as avatar',
             'users.age as age',
-            'users.address as address',
+            'users.area as area',
             'appointment_summary.last_appointment',
             'appointment_summary.upcoming_appointment',
         ];
