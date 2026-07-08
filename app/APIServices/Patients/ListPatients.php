@@ -53,8 +53,10 @@ class ListPatients
             'users.image as avatar',
             'users.age as age',
             'users.area as area',
-            'appointment_summary.last_appointment',
-            'appointment_summary.upcoming_appointment',
+            DB::raw('DATE(appointment_summary.last_appointment) as last_appointment_date'),
+            DB::raw('TIME(appointment_summary.last_appointment) as last_appointment_time'),
+            DB::raw('DATE(appointment_summary.upcoming_appointment) as upcoming_appointment_date'),
+            DB::raw('TIME(appointment_summary.upcoming_appointment) as upcoming_appointment_time'),
         ];
     }
 
