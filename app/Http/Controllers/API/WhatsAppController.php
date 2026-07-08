@@ -13,11 +13,7 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
 {
-    dd([
-        'token_from_meta' => $request->query('hub.verify_token'),
-        'token_from_env' => env('WHATSAPP_VERIFY_TOKEN'),
-        'token_from_config' => config('services.whatsapp.verify_token'),
-    ]);
+    dd($request->query());
 }
 
     /**
