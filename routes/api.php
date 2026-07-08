@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/appointment', [AppointmentController::class, 'store'])->name('store-appointment');
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('get-appointments');
+    Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
     
 
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\APIServices\Appointments\BookAppointment;
 use App\APIServices\Appointments\ListAppointments;
+use App\APIServices\Appointments\UpdateAppointment;
 
 class AppointmentController extends Controller
 {
@@ -21,8 +22,6 @@ class AppointmentController extends Controller
         ]);
     }
 
-    
-
     public function store(Request $request)
     {
         $appointment = BookAppointment::execute($request);
@@ -33,4 +32,15 @@ class AppointmentController extends Controller
         ]);
     }
 
+    public function update(Request $request)
+    {
+        foreach($request->data as $appointment){
+            UpdateAppointment::execute($appointment);
+        }
+        
+        
+        return response()->json([
+            'success' => true,
+        ]);
+    }
 }
