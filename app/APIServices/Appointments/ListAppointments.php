@@ -22,7 +22,7 @@ class ListAppointments
                 ? asset('storage/' . $appointment->avatar)
                 : null;
 
-            return $patient;
+            return $appointment;
         });
 
         return $appointments;
