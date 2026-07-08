@@ -13,7 +13,7 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
     {
-        return response('OK', 200);
+        \Log::info('Meta verification hit', $request->all());
     }
 
     /**
