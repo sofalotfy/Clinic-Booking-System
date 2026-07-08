@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Appointment;
+use App\Models\Note;
+use App\Models\Flag;
+use App\Models\User;
 
 class Patient extends Model
 {

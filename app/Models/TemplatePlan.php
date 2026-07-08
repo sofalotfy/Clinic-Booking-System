@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Doctor;
 use App\Enums\TemplatePlanStatus;
 
 class TemplatePlan extends Model

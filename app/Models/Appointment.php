@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentGrade;
+use App\Models\Doctor;
+use App\Models\Patient;
 
 class Appointment extends Model
 {

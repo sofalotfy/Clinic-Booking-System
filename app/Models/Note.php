@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Doctor;
+use App\Models\Patient;
 
 class Note extends Model
 {

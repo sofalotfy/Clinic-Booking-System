@@ -3,6 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DoctorWhatsAppAccount;
+use App\Models\User;
+use App\Models\Appointment;
+use App\Models\Flag;
+use App\Models\Note;
+use App\Models\Day;
+use App\Models\TemplateDay;
+use App\Models\TemplatePlan;
 
 class Doctor extends Model
 {
