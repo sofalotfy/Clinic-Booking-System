@@ -5,7 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\Doctor;
+use App\Services\APIWhatsApp\SendMessage;
 class WhatsAppController extends Controller
 {
     /**
@@ -13,7 +14,7 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
     {
-        \Log::info('Meta verification hit', $request->all());
+        \Log::info('Meta verification hit', $request->alls());
 
         if (
             $request->get('hub_mode') === 'subscribe' &&
@@ -60,7 +61,14 @@ class WhatsAppController extends Controller
                         ]);
 
                         // TODO:
-                        // WhatsAppService::reply($from, "Hello!");
+                        $doctor = Doctor::find(1);
+
+                        SendMessage::execute(
+                            $doctor->whatsappAccount->phone_number_id,
+                            $doctor->whatsappAccount->access_token,
+                            '201012345678',
+                            'Your appointment has been delayed by 30 minutes.'
+                        );
 
                         break;
 
