@@ -7,6 +7,8 @@ use App\Models\Doctor;
 
 class DoctorWhatsAppAccount extends Model
 {
+    protected $table = 'doctor_whatsapp_accounts';
+    
     protected $casts = [
         'access_token' => 'encrypted',
     ];
