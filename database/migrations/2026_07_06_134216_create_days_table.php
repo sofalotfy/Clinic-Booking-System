@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('appointment_duration');
             $table->integer('queue_length');
             $table->timestamps();
-            });
+        });
     }
 
     /**
