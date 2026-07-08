@@ -12,7 +12,7 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
     {
-        $verifyToken = config('services.whatsapp.verify_token');
+        $verifyToken = env('WHATSAPP_VERIFY_TOKEN');
 
         if (
             $request->get('hub_mode') === 'subscribe' &&
