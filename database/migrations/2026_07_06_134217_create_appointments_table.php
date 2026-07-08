@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use App\Enums\AppointmentStatus;
+
 return new class extends Migration
 {
     /**
@@ -19,7 +21,7 @@ return new class extends Migration
             $table->foreignId('patient_id')
                 ->constrained('patients')
                 ->cascadeOnDelete();
-            $table->string('status')->default('pending');
+            $table->string('status')->default(AppointmentStatus::PENDING->value);
             $table->dateTime('date');
             $table->integer('delay')->default(0);
             $table->integer('duration');

@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use App\Enums\TemplatePlanStatus;
+
 return new class extends Migration
 {
     /**
@@ -17,7 +19,7 @@ return new class extends Migration
             ->constrained('doctors')
             ->cascadeOnDelete();
 
-        $table->string('status')->default('active');
+        $table->string('status')->default(TemplatePlanStatus::IDLE->value);
         $table->timestamps();
      });
     }

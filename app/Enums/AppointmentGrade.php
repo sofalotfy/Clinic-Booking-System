@@ -5,8 +5,8 @@ namespace App\Enums;
 enum AppointmentGrade: string
 {
     case DONEINTIME = 'Done in Time';
-    case DELAYEDBYDOCTOR = 'Delayed by Doctor';
-    case DELAYERBYPATIENT = 'Delayed by Patient';
-    case CANCLEDBYDOCTOR = 'Cancled by Doctor';
-    case CANCLEDBYPATIENT = 'Cancled by Patient';
+    case DOCTORDELAY = 'Doctor Delay';
+    case PATIENTDELAY = 'Patient Delay';
+    case DOCTORCANCEL = 'Doctor Cancel';
+    case PATIENTCANCEL = 'Patient Cancel';
 }

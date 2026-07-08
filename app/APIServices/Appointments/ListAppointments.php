@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 
-class BookAppointment
+class ListAppointments
 {
     public static function execute()
     {

@@ -4,6 +4,6 @@ namespace App\Enums;
 
 enum TemplatePlanStatus: string
 {
-    case ACTIVE = 'active';
-    case IDLE = 'idle';
+    case ACTIVE = 'Active';
+    case IDLE = 'Idle';
 }
