@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Doctor;
-use App\Services\APIWhatsApp\SendMessage;
+use App\APIServices\WhatsApp\SendMessage;
 class WhatsAppController extends Controller
 {
     /**
