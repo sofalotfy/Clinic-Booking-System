@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('patient_id')
                 ->constrained('patients')
                 ->cascadeOnDelete();
-            $table->string('status')->default(AppointmentStatus::PENDING->value);
+            $table->string('status')->default(AppointmentStatus::ACTIVE->value);
             $table->dateTime('date');
             $table->integer('delay')->default(0);
             $table->integer('duration');
