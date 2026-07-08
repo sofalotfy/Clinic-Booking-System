@@ -17,16 +17,16 @@ class UpdateAppointment
 
         $data = [];
 
-        if (!empty($appointment['status'])) {
-            $data['status'] = $appointment['status'];
+        if (!empty($appointment['changes']['status'])) {
+            $data['status'] = $appointment['changes']['status'];
         }
 
-        if (!empty($appointment['grade'])) {
-            $data['grade'] = $appointment['grade'];
+        if (!empty($appointment['changes']['grade'])) {
+            $data['grade'] = $appointment['changes']['grade'];
         }
         
-        if (!empty($appointment['time'])) {
-            $data['date'] = self::updateTime($model->date, $appointment['time']);
+        if (!empty($appointment['changes']['time'])) {
+            $data['date'] = self::updateTime($model->date, $appointment['changes']['time']);
         }
 
         $model->update($data);
