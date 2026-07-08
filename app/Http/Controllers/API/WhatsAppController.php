@@ -14,6 +14,17 @@ class WhatsAppController extends Controller
     public function verify(Request $request)
     {
         \Log::info('Meta verification hit', $request->all());
+
+        if (
+            $request->get('hub_mode') === 'subscribe' &&
+            $request->get('hub_verify_token') === config('services.whatsapp.verify_token')
+        ) {
+            return response($request->get('hub_challenge'), 200)
+                ->header('Content-Type', 'text/plain');
+        }
+
+        return response('Forbidden', 403)
+            ->header('Content-Type', 'text/plain');
     }
 
     /**
@@ -22,7 +33,7 @@ class WhatsAppController extends Controller
     public function receive(Request $request)
     {
         // Log everything while developing
-        Log::info('WhatsApp Webhook', $request->all());
+        \Log::info('WhatsApp Webhook', $request->all());
 
         $entry = $request->input('entry.0.changes.0.value');
 
