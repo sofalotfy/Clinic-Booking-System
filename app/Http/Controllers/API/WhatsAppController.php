@@ -78,12 +78,12 @@ class WhatsAppController extends Controller
 
                         $doctor = $whatsappAccount->doctor;
 
-                        // SendMessage::execute(
-                        //     $whatsappAccount->phone_number_id,
-                        //     $whatsappAccount->access_token,
-                        //     $from,
-                        //     $text
-                        // );
+                        SendMessage::execute(
+                            $whatsappAccount->phone_number_id,
+                            $whatsappAccount->access_token,
+                            $from,
+                            $text
+                        );
 
                         break;
 
