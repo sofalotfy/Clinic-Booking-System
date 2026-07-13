@@ -29,4 +29,38 @@ class SendMessage
 
         return $response->json();
     }
+
+    
+    public static function button(
+        string $phoneNumberId,
+        string $accessToken,
+        string $to,
+        string $text,
+        array $buttons
+    ): array {
+        Http::withToken($accessToken)
+            ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
+                'messaging_product' => 'whatsapp',
+                'to' => $to,
+                'type' => 'interactive',
+                'interactive' => [
+                    'type' => 'button',
+                    'body' => [
+                        'text' => $text,
+                    ],
+                    'action' => [
+                        'buttons' => collect($buttons)->map(function ($button) {
+                            return [
+                                'type' => 'reply',
+                                'reply' => [
+                                    'id' => $button['id'],
+                                    'title' => $button['title'],
+                                ],
+                            ];
+                        })->toArray(),
+                    ],
+                ],
+            ]);
+    }
+
 }
