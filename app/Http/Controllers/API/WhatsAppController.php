@@ -38,10 +38,7 @@ class WhatsAppController extends Controller
     {
         
         // Log everything while developing
-        \Log::info([
-            'message_id' => $message['message_id'],
-            'from' => $message['from'],
-        ]);
+        
 
         // $entry = $request->input('entry.0.changes.0.value');
 

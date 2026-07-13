@@ -16,7 +16,10 @@ class ConversationManager
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
 
-        \Log::info('WhatsApp Webhook', ['text' => $message['text']]);
+        \Log::info([
+            'message_id' => $message['message_id'],
+            'from' => $message['from'],
+        ]);
 
         // 2. Resolve the doctor's WhatsApp account
         $doctorAccount = DoctorWhatsAppAccount::where(
