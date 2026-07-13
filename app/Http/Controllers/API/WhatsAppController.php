@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Doctor;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
+use App\APIServices\WhatsApp\ConversationManager;
 
 class WhatsAppController extends Controller
 {
@@ -35,86 +36,88 @@ class WhatsAppController extends Controller
      */
     public function receive(Request $request)
     {
-        // Log everything while developing
-        \Log::info('WhatsApp Webhook', $request->all());
+        // // Log everything while developing
+        // \Log::info('WhatsApp Webhook', $request->all());
 
-        $entry = $request->input('entry.0.changes.0.value');
+        // $entry = $request->input('entry.0.changes.0.value');
 
-        if (!$entry) {
-            return response()->json(['success' => true]);
-        }
+        // if (!$entry) {
+        //     return response()->json(['success' => true]);
+        // }
 
-        // Incoming messages
-        if (isset($entry['messages'])) {
+        // // Incoming messages
+        // if (isset($entry['messages'])) {
 
-            foreach ($entry['messages'] as $message) {
+        //     foreach ($entry['messages'] as $message) {
 
-                $from = $message['from'];
-                $type = $message['type'];
+        //         $from = $message['from'];
+        //         $type = $message['type'];
 
-                switch ($type) {
+        //         switch ($type) {
 
-                    case 'text':
-                        $text = $message['text']['body'];
+        //             case 'text':
+        //                 $text = $message['text']['body'];
 
-                        Log::info('Incoming Text', [
-                            'from' => $from,
-                            'text' => $text,
-                        ]);
+        //                 Log::info('Incoming Text', [
+        //                     'from' => $from,
+        //                     'text' => $text,
+        //                 ]);
 
-                        $phoneNumberId = $entry['metadata']['phone_number_id'];
+        //                 $phoneNumberId = $entry['metadata']['phone_number_id'];
 
-                        $whatsappAccount = DoctorWhatsAppAccount::where('phone_number_id', $phoneNumberId)
-                            ->where('is_active', true)
-                            ->first();
+        //                 $whatsappAccount = DoctorWhatsAppAccount::where('phone_number_id', $phoneNumberId)
+        //                     ->where('is_active', true)
+        //                     ->first();
 
-                        if (! $whatsappAccount) {
-                            Log::warning('No doctor found for WhatsApp account.', [
-                                'phone_number_id' => $phoneNumberId,
-                            ]);
+        //                 if (! $whatsappAccount) {
+        //                     Log::warning('No doctor found for WhatsApp account.', [
+        //                         'phone_number_id' => $phoneNumberId,
+        //                     ]);
 
-                            return response()->json(['success' => true]);
-                        }
+        //                     return response()->json(['success' => true]);
+        //                 }
 
-                        $doctor = $whatsappAccount->doctor;
+        //                 $doctor = $whatsappAccount->doctor;
 
-                        SendMessage::execute(
-                            $whatsappAccount->phone_number_id,
-                            $whatsappAccount->access_token,
-                            $from,
-                            $text
-                        );
+        //                 SendMessage::execute(
+        //                     $whatsappAccount->phone_number_id,
+        //                     $whatsappAccount->access_token,
+        //                     $from,
+        //                     $text
+        //                 );
 
-                        break;
+        //                 break;
 
-                    case 'interactive':
-                        Log::info('Interactive Reply', $message);
-                        break;
+        //             case 'interactive':
+        //                 Log::info('Interactive Reply', $message);
+        //                 break;
 
-                    case 'button':
-                        Log::info('Button Reply', $message);
-                        break;
+        //             case 'button':
+        //                 Log::info('Button Reply', $message);
+        //                 break;
 
-                    default:
-                        Log::info('Unhandled Message Type', [
-                            'type' => $type,
-                        ]);
-                }
-            }
-        }
+        //             default:
+        //                 Log::info('Unhandled Message Type', [
+        //                     'type' => $type,
+        //                 ]);
+        //         }
+        //     }
+        // }
 
-        // Delivery / Read receipts
-        if (isset($entry['statuses'])) {
+        // // Delivery / Read receipts
+        // if (isset($entry['statuses'])) {
 
-            foreach ($entry['statuses'] as $status) {
+        //     foreach ($entry['statuses'] as $status) {
 
-                Log::info('Message Status', [
-                    'id' => $status['id'],
-                    'status' => $status['status'],
-                    'recipient' => $status['recipient_id'],
-                ]);
-            }
-        }
+        //         Log::info('Message Status', [
+        //             'id' => $status['id'],
+        //             'status' => $status['status'],
+        //             'recipient' => $status['recipient_id'],
+        //         ]);
+        //     }
+        // }
+
+        ConversationManager::execute($request->all());
 
         return response()->json([
             'success' => true,
