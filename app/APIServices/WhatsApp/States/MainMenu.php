@@ -28,7 +28,7 @@ class MainMenu
 
             $conversation->putData('appointment_id', $appointment->id);
 
-            self::sendAppointmentMenu(
+            return self::sendAppointmentMenu(
                 $account,
                 $conversation,
                 $message,
@@ -36,13 +36,11 @@ class MainMenu
             );
         }
 
-        self::sendBookingMenu(
+        return self::sendBookingMenu(
             $account,
             $conversation,
             $message
         );
-
-        return;
     }
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
@@ -52,25 +50,17 @@ class MainMenu
             : '';
 
 
-        SendMessage::buttons(
+        SendMessage::execute(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "You have an appointment on {$appointment->date} at {$appointment->start_time}.\n\nPlease choose an option:",
-            [
-                [
-                    'id' => 'confirm_appointment',
-                    'title' => 'Confirm',
-                ],
-                [
-                    'id' => 'reschedule_appointment',
-                    'title' => 'Reschedule',
-                ],
-                [
-                    'id' => 'cancel_appointment',
-                    'title' => 'Cancel',
-                ],
-            ]
+            "{$greeting}You have an appointment on {$appointment->date} at {$appointment->start_time}.
+
+            Please choose an option:
+
+            1️⃣ Confirm Appointment
+            2️⃣ Reschedule Appointment
+            3️⃣ Cancel Appointment"
         );
     }
 
@@ -80,21 +70,16 @@ class MainMenu
             ? "Hi {$conversation->patient->user->name},\n\n"
             : '';
 
-        SendMessage::buttons(
+        SendMessage::execute(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "You don't have any upcoming appointments.\n\nPlease choose an option:",
-            [
-                [
-                    'id' => 'book_appointment',
-                    'title' => 'Book Appointment',
-                ],
-                [
-                    'id' => 'end_conversation',
-                    'title' => 'End Conversation',
-                ],
-            ]
+            "{$greeting} You don't have any upcoming appointments.
+
+            Please choose an option:
+
+            1️⃣ Book Appointment
+            2️⃣ End Conversation"
         );
     }
 }
