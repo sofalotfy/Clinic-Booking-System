@@ -10,6 +10,10 @@ class MainMenu
 {
     public static function execute($conversation, $message)
     {
+        dd([
+                'doctor_whatsapp_account_id' => $conversation->doctor_whatsapp_account_id,
+                'relation' => $conversation->doctorWhatsAppAccount,
+            ]);
         $appointment = GetUpComingAppointment::execute(
             $conversation->patient_id,
             $conversation->doctorWhatsAppAccount->doctor_id
@@ -27,6 +31,7 @@ class MainMenu
                 ]
             ]);
 
+            
             SendMessage::execute(
                 $conversation->doctorWhatsAppAccount->phone_number_id,
                 $conversation->doctorWhatsAppAccount->access_token,
