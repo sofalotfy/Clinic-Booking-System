@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Doctor;
+use App\Models\TemplatePlan;
 
 class TemplateDay extends Model
 {
-    protected $fillable = ['doctor_id', 'day_of_week', 'start_time', 'end_time', 'appointment_duration', 'queue_length'];
+    protected $fillable = ['template_plan_id', 'day_of_week', 'start_time', 'end_time', 'appointment_duration', 'queue_length'];
 
     /**
-     * Get the doctor for this template day schedule.
+     * Get the TemplatePlan for this template day schedule.
      */
-    public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function templatePlan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(TemplatePlan::class);
     }
 }

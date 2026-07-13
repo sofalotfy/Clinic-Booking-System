@@ -29,4 +29,13 @@ class TemplatePlan extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
+
+    /**
+     * Get the template days for this template plan.
+     */
+    public function templateDays(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TemplateDay::class);
+    }
+
 }

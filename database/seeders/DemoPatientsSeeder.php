@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Enums\AppointmentStatus;
 
+use App\Models\Doctor;
 use App\Models\User;
 use App\Models\Patient;
 use App\Models\Appointment;
@@ -16,7 +17,19 @@ class DemoPatientsSeeder extends Seeder
 {
     public function run(): void
     {
-        $doctorId = 1;
+        $doctor = User::create([
+                'name' => "Doctor",
+                'email' => "doctor@example.com",
+                'password' => Hash::make('password'),
+                'phone' => '01000000000',
+                'type' => UserType::DOCTOR->value,
+            ]);
+
+        $doctor = Doctor::create([
+            'user_id'  => $doctor->id,
+        ]);
+
+        $doctorId = $doctor->id;
 
         for ($i = 1; $i <= 10; $i++) {
 

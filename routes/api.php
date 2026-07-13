@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/test', [TestController::class, 'test']);
+Route::post('/make-plan', [TestController::class, 'makePlan']);
 
 
 Route::get('/webhook/whatsapp', [WhatsAppController::class, 'verify']);
