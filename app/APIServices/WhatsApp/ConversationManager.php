@@ -52,12 +52,13 @@ class ConversationManager
             ]
         );
 
-        // 6. Refresh activity
-        $conversation->last_activity_at = now();
-        $conversation->expires_at = now()->addMinutes(10);
-        $conversation->save();
+        // 5. Refresh activity
+        $conversation->update([
+            'last_activity_at' => now(),
+            'expires_at' => now()->addMinutes(10),
+        ]);
 
-        // 7. Hand off to the router
+        // 6. Hand off to the router
         ConversationRouter::execute(
             $conversation,
             $message

@@ -36,8 +36,8 @@ class WhatsAppController extends Controller
      */
     public function receive(Request $request)
     {
-        // // Log everything while developing
-        // \Log::info('WhatsApp Webhook', $request->all());
+        // Log everything while developing
+        \Log::info('WhatsApp Webhook', $request->all());
 
         // $entry = $request->input('entry.0.changes.0.value');
 
