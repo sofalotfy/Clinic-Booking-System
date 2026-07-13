@@ -44,13 +44,17 @@ class MainMenu
     }
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
+
+        $greeting = $appointment->patient->user->name
+            ? "Hi {$appointment->patient->user->name},\n\n"
+            : '';
+
+
         SendMessage::execute(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "{$appointment->patient->user->name ? 'Hi ' . $appointment->patient->user->name . ',' : ''}
-
-            You have an appointment on {$appointment->date} at {$appointment->start_time}.
+            "{$greeting}You have an appointment on {$appointment->date} at {$appointment->start_time}.
 
             Please choose an option:
 
@@ -62,15 +66,15 @@ class MainMenu
 
     private static function sendBookingMenu($account, $conversation, $message)
     {
-        $name = $conversation->patient?->user?->name ?? 'there';
+        $greeting = $appointment->patient->user->name
+            ? "Hi {$appointment->patient->user->name},\n\n"
+            : '';
 
         SendMessage::execute(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "{$appointment->patient->user->name ? 'Hi ' . $appointment->patient->user->name . ',' : ''}
-
-            You don't have any upcoming appointments.
+            "{$greeting} You don't have any upcoming appointments.
 
             Please choose an option:
 
