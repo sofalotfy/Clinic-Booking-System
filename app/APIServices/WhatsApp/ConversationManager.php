@@ -13,7 +13,6 @@ class ConversationManager
 {
     public static function execute(array $payload)
     {
-        \Log::info('WhatsApp Webhook', $request->all());
         $value = $payload['entry'][0]['changes'][0]['value'] ?? [];
 
         // Ignore webhook events that are not incoming messages
