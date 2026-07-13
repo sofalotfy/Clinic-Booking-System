@@ -5,18 +5,17 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Services\Appointments\GetUpComingAppointment;
+use App\Models\DoctorWhatsAppAccount;
 
 class MainMenu
 {
     public static function execute($conversation, $message)
     {
-        dd([
-                'doctor_whatsapp_account_id' => $conversation->doctor_whatsapp_account_id,
-                'relation' => $conversation->doctorWhatsAppAccount,
-            ]);
+        $account = DoctorWhatsAppAccount::find($conversation->doctor_whatsapp_account_id);
+
         $appointment = GetUpComingAppointment::execute(
             $conversation->patient_id,
-            $conversation->doctorWhatsAppAccount->doctor_id
+            $account->doctor_id
         );
 
         $conversation->update([
@@ -33,8 +32,8 @@ class MainMenu
 
             
             SendMessage::execute(
-                $conversation->doctorWhatsAppAccount->phone_number_id,
-                $conversation->doctorWhatsAppAccount->access_token,
+                $account->phone_number_id,
+                $account->access_token,
                 $message['from'],
                 "Hi {$appointment->patient->user->name}, Your appointment is at {$appointment->start_time}"
             );
@@ -43,8 +42,8 @@ class MainMenu
         }
 
         SendMessage::execute(
-            $conversation->doctorWhatsAppAccount->phone_number_id,
-            $conversation->doctorWhatsAppAccount->access_token,
+            $account->phone_number_id,
+            $account->access_token,
             $message['from'],
             "No appointment is scheduled"
         );
