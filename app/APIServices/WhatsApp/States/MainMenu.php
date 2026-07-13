@@ -28,7 +28,7 @@ class MainMenu
 
             $conversation->putData('appointment_id', $appointment->id);
 
-            return self::sendAppointmentMenu(
+            self::sendAppointmentMenu(
                 $account,
                 $conversation,
                 $message,
@@ -36,11 +36,13 @@ class MainMenu
             );
         }
 
-        return self::sendBookingMenu(
+        self::sendBookingMenu(
             $account,
             $conversation,
             $message
         );
+
+        return;
     }
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
