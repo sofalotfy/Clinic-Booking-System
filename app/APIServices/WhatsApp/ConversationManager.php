@@ -5,7 +5,9 @@ namespace App\APIServices\WhatsApp;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Patient;
 use App\Models\WhatsappConversation;
-use APP\Models\User;
+use App\Models\User;
+use App\Enums\UserType;
+use App\Enums\ConversationState;
 
 class ConversationManager
 {
