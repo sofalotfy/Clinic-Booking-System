@@ -21,12 +21,12 @@ class ConversationManager
 
         // 3. Find the patient by the sender's phone number
         $patient = Patient::whereHas('user', function ($query) use ($message) {
-            $query->where('phone_number', $message['from']);
+            $query->where('users.phone', $message['from']);
         })->first();
 
         if (! $patient) {
             $user = User::create([
-                'phone_number' => $message['from'],
+                'phone' => $message['from'],
                 'type' => UserType::PATIENT,
                 // Leave other fields null for now
             ]);
