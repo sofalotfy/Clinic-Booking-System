@@ -16,7 +16,7 @@ class Start
             'data'  => ['name' => $conversation->patient->user->name],
         ]);
 
-        return MainMenuState::execute(
+        return MainMenu::execute(
             $conversation,
             $message
         );

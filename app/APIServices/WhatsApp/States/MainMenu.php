@@ -6,7 +6,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Services\Appointments\GetUpComingAppointment;
 
-class MainMenuState
+class MainMenu
 {
     public static function execute($conversation, $message)
     {

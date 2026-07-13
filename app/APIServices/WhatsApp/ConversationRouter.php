@@ -5,7 +5,7 @@ namespace App\APIServices\WhatsApp;
 use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\States\Start;
-use App\APIServices\WhatsApp\States\MainMenuState;
+use App\APIServices\WhatsApp\States\MainMenu;
 use App\APIServices\WhatsApp\States\BookingState;
 use App\APIServices\WhatsApp\States\RescheduleState;
 use App\APIServices\WhatsApp\States\CancelState;
@@ -19,7 +19,7 @@ class ConversationRouter
             null => Start::execute($conversation, $message),
 
             ConversationState::MAIN_MENU =>
-                MainMenuState::execute($conversation, $message),
+                MainMenu::execute($conversation, $message),
 
             // ConversationState::BOOKING =>
             //     BookingState::execute($conversation, $message),
