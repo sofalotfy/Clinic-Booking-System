@@ -31,7 +31,7 @@ class SendMessage
     }
 
     
-    public static function button(
+    public static function buttons(
         string $phoneNumberId,
         string $accessToken,
         string $to,
