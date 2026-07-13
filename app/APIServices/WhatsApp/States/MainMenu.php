@@ -45,8 +45,8 @@ class MainMenu
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
 
-        $greeting = $appointment->patient->user->name
-            ? "Hi {$appointment->patient->user->name},\n\n"
+        $greeting = $conversation->patient->user->name
+            ? "Hi {$conversation->patient->user->name},\n\n"
             : '';
 
 
@@ -66,8 +66,8 @@ class MainMenu
 
     private static function sendBookingMenu($account, $conversation, $message)
     {
-        $greeting = $appointment->patient->user->name
-            ? "Hi {$appointment->patient->user->name},\n\n"
+        $greeting = $conversation->patient->user->name
+            ? "Hi {$conversation->patient->user->name},\n\n"
             : '';
 
         SendMessage::execute(
