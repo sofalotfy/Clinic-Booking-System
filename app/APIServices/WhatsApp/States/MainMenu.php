@@ -48,7 +48,9 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "You have an appointment on {$appointment->date} at {$appointment->start_time}.
+            "{$appointment->patient->user->name ? 'Hi ' . $appointment->patient->user->name . ',' : ''}
+
+            You have an appointment on {$appointment->date} at {$appointment->start_time}.
 
             Please choose an option:
 
@@ -66,7 +68,9 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "You don't have any upcoming appointments.
+            "{$appointment->patient->user->name ? 'Hi ' . $appointment->patient->user->name . ',' : ''}
+
+            You don't have any upcoming appointments.
 
             Please choose an option:
 
