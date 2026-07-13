@@ -13,6 +13,13 @@ class ConversationManager
 {
     public static function execute(array $payload)
     {
+        $value = $payload['entry'][0]['changes'][0]['value'] ?? [];
+
+        // Ignore webhook events that are not incoming messages
+        if (! isset($value['messages'][0])) {
+            return;
+        }
+
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
 
@@ -67,7 +74,7 @@ class ConversationManager
         );
     }
 
-    private static function extractMessage(array $payload): array
+    private static function extractMessage(array $payload)
     {
         $value = $payload['entry'][0]['changes'][0]['value'];
 
