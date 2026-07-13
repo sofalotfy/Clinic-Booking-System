@@ -4,7 +4,7 @@ namespace App\APIServices\WhatsApp;
 
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Patient;
-use App\Models\WhatsappConversation;
+use App\Models\WhatsAppConversation;
 use App\Models\User;
 use App\Enums\UserType;
 use App\Enums\ConversationState;
@@ -40,7 +40,7 @@ class ConversationManager
         }
 
         // 4. Find or create the conversation
-        $conversation = WhatsappConversation::firstOrCreate(
+        $conversation = WhatsAppConversation::firstOrCreate(
             [
                 'doctor_whatsapp_account_id' => $doctorAccount->id,
                 'phone_number' => $message['from'],
