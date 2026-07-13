@@ -37,8 +37,8 @@ class SendMessage
         string $to,
         string $text,
         array $buttons
-    ){
-        Http::withToken($accessToken)
+    ): array {
+        $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
                 'messaging_product' => 'whatsapp',
                 'to' => $to,
@@ -61,6 +61,12 @@ class SendMessage
                     ],
                 ],
             ]);
+
+        if ($response->failed()) {
+            throw new \Exception($response->body());
+        }
+
+        return $response->json();
     }
 
 }
