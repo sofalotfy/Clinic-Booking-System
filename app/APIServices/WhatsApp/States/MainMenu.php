@@ -11,7 +11,8 @@ class MainMenu
     public static function execute($conversation, $message)
     {
         $appointment = GetUpComingAppointment::execute(
-            $conversation->patient_id
+            $conversation->patient_id,
+            $conversation->doctorWhatsAppAccount->doctor_id
         );
 
         $conversation->update([
