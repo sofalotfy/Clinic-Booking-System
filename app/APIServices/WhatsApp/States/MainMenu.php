@@ -139,6 +139,15 @@ class MainMenu
 
                 return;
         }
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+        return SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'hello :D',
+        );
         return self::execute($conversation, $message);
     }
 }
