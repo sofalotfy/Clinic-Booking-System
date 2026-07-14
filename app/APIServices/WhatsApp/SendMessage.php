@@ -111,6 +111,8 @@ class SendMessage
                 ],
             ]);
 
+            \Log::info($response->status());
+\Log::info($response->body());
         if ($response->failed()) {
             throw new \Exception($response->body());
         }
