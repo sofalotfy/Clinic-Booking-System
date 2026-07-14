@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 class SendMessage
 {
-    public static function execute(
+    public static function text(
         string $phoneNumberId,
         string $accessToken,
         string $to,

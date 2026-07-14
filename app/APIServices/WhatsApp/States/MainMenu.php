@@ -28,7 +28,7 @@ class MainMenu
 
             $conversation->putData('appointment_id', $appointment->id);
 
-            self::sendAppointmentMenu(
+            return self::sendAppointmentMenu(
                 $account,
                 $conversation,
                 $message,
@@ -36,13 +36,12 @@ class MainMenu
             );
         }
 
-        self::sendBookingMenu(
+        return self::sendBookingMenu(
             $account,
             $conversation,
             $message
         );
 
-        return;
     }
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
@@ -96,5 +95,54 @@ class MainMenu
                 ],
             ]
         );
+    }
+
+    public static function handleResponse($conversation, $message)
+    {
+        switch ($message['value']) {
+
+            case 'confirm_appointment':
+                // TODO: ConfirmAppointment::execute(...)
+                break;
+
+            case 'reschedule_appointment':
+                $conversation->update([
+                    'state' => ConversationState::RESCHEDULE_APPOINTMENT,
+                ]);
+
+                // return RescheduleAppointment::execute($conversation, $message);
+                break;
+
+            case 'cancel_appointment':
+                $conversation->update([
+                    'state' => ConversationState::CANCEL_APPOINTMENT,
+                ]);
+
+                // return CancelAppointment::execute($conversation, $message);
+                break;
+
+            case 'book_appointment':
+                $conversation->update([
+                    'state' => ConversationState::BOOK_APPOINTMENT,
+                ]);
+
+                return BookAppointment::execute($conversation, $message);
+                break;
+
+            case 'end_conversation':
+                $conversation->update([
+                    'state' => ConversationState::START,
+                    'step' => null,
+                    'data' => [],
+                ]);
+
+                return;
+        }
+
+        // Unknown button -> show the menu again
+        return self::execute($conversation, [
+            'type' => 'text',
+            'from' => $message['from'],
+        ]);
     }
 }
