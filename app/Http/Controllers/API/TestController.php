@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\TemplatePlans\CreteaTemplate;
+use App\APIServices\Doctors\GetAvailableDays;
 
 class TestController extends Controller
 {
@@ -12,7 +13,7 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'message' => 'API is working!',
+            'days' => GetAvailableDays::execute(1),
         ]);
     }
 
