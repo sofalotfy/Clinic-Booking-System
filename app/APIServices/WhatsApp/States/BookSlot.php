@@ -8,8 +8,9 @@ use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\GetUpComingAppointment;
 use App\APIServices\Doctors\GetAvailableDays;
 USE App\Models\Day;
+use App\APIServices\Days\GetAvailableSlots;
 
-class BookAppointment
+class BookSlot
 {
     public static function execute($conversation, $message)
     {
@@ -17,41 +18,33 @@ class BookAppointment
             $conversation->doctor_whatsapp_account_id
         );
 
-        if(!$conversation->patient->user->name){
-            $conversation->update([
-                'state' => ConversationState::INFO_INQUIRY,
-                'data' => array_merge(
-                    $conversation->data ?? [],
-                    ['callStack' => array_merge(
-                            [ConversationState::BOOK_APPOINTMENT],
-                            $conversation->data->callStack ?? [],
-                        )
-                    ]
-                ),
-            ]);
+        $slots = GetAvailableSlots::execute($conversation->data['selected_day']);
 
-            return InfoInquiry::execute($conversation, $message);
+        if (empty($slots)) {
+            // SendMessage::execute(
+            //     $conversation->phone_number,
+            //     "No available slots for this day.",
+            //     ['from' => $conversation->whatsapp_number]
+            // );
+            // return;
         }
-
-        $days = GetAvailableDays::execute($account->doctor_id);
 
         SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Please choose an appointment day.',
-            'Select Day',
-            collect($days)->map(function ($day) {
+            'Please choose a Time Slot.',
+            'Select Slot',
+            collect($slots)->map(function ($slot) {
                 return [
-                    'id' => $day['id'],
-                    'title' => "{$day['day']} - {$day['date']}",
-                    'description' => $day['note'],
+                    'id' => $slot['time'],
+                    'title' => $slot['time'],
                 ];
             })->toArray(),
-            'Available Days',
-            'Next 7 Days'
+            'Available Slots',
+            'Day'
         );
-        \Log::info('here');
+        
     }
 
 
