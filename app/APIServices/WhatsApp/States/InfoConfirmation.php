@@ -7,7 +7,7 @@ use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
 
-class InfoInquiry
+class InfoConfirmation
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
