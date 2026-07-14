@@ -73,13 +73,25 @@ class ConversationManager
     private static function extractMessage(array $payload): array
     {
         $value = $payload['entry'][0]['changes'][0]['value'];
+        $message = $value['messages'][0];
+
+        $type = $message['type'];
 
         return [
             'phone_number_id' => $value['metadata']['phone_number_id'],
-            'from' => $value['messages'][0]['from'],
-            'value' => $value['messages'][0]['text']['body'] ?? null,
-            'type' => $value['messages'][0]['type'],
-            'message_id' => $value['messages'][0]['id'],
+            'from'            => $message['from'],
+            'type'            => $type,
+            'value'           => match ($type) {
+                'text' => $message['text']['body'] ?? null,
+
+                'interactive' => $message['interactive']['button_reply']['id'] ?? null,
+
+                'button' => $message['button']['payload'] ?? null,
+
+                default => null,
+            },
+
+            'message_id' => $message['id'],
         ];
     }
 }
