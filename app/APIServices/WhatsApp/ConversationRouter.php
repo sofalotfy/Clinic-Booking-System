@@ -19,7 +19,7 @@ class ConversationRouter
             null => Start::execute($conversation, $message),
 
             ConversationState::MAIN_MENU =>
-                MainMenu::handleResponse($conversation, $message),
+                MainMenu::execute($conversation, $message),
 
             // ConversationState::BOOKING =>
             //     BookingState::execute($conversation, $message),
