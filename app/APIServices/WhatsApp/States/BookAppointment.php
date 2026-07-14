@@ -32,7 +32,7 @@ class BookAppointment
             return InfoInquiry::execute($conversation, $message);
         }
 
-        $days = GetAvailableDays::execute($conversation->patient->user_id);
+        $days = GetAvailableDays::execute($conversation->doctorWhatsAppAccount->doctor_id);
 
         SendMessage::list(
             $account->phone_number_id,
