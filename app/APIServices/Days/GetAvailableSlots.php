@@ -15,7 +15,7 @@ class GetAvailableSlots
 
         $activeAppointments = Appointment::where('date', $day->date)
             ->where('status', AppointmentStatus::ACTIVE)
-            ->orderBy('start_time')
+            ->orderBy('date')
             ->get();
 
         $queuedAppointments = Appointment::where('date', $day->date)
