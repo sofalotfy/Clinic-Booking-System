@@ -10,6 +10,7 @@ use App\APIServices\Doctors\GetAvailableDays;
 USE App\Models\Day;
 use App\APIServices\Days\GetAvailableSlots;
 
+
 class BookSlot
 {
     public static function execute($conversation, $message)
@@ -35,12 +36,14 @@ class BookSlot
             $message['from'],
             'Please choose a Time Slot.',
             'Select Slot',
-            collect($slots)->map(function ($slot) {
-                return [
-                    'id' => $slot['time'],
-                    'title' => $slot['time'],
-                ];
-            })->toArray(),
+            collect($slots)
+                ->take(7)
+                ->map(function ($slot) {
+                    return [
+                        'id' => $slot['time'],
+                        'title' => $slot['time'],
+                    ];
+                })->values()->toArray(),
             'Available Slots',
             'Day'
         );
