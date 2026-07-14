@@ -15,11 +15,21 @@ class InfoInquiry
             $conversation->doctor_whatsapp_account_id
         );
 
-        return SendMessage::text(
+        return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Please enter your name.',
+            $greeting . "Confirm your name: {$conversation->date['name']}",
+            [
+                [
+                    'id' => 'confirm',
+                    'title' => 'Confirm',
+                ],
+                [
+                    'id' => 'cancel',
+                    'title' => 'Cancel',
+                ],
+            ]
         );
 
     }
@@ -28,8 +38,11 @@ class InfoInquiry
     {
         $user = $conversation->patient->user;
 
+        $user->update([
+            'name' => $message['value'],
+        ]);
+
         $conversation->update([
-            'data' => $conversation->data + ['name' => $message['value']],
             'state' => ConversationState::INFO_CONFIRMATION,
         ]);
 
