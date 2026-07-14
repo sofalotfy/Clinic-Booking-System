@@ -77,7 +77,7 @@ class MainMenu
     {
         $greeting = $conversation->patient->user->name
             ? "Hi {$conversation->patient->user->name},\n\n"
-            : "{$message['value']}";
+            : "";
 
         SendMessage::buttons(
             $account->phone_number_id,
@@ -99,6 +99,7 @@ class MainMenu
 
     public static function handleResponse($conversation, $message)
     {
+
         switch ($message['value']) {
 
             case 'confirm_appointment':
@@ -138,11 +139,5 @@ class MainMenu
 
                 return;
         }
-
-        // Unknown button -> show the menu again
-        return self::execute($conversation, [
-            'type' => 'text',
-            'from' => $message['from'],
-        ]);
     }
 }
