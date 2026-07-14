@@ -42,7 +42,6 @@ class BookSlot
             'Please choose a Time Slot.',
             'Select Slot',
             collect($slots)
-                ->take(7)
                 ->map(function ($slot) {
                     return [
                         'id' => $slot['time'],
