@@ -23,6 +23,21 @@ class BookSlot
 
         $slots = GetAvailableSlots::execute($conversation->data['selected_day']);
 
+        $rows = collect($slots)
+            ->slice($page * 9, 9)
+            ->map(fn ($slot) => [
+                'id' => $slot['time'],
+                'title' => $slot['time'],
+            ])
+            ->values();
+
+        if (count($slots) > (($page + 1) * 9)) {
+            $rows->push([
+                'id' => 'more_slots',
+                'title' => '➡️ More times',
+            ]);
+        }
+
         \Log::info(json_encode($slots));
         
 
@@ -41,13 +56,7 @@ class BookSlot
             $message['from'],
             'Please choose a Time Slot.',
             'Select Slot',
-            collect($slots)
-                ->map(function ($slot) {
-                    return [
-                        'id' => $slot['time'],
-                        'title' => $slot['time'],
-                    ];
-                })->values()->toArray(),
+            $rows,
             'Available Slots',
             'Day'
         );
