@@ -19,7 +19,7 @@ class InfoConfirmation
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "Confirm your name: {$conversation->data['name']}",
+            "Confirm your name: {$conversation->data[0]['name']}",
             [
                 [
                     'id' => 'confirm',
