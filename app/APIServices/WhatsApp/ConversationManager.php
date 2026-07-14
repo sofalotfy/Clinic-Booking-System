@@ -17,7 +17,7 @@ class ConversationManager
         $value = $payload['entry'][0]['changes'][0]['value'] ?? [];
 
         if (! isset($value['messages'][0])) {
-            // Ignore status updates and other webhook events
+            // Ignore sent/delivered/read webhooks
             return;
         }
 
