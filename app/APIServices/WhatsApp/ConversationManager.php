@@ -13,6 +13,14 @@ class ConversationManager
 {
     public static function execute(array $payload)
     {
+        \Log::info(json_encode($payload, JSON_PRETTY_PRINT));
+        $value = $payload['entry'][0]['changes'][0]['value'] ?? [];
+
+        if (! isset($value['messages'][0])) {
+            // Ignore status updates and other webhook events
+            return;
+        }
+
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
 
