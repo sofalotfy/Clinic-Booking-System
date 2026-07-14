@@ -44,8 +44,13 @@ class InfoConfirmation
                     'name' => $conversation->data['name'],
                 ]);
                 
+                $data = $conversation->data;
+
+                $state = array_shift($data['callStack']);
+
                 $conversation->update([
-                    'state' => array_shift($conversation->data['callStack']),
+                    'state' => $state,
+                    'data'  => $data,
                 ]);
 
                 return ConversationRouter::execute($conversation, $message);
@@ -54,10 +59,10 @@ class InfoConfirmation
 
             case 'cancel':
                 $conversation->update([
-                    'state' => ConversationState::Main_Menu,
+                    'state' => ConversationState::Start,
                 ]);
 
-                return MainMenu::execute($conversation, $message);
+                return Start::execute($conversation, $message);
         }
 
         // Unknown button -> show the menu again
