@@ -18,11 +18,15 @@ class BookSlot
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
+        
+        \Log::info(json_encode($conversation->data['selected_day']));
+
+        return;
 
         $slots = GetAvailableSlots::execute($conversation->data['selected_day']);
 
         \Log::info(json_encode($slots));
-        \Log::info(json_encode($conversation->data['selected_day']));
+        
 
         if (empty($slots)) {
             // SendMessage::execute(
