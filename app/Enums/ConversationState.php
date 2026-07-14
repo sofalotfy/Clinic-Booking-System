@@ -10,4 +10,5 @@ enum ConversationState: string
     case RESCHEDULE_APPOINTMENT = 'reschedule_appointment';
     case CANCEL_APPOINTMENT = 'cancel_appointment';
     Case INFO_INQUIRY = 'info_inquiry';
+    Case INFO_CONFIRMATION = 'info_confirmation';
 }
