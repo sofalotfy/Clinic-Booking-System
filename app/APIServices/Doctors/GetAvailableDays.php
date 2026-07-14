@@ -48,6 +48,7 @@ class GetAvailableDays
             if ($appointmentsCount < $maxAppointments) {
 
                 $availableDays[] = [
+                    'id'   => $day->id
                     'date' => $day->date,
                     'day'  => Carbon::parse($day->date)->format('l'),
                     'note' => $appointmentsCount >= $slots

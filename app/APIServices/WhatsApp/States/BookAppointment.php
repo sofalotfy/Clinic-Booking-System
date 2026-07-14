@@ -42,7 +42,7 @@ class BookAppointment
             'Select Day',
             collect($days)->map(function ($day) {
                 return [
-                    'id' => $day['date'],
+                    'id' => $day['id'],
                     'title' => "{$day['day']} - {$day['date']}",
                     'description' => $day['note'],
                 ];
