@@ -13,7 +13,7 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'slots' => GetAvailableSlots::execute(1),
+            'slots' => GetAvailableSlots::execute(3),
         ]);
     }
 
