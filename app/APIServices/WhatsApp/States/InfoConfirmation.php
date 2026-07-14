@@ -6,7 +6,7 @@ use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
-use App\APIServices\WhatsApp\Router\ConversationRouter;
+use App\APIServices\WhatsApp\ConversationRouter;
 
 class InfoConfirmation
 {
@@ -59,7 +59,7 @@ class InfoConfirmation
 
             case 'cancel':
                 $conversation->update([
-                    'state' => ConversationState::Start,
+                    'state' => ConversationState::START,
                 ]);
 
                 return Start::execute($conversation, $message);
