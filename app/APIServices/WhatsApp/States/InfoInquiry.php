@@ -4,6 +4,8 @@ namespace App\APIServices\WhatsApp\States;
 
 use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
+use App\APIServices\WhatsApp\SendMessage;
+use App\Models\DoctorWhatsAppAccount;
 
 class InfoInquiry
 {
