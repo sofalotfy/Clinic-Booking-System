@@ -142,12 +142,12 @@ class MainMenu
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        // return SendMessage::text(
-        //     $account->phone_number_id,
-        //     $account->access_token,
-        //     $message['from'],
-        //     'hello :D ' . $message['value'],
-        // );
+        return SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'hello :D ' . $message['value'],
+        );
         return self::execute($conversation, $message);
     }
 }
