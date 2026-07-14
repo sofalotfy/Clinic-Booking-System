@@ -15,6 +15,15 @@ class BookAppointment
             $conversation->doctor_whatsapp_account_id
         );
 
+        if(!$conversation->patient->user->name){
+            return SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'hello :(',
+            );    
+        }
+
         return SendMessage::text(
             $account->phone_number_id,
             $account->access_token,
