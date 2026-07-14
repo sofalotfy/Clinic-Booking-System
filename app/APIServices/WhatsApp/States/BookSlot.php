@@ -21,6 +21,9 @@ class BookSlot
 
         $slots = GetAvailableSlots::execute($conversation->data['selected_day']);
 
+        \Log::info(json_encode($slots));
+        \Log::info(json_encode($conversation->data['selected_day']));
+
         if (empty($slots)) {
             // SendMessage::execute(
             //     $conversation->phone_number,
