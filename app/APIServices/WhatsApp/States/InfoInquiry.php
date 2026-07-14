@@ -26,8 +26,6 @@ class InfoInquiry
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        $user = $conversation->patient->user;
-
         $conversation->update([
             'data' => $conversation->data + ['name' => $message['value']],
             'state' => ConversationState::INFO_CONFIRMATION,
