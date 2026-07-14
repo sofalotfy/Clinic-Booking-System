@@ -146,7 +146,7 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'hello :D',
+            'hello :D ' . $message['value'],
         );
         return self::execute($conversation, $message);
     }
