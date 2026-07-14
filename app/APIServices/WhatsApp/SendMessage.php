@@ -70,54 +70,71 @@ class SendMessage
     }
 
     public static function list(
-        string $phoneNumberId,
-        string $accessToken,
-        string $to,
-        string $text,
-        string $buttonText,
-        array $rows,
-        string $title = 'Select an option',
-        string $sectionTitle = 'Options'
-    ): array {
-        $response = Http::withToken($accessToken)
-            ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
-                'messaging_product' => 'whatsapp',
-                'to' => $to,
-                'type' => 'interactive',
-                'interactive' => [
-                    'type' => 'list',
-                    'header' => [
-                        'type' => 'text',
-                        'text' => $title,
-                    ],
-                    'body' => [
-                        'text' => $text,
-                    ],
-                    'action' => [
-                        'button' => $buttonText,
-                        'sections' => [
-                            [
-                                'title' => $sectionTitle,
-                                'rows' => collect($rows)->map(function ($row) {
-                                    return [
-                                        'id' => $row['id'],
-                                        'title' => $row['title'],
-                                        'description' => $row['description'] ?? '',
-                                    ];
-                                })->toArray(),
-                            ],
-                        ],
+    string $phoneNumberId,
+    string $accessToken,
+    string $to,
+    string $text,
+    string $buttonText,
+    array $rows,
+    ?string $header = null,
+    string $sectionTitle = 'Options'
+): array {
+
+    $payload = [
+        'messaging_product' => 'whatsapp',
+        'to' => $to,
+        'type' => 'interactive',
+        'interactive' => [
+            'type' => 'list',
+            'body' => [
+                'text' => $text,
+            ],
+            'action' => [
+                'button' => $buttonText,
+                'sections' => [
+                    [
+                        'title' => $sectionTitle,
+                        'rows' => array_map(function ($row) {
+                            $item = [
+                                'id'    => (string) $row['id'],
+                                'title' => substr($row['title'], 0, 24),
+                            ];
+
+                            if (!empty($row['description'])) {
+                                $item['description'] = substr($row['description'], 0, 72);
+                            }
+
+                            return $item;
+                        }, $rows),
                     ],
                 ],
-            ]);
+            ],
+        ],
+    ];
 
-            \Log::info($response->status());
-\Log::info($response->body());
-        if ($response->failed()) {
-            throw new \Exception($response->body());
-        }
-
-        return $response->json();
+    if ($header) {
+        $payload['interactive']['header'] = [
+            'type' => 'text',
+            'text' => $header,
+        ];
     }
+
+    \Log::info('WhatsApp List Payload', $payload);
+
+    $response = Http::withToken($accessToken)
+        ->post(
+            "https://graph.facebook.com/v23.0/{$phoneNumberId}/messages",
+            $payload
+        );
+
+    \Log::info($response->status());
+    \Log::info($response->body());
+
+    if ($response->failed()) {
+        throw new \Exception($response->body());
+    }
+
+    return $response->json();
+}
 
 }
