@@ -123,6 +123,10 @@ class MainMenu
                 break;
 
             case 'book_appointment':
+                $conversation->update([
+                    'state' => ConversationState::BOOK_APPOINTMENT,
+                ]);
+
                 return BookAppointment::execute($conversation, $message);
                 break;
 
