@@ -50,7 +50,7 @@ class BookAppointment
             'Available Days',
             'Next 7 Days'
         );
-
+        \Log::info('here');
     }
 
 
