@@ -12,7 +12,7 @@ class GetAvailableDays
 {
     public static function execute(int $doctorId): array
     {
-        $start = now()->startOfDay();
+        $start = now()->addDay()->startOfDay();
         $end = now()->addMonth()->endOfDay();
 
         $days = Day::where('doctor_id', $doctorId)
@@ -40,15 +40,22 @@ class GetAvailableDays
             $workingMinutes = Carbon::parse($day->start_time)
                 ->diffInMinutes(Carbon::parse($day->end_time));
 
-            $maxAppointments = floor($workingMinutes / $day->appointment_duration)
-                + $day->queue_length;
+            $slots = intdiv($workingMinutes, $day->appointment_duration);
+            $maxAppointments = $slots + $day->queue_length;
 
             $appointmentsCount = $appointmentsCounts[$day->date] ?? 0;
 
             if ($appointmentsCount < $maxAppointments) {
-                $availableDays[] = $day;
 
-                if (count($availableDays) === 7) {
+                $availableDays[] = [
+                    'date' => $day->date,
+                    'day'  => Carbon::parse($day->date)->format('l'),
+                    'note' => $appointmentsCount >= $slots
+                        ? 'Only waiting queue'
+                        : 'Available slots',
+                ];
+
+                if (count($availableDays) >= 7) {
                     break;
                 }
             }

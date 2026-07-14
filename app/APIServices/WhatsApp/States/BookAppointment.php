@@ -31,12 +31,25 @@ class BookAppointment
             return InfoInquiry::execute($conversation, $message);
         }
 
-        return SendMessage::text(
+        $days = GetAvailableDays::execute($conversation->patient->user_id);
+
+        return SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'hello :D',
+            'Please choose an appointment day.',
+            'Select Day',
+            collect($days)->map(function ($day) {
+                return [
+                    'id' => $day['date'],
+                    'title' => "{$day['day']} - {$day['date']}",
+                    'description' => $day['note'],
+                ];
+            })->toArray(),
+            'Available Days',
+            'Next 7 Days'
         );
+
     }
 
 

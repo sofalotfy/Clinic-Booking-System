@@ -83,16 +83,18 @@ class ConversationManager
         $value = $payload['entry'][0]['changes'][0]['value'];
         $message = $value['messages'][0];
 
-        $type = $message['type'];
-
         return [
             'phone_number_id' => $value['metadata']['phone_number_id'],
             'from'            => $message['from'],
-            'type'            => $type,
-            'value'           => match ($type) {
+            'type'            => $message['type'],
+            'value'           => match ($message['type']) {
                 'text' => $message['text']['body'] ?? null,
 
-                'interactive' => $message['interactive']['button_reply']['id'] ?? null,
+                'interactive' => match ($message['interactive']['type'] ?? null) {
+                    'button_reply' => $message['interactive']['button_reply']['id'] ?? null,
+                    'list_reply'   => $message['interactive']['list_reply']['id'] ?? null,
+                    default        => null,
+                },
 
                 'button' => $message['button']['payload'] ?? null,
 
