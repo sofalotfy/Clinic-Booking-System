@@ -34,7 +34,7 @@ class BookAppointment
 
         $days = GetAvailableDays::execute($conversation->patient->user_id);
 
-        return SendMessage::list(
+        SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
