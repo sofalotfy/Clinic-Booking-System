@@ -6,9 +6,7 @@ enum ConversationState: string
 {
     case START = 'start';
     case MAIN_MENU = 'main_menu';
-    case BOOKING = 'booking';
-    case RESCHEDULE = 'reschedule';
-    case CANCEL = 'cancel';
-    case PROFILE = 'profile';
-    case FINISHED = 'finished';
+    case BOOK_APPOINTMENT = 'book_appointment';
+    case RESCHEDULE_APPOINTMENT = 'reschedule_appointment';
+    case CANCEL_APPOINTMENT = 'cancel_appointment';
 }
