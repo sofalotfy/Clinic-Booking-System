@@ -18,10 +18,8 @@ class BookSlot
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        
-        \Log::info(json_encode($conversation->data['selected_day']));
 
-        return;
+        \Log::info(json_encode($conversation->data['selected_day']));
 
         $slots = GetAvailableSlots::execute($conversation->data['selected_day']);
 
