@@ -48,7 +48,6 @@ class GetAvailableSlots
         // Return up to 7 available slots
         if (!empty($slots)) {
             return collect($slots)
-                ->take(7)
                 ->map(function ($slot) {
                     return [
                         'time' => $slot->format('H:i'),
