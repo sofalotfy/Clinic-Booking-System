@@ -18,6 +18,14 @@ class BookAppointment
         if(!$conversation->patient->user->name){
             $conversation->update([
                 'state' => ConversationState::INFO_INQUIRY,
+                'data' => array_merge(
+                    $conversation->data ?? [],
+                    ['callStack' => array_merge(
+                            [ConversationState::BOOK_APPOINTMENT],
+                            $conversation->data->callStack ?? [],
+                        )
+                    ]
+                ),
             ]);
 
             return InfoInquiry::execute($conversation, $message);

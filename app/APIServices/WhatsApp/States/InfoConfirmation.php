@@ -6,6 +6,7 @@ use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
+use App\APIServices\WhatsApp\Router\ConversationRouter;
 
 class InfoConfirmation
 {
@@ -36,16 +37,33 @@ class InfoConfirmation
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        $user = $conversation->patient->user;
+        switch ($message['value']) {
 
-        $user->update([
-            'name' => $message['value'],
+            case 'confirm':
+                $conversation->patient->user->update([
+                    'name' => $conversation->data['name'],
+                ]);
+                
+                $conversation->update([
+                    'state' => array_shift($conversation->data['callStack']),
+                ]);
+
+                return ConversationRouter::execute($conversation, $message);
+
+                break;
+
+            case 'cancel':
+                $conversation->update([
+                    'state' => ConversationState::Main_Menu,
+                ]);
+
+                return MainMenu::execute($conversation, $message);
+        }
+
+        // Unknown button -> show the menu again
+        return self::execute($conversation, [
+            'type' => 'text',
+            'from' => $message['from'],
         ]);
-
-        $conversation->update([
-            'state' => ConversationState::INFO_CONFIRMATION,
-        ]);
-
-        return InfoConfirmation::execute($conversation, $message);
     }
 }
