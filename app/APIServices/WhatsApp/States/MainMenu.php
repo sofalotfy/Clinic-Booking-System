@@ -76,8 +76,8 @@ class MainMenu
     private static function sendBookingMenu($account, $conversation, $message)
     {
         $greeting = $conversation->patient->user->name
-            ? "Hi {$conversation->patient->user->name},{$message['value']}\n\n"
-            : '';
+            ? "Hi {$conversation->patient->user->name},\n\n"
+            : "{$message['value']}";
 
         SendMessage::buttons(
             $account->phone_number_id,
