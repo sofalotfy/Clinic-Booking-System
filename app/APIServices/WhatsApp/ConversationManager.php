@@ -77,7 +77,7 @@ class ConversationManager
         return [
             'phone_number_id' => $value['metadata']['phone_number_id'],
             'from' => $value['messages'][0]['from'],
-            'text' => $value['messages'][0]['text']['body'] ?? null,
+            'value' => $value['messages'][0]['text']['body'] ?? null,
             'type' => $value['messages'][0]['type'],
             'message_id' => $value['messages'][0]['id'],
         ];
