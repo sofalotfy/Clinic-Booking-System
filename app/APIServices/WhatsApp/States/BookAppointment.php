@@ -16,12 +16,11 @@ class BookAppointment
         );
 
         if(!$conversation->patient->user->name){
-            return SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $message['from'],
-                'hello :(',
-            );    
+            $conversation->update([
+                'state' => ConversationState::INFO_INQUIRY,
+            ]);
+
+            return InfoInquiry::execute($conversation, $message);
         }
 
         return SendMessage::text(
