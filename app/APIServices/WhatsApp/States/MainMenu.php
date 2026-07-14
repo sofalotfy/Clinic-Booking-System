@@ -139,6 +139,6 @@ class MainMenu
 
                 return;
         }
-        return BookAppointment::execute($conversation, $message);
+        return self::execute($conversation, $message);
     }
 }
