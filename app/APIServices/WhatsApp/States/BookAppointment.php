@@ -9,7 +9,7 @@ use App\Services\Appointments\GetUpComingAppointment;
 use App\APIServices\Doctors\GetAvailableDays;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\Models\Day;
-use App\APIService\Days\CheckAvailability;
+use App\APIServices\Days\CheckAvailability;
 
 
 class BookAppointment
