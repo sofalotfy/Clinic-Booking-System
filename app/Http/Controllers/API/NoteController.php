@@ -10,7 +10,7 @@ class NoteController extends Controller
 {
     public function notePatient(Request $request)
     {
-        $note = NotePatient::execute($request->note, $request->patient_id);
+        $note = NotePatient::execute($request->patient_id, $request->note);
 
         return response()->json([
             'success' => true,

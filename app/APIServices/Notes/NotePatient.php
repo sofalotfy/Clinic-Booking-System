@@ -6,7 +6,7 @@ use App\Models\Note;
 
 class NotePatient
 {
-    public static function execute(int $patientId, string $note)
+    public static function execute($patientId,  $note)
     {
         $doctorId = auth()->user()->doctor->id;
 
