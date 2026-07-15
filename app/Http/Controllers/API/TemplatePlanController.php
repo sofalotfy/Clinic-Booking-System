@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\TemplatePlans\CreteaTemplate;
+use App\Services\TemplatePlans\UpdateService;
 use App\Models\TemplatePlan;
 use App\Enums\TemplatePlanStatus;
+
 
 class TemplatePlanController extends Controller
 {
@@ -36,8 +38,13 @@ class TemplatePlanController extends Controller
 
     public function update($id, Request $request)
     {
-        $plan = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->find($id);
-        $plan->update($request->all());
+        $plan = UpdateService::execute(
+            $request->input('name', null),
+            $request->input('description', null),
+            $request->input('days', null),
+            $id
+        );
+
         return response()->json([
             'plan' => $plan,
         ]);
