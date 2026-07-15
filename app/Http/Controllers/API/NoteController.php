@@ -17,4 +17,24 @@ class NoteController extends Controller
             'note' => $note,
         ]);
     }
+
+    public function editNote(Request $request, $noteId)
+    {
+        $note = EditNote::execute($noteId, $request->note);
+
+        return response()->json([
+            'success' => true,
+            'note' => $note,
+        ]);
+    }
+
+    public function deleteNote(Request $request, $noteId)
+    {
+        $note = DeleteNote::execute($noteId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Note deleted successfully',
+        ]);
+    }
 }
