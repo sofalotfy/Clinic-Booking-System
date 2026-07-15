@@ -52,8 +52,8 @@ class TemplatePlanController extends Controller
 
     public function delete($id)
     {
-        $plan = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->find($id);
-        $plan->delete();
+        $plan = DeleteTemplatePlan::execute($id);
+        
         return response()->json([
             'message' => 'Plan deleted successfully',
         ]);
@@ -67,17 +67,6 @@ class TemplatePlanController extends Controller
         ]);
         return response()->json([
             'message' => 'Plan activated successfully',
-        ]);
-    }
-
-    public function deactivate($id)
-    {
-        $plan = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->find($id);
-        $plan->update([
-            'status' => TemplatePlanStatus::INACTIVE,
-        ]);
-        return response()->json([
-            'message' => 'Plan deactivated successfully',
         ]);
     }
 }
