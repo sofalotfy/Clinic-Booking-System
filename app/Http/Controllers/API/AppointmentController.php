@@ -48,6 +48,9 @@ class AppointmentController extends Controller
             }
         }
 
+        \Log::info([
+            'appointments' => $appointments,
+        ]);
         foreach ($appointments as $appointment) {
             if (is_array($appointment) && isset($appointment['id'])) {
                 UpdateAppointment::execute($appointment);
