@@ -62,13 +62,22 @@ class ConfirmBooking
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
+        \log::info('handleResponse', [
+            $message['value']
+        ]);
         switch ($message['value']) {
 
             case 'confirm':
 
                 $day = Day::find($conversation->data['selected_day']);
                 $date = $day->date;
+                \log::info('date', [
+                    "passed"
+                ]);
                 $time = CheckCheckAvailability::execute($day->id)?$conversation->data['selected_slot']:"00:00";
+                \log::info('time', [
+                    "passed"
+                ]);
                 $dateTime = Carbon::parse($date . ' ' . $time);
                 
                 SmartBookAppointment::execute(
