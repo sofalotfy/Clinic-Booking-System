@@ -9,7 +9,6 @@ class EditNote
     public static function execute($noteId,  $note)
     {
         $note = Note::find($noteId);
-        return $note;
         // if ($note->doctor_id !== auth()->user()->doctor->id) {
         //     throw new \Exception('You are not authorized to edit this note');
         // }
@@ -18,6 +17,6 @@ class EditNote
             'text' => $note,
         ]);
 
-        return $note->refresh();
+        return $note;
     }
 }
