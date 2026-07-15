@@ -3,7 +3,7 @@
 namespace App\Services\TemplatePlans;
 
 use App\Models\TemplatePlan;
-use App\Services\TemplateDays\UpdateTemplateDay;
+use App\Services\TemplateDays\CreateTemplateDay;
 
 class UpdatePlan
 {
@@ -17,14 +17,12 @@ class UpdatePlan
         ]);
 
         if ($days) {
-            $requestDays = collect($days)->keyBy('day_of_week');
+            foreach ($days as $day) {
+                CreateTemplateDay::execute($template->id, $day);
+            }
 
             foreach ($template->templateDays as $templateDay) {
-                $day = $requestDays->get($templateDay->day_of_week);
-
-                if ($day) {
-                    UpdateTemplateDay::execute($templateDay, $day);
-                }
+                $templateDay->delete();
             }
         }
 
