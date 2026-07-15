@@ -21,6 +21,6 @@ class CreteaTemplate
 
         ActivatatePlan::execute($template->id);
 
-        return $template;
+        return $template->with('templateDays');
     }
 }
