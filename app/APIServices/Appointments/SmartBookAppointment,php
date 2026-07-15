@@ -18,13 +18,13 @@ class SmartBookAppointment
             ])
             ->first();
 
-        if ($appointment) {
-            $appointment->update([
-                'date' => $date,
-                'duration' => $duration,
-                'status' => $status,
-            ]);
-        } else {
+        // if ($appointment) {
+        //     $appointment->update([
+        //         'date' => $date,
+        //         'duration' => $duration,
+        //         'status' => $status,
+        //     ]);
+        // } else {
             $appointment = Appointment::create([
                 'doctor_id' => $doctor->id,
                 'patient_id' => $patient->id,
@@ -32,7 +32,7 @@ class SmartBookAppointment
                 'duration' => $duration,
                 'status' => $status,
             ]);
-        }
+        //}
 
         return $appointment->fresh();
     }
