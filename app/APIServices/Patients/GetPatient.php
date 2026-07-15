@@ -17,6 +17,7 @@ class GetPatient
             'user',
             'flags',
             'notes',
+            'appointments'
         ])->findOrFail($patientId);
 
         return $patient;
