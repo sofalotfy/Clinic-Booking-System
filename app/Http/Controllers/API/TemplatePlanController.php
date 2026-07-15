@@ -50,10 +50,10 @@ class TemplatePlanController extends Controller
         ]);
     }
 
-    public function delete($id)
+    public function destroy($id)
     {
         $plan = DeleteTemplatePlan::execute($id);
-        
+
         return response()->json([
             'message' => 'Plan deleted successfully',
         ]);
