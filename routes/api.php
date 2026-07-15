@@ -9,6 +9,7 @@ use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\FlagController;
 use App\Http\Controllers\API\WhatsAppController;
 use App\Http\Controllers\API\NoteController;
+use App\Http\Controllers\API\TemplatePlanController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -40,6 +41,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/note-patient', [NoteController::class, 'notePatient'])->name('note-patient');
     Route::post('/edit-note/{noteId}', [NoteController::class, 'editNote'])->name('edit-note');
     Route::delete('/delete-note/{noteId}', [NoteController::class, 'deleteNote'])->name('delete-note');
+
+
+    Route::post('/template-plan', [TemplatePlanController::class, 'store'])->name('create-template');
 });
 
 Route::get('/test', [TestController::class, 'test']);
