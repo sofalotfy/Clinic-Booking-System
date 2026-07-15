@@ -8,6 +8,7 @@ use App\APIServices\Flags\AddFlag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\APIServices\Flags\UnFlag;
+use App\APIServices\Flags\DeleteFlag;
 
 class FLagController extends Controller
 {
@@ -74,6 +75,16 @@ class FLagController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Flag detached successfully',
+        ]);
+    }
+
+    public function destroy(Flag $flag)
+    {
+        DeleteFlag::execute($flag);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Flag deleted successfully',
         ]);
     }
 
