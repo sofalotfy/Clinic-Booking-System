@@ -15,21 +15,41 @@ class UpdateAppointment
     {
         $model = Appointment::findOrFail($appointment['id']);
 
+        // Support both nested changes and flat fields
+        $changes = $appointment['changes'] ?? $appointment;
+
+        $validator = Validator::make($changes, [
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::enum(\App\Enums\AppointmentStatus::class)],
+            'grade'  => ['nullable', 'string', \Illuminate\Validation\Rule::enum(\App\Enums\AppointmentGrade::class)],
+            'time'   => ['nullable', 'string', 'regex:/^\d{1,2}:\d{2}(:\d{2})?$/'],
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        $validated = $validator->validated();
+
+        $model->update([
+            "status" =>  $validated['status']??$model['status'],
+        ]);
         $data = [];
 
-        if (!empty($appointment['changes']['status'])) {
-            $data['status'] = $appointment['changes']['status'];
+        if (array_key_exists('status', $validated) && $validated['status'] !== null && $validated['status'] !== '') {
+            $data['status'] = $validated['status'];
         }
 
-        if (!empty($appointment['changes']['grade'])) {
-            $data['grade'] = $appointment['changes']['grade'];
+        if (array_key_exists('grade', $validated)) {
+            $data['grade'] = $validated['grade'];
         }
         
-        if (!empty($appointment['changes']['time'])) {
-            $data['date'] = self::updateTime($model->date, $appointment['changes']['time']);
+        if (array_key_exists('time', $validated) && $validated['time'] !== null && $validated['time'] !== '') {
+            $data['date'] = self::updateTime($model->date, $validated['time']);
         }
 
-        $model->update($data);
+        if (!empty($data)) {
+            $model->update($data);
+        }
     }    
 
     private static function updateTime(string $dateTime, string $time): string

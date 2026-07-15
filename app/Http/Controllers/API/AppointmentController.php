@@ -34,8 +34,24 @@ class AppointmentController extends Controller
 
     public function update(Request $request)
     {
-        foreach ($request->all() as $appointment) {
-            UpdateAppointment::execute($appointment);
+        $appointments = [];
+
+        if ($request->has('appointments') && is_array($request->input('appointments'))) {
+            $appointments = $request->input('appointments');
+        } elseif ($request->has('data') && is_array($request->input('data'))) {
+            $appointments = $request->input('data');
+        } elseif (is_array($request->all())) {
+            if (isset($request->all()[0])) {
+                $appointments = $request->all();
+            } elseif ($request->has('id')) {
+                $appointments = [$request->all()];
+            }
+        }
+
+        foreach ($appointments as $appointment) {
+            if (is_array($appointment) && isset($appointment['id'])) {
+                UpdateAppointment::execute($appointment);
+            }
         }
         
         return response()->json([
