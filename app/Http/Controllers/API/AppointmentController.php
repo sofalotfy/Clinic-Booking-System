@@ -34,23 +34,24 @@ class AppointmentController extends Controller
 
     public function update(Request $request)
     {
-        $appointments = json_decode($request->getContent(), true);
-
-        // if ($request->has('appointments') && is_array($request->input('appointments'))) {
-        //     $appointments = $request->input('appointments');
-        // } elseif ($request->has('data') && is_array($request->input('data'))) {
-        //     $appointments = $request->input('data');
-        // } elseif (is_array($request->all())) {
-        //     if (isset($request->all()[0])) {
-        //         $appointments = $request->all();
-        //     } elseif ($request->has('id')) {
-        //         $appointments = [$request->all()];
-        //     }
-        // }
-
         \Log::info([
-            'appointments' => $appointments,
+            'all' => $request->all(),
+            'json' => $request->json()->all(),
+            'content' => $request->getContent(),
         ]);
+        $appointments = [];
+
+        if ($request->has('appointments') && is_array($request->input('appointments'))) {
+            $appointments = $request->input('appointments');
+        } elseif ($request->has('data') && is_array($request->input('data'))) {
+            $appointments = $request->input('data');
+        } elseif (is_array($request->all())) {
+            if (isset($request->all()[0])) {
+                $appointments = $request->all();
+            } elseif ($request->has('id')) {
+                $appointments = [$request->all()];
+            }
+        }
 
         foreach ($appointments as $appointment) {
             if (is_array($appointment) && isset($appointment['id'])) {
