@@ -5,7 +5,7 @@ namespace App\Services\TemplatePlans;
 use App\Models\TemplatePlan;
 use App\Services\TemplateDays\CreateTemplateDay;
 
-class UpdatePlan
+class DeletePlan
 {
     public static function execute($plan_id)
     {
