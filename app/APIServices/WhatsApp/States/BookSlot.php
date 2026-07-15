@@ -94,7 +94,6 @@ class BookSlot
             ),
         ]);
 
-        // TODO:
-        // return ConfirmBooking::execute($conversation, $message);
+        return ConfirmBooking::execute($conversation, $message);
     }
 }

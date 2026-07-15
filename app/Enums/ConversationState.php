@@ -12,4 +12,5 @@ enum ConversationState: string
     Case INFO_INQUIRY = 'info_inquiry';
     Case INFO_CONFIRMATION = 'info_confirmation';
     Case BOOK_SLOT = 'book_slot';
+    Case CONFIRM_BOOKING = 'confirm_booking';
 }

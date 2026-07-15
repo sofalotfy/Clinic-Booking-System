@@ -8,7 +8,9 @@ use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\GetUpComingAppointment;
 use App\APIServices\Doctors\GetAvailableDays;
 use App\APIServices\WhatsApp\States\BookSlot;
-USE App\Models\Day;
+use App\Models\Day;
+use App\APIService\Day\CheckAvailability;
+
 
 class BookAppointment
 {
@@ -60,7 +62,8 @@ class BookAppointment
     {
         $day = Day::findOrFail($message['value']);
 
-        $conversation->update([
+        if(CheckAvailability::execute($day->id)){
+            $conversation->update([
                 'state' => ConversationState::BOOK_SLOT,
                 'data' => array_merge(
                     $conversation->data ?? [],
@@ -68,7 +71,17 @@ class BookAppointment
                 ),
             ]);
 
-            return BookSlot::execute($conversation, $message);
-        return;   
+            return BookSlot::execute($conversation, $message); 
+        }else{
+            $conversation->update([
+                'state' => ConversationState::CONFIRM_BOOKING,
+                'data' => array_merge(
+                    $conversation->data ?? [],
+                    ['selected_day' => $day->id],
+                ),
+            ]);
+
+            return ConfirmBooking::execute($conversation, $message); 
+        }        
     }
 }
