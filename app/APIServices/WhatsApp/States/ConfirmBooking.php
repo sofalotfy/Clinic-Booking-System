@@ -8,7 +8,7 @@ use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\Appointments\SmartBookAppointment;
 use App\Models\Day;
 use App\APIServices\Days\CheckAvailability;
-use App\Enums\AppointmentState;
+use App\Enums\AppointmentStatus;
 use Carbon\Carbon;
 
 class ConfirmBooking
@@ -23,10 +23,10 @@ class ConfirmBooking
         $day = Day::find($conversation->data['selected_day']);
         
         if(CheckAvailability::execute($day->id)){
-            $state = AppointmentState::ACTIVE;
+            $state = AppointmentStatus::ACTIVE;
             $text = "Confirm your booking at {$day->date} at {$conversation->data['selected_slot']}";
         }else{
-            $state = AppointmentState::QUEUED;
+            $state = AppointmentStatus::QUEUED;
             $text = "Confirm your booking at {$day->date} in Waitint List";
         }
 
