@@ -17,12 +17,12 @@ class UpdatePlan
         ]);
 
         if ($days) {
-            foreach ($days as $day) {
-                CreateTemplateDay::execute($template->id, $day);
-            }
-
             foreach ($template->templateDays as $templateDay) {
                 $templateDay->delete();
+            }
+
+            foreach ($days as $day) {
+                CreateTemplateDay::execute($template->id, $day);
             }
         }
 
