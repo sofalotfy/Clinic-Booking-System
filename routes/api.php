@@ -8,6 +8,7 @@ use App\Http\Controllers\API\PatientController;
 use App\Http\Controllers\API\AppointmentController;
 use App\Http\Controllers\API\FlagController;
 use App\Http\Controllers\API\WhatsAppController;
+use App\Http\Controllers\API\NoteController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -32,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/flags', [FlagController::class, 'index'])->name('get-flags');
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');
     Route::post('/flag-patient', [FlagController::class, 'flagPatient'])->name('flag-patient');
+    Route::post('/unflag-patient', [FlagController::class, 'unflagPatient'])->name('unflag-patient');
+
+    Route::post('/note-patient', [NoteController::class, 'notePatient'])->name('note-patient');
 });
 
 Route::get('/test', [TestController::class, 'test']);

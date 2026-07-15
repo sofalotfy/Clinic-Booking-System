@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\APIServices\Flags\AddFlag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\APIServices\Flags\UnFlag;
 
 class FLagController extends Controller
 {
@@ -19,7 +20,6 @@ class FLagController extends Controller
             'flags' => $flags,
         ]);
     }
-
     public function store(Request $request)
     {
         $flag = AddFlag::execute($request);
@@ -64,6 +64,16 @@ class FLagController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Flag attached successfully',
+        ]);
+    }
+
+    public function unflagPatient(Request $request)
+    {
+        UnFlag::execute($request->flag_id, $request->patient_id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Flag detached successfully',
         ]);
     }
 
