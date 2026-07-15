@@ -33,7 +33,7 @@ class ListPatients
 
             if (!is_null($filters['date_from'] ?? null)) {
                 $appointments->whereDate(
-                    'appointment_summary.last_appointment',
+                    'appointments.date',
                     '>=',
                     $filters['date_from']
                 );
@@ -41,7 +41,7 @@ class ListPatients
 
             if (!is_null($filters['date_to'] ?? null)) {
                 $appointments->whereDate(
-                    'appointment_summary.last_appointment',
+                    'appointments.date',
                     '<=',
                     $filters['date_to']
                 );
@@ -52,9 +52,6 @@ class ListPatients
                 if ($filters['has_upcoming_appointment']) {
                     // Only patients with an upcoming appointment
                     $appointments->whereNotNull('appointment_summary.upcoming_appointment');
-                } else {
-                    // Only patients without an upcoming appointment
-                    $appointments->whereNull('appointment_summary.upcoming_appointment');
                 }
             }
         }
