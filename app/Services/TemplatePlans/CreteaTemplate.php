@@ -15,9 +15,7 @@ class CreteaTemplate
             'description' => $description,
         ]);
 
-        foreach ($days as $day) {
-            CreateTemplateDay::execute($template->id, $day);
-        }
+        
 
         ActivatatePlan::execute($template->id);
     }
