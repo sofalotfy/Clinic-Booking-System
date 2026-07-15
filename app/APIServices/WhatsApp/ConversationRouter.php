@@ -11,6 +11,7 @@ use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\States\InfoConfirmation;
 use App\APIServices\WhatsApp\States\BookAppointment;
 use App\APIServices\WhatsApp\States\BookSlot;
+use App\APIServices\WhatsApp\States\ConfirmBooking;
 
 class ConversationRouter
 {
