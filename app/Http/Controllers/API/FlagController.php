@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Validator;
 
 class FLagController extends Controller
 {
+    public function index(Request $request)
+    {
+        $flags = DB::table('flags')->where('doctor_id', $request->user()->doctor->id)->get();
+        
+        return response()->json([
+            'success' => true,
+            'flags' => $flags,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $flag = AddFlag::execute($request);
