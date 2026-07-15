@@ -37,19 +37,9 @@ class AppointmentController extends Controller
         \Log::info([
             'all' => $request->all(),
         ]);
-        $appointments = [];
+        $appointments = $request->all();
 
-        if ($request->has('appointments') && is_array($request->input('appointments'))) {
-            $appointments = $request->input('appointments');
-        } elseif ($request->has('data') && is_array($request->input('data'))) {
-            $appointments = $request->input('data');
-        } elseif (is_array($request->all())) {
-            if (isset($request->all()[0])) {
-                $appointments = $request->all();
-            } elseif ($request->has('id')) {
-                $appointments = [$request->all()];
-            }
-        }
+        $appointments = $appointments['updates'];
 
         \Log::info([
             'appointments' => $appointments,
