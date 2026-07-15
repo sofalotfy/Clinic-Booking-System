@@ -69,7 +69,7 @@ class FLagController extends Controller
 
     public function unflagPatient(Request $request)
     {
-        UnFlag::execute($request->flag_id, $request->patient_id);
+        UnFlag::execute($request, $request->flag_id, $request->patient_id);
 
         return response()->json([
             'success' => true,
