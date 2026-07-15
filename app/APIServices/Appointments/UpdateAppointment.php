@@ -13,6 +13,10 @@ class UpdateAppointment
 {
     public static function execute($appointment)
     {
+        \Log::info([
+            'reached' => true,
+        ]);
+
         $model = Appointment::findOrFail($appointment['id']);
 
         // Support both nested changes and flat fields
@@ -30,6 +34,9 @@ class UpdateAppointment
 
         $validated = $validator->validated();
 
+        \Log::info([
+            'passed validation' => true,
+        ]);
         $model->update([
             "status" =>  $validated['status']??$model['status'],
         ]);
