@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ListPatients
 {
-    public static function execute(int $userId)
+    public static function execute(int $userId, int $perPage = 50)
     {
         $user = User::findOrFail($userId);
         
@@ -40,7 +40,7 @@ class ListPatients
             return $patient;
         });
 
-        return $patients;
+        return $patients->paginate($perPage);
     }
 
     private static function getSelects()

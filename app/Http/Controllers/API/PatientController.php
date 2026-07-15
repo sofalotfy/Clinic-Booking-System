@@ -13,7 +13,7 @@ class PatientController extends Controller
     public function index(Request $request)
     {
         return response()->json([
-            'patients' => ListPatients::execute($request->user()->id),
+            'patients' => ListPatients::execute($request->user()->id, $request->input('per_page', 15)),
         ]);
     }
 
