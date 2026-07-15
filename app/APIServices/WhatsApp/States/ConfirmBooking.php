@@ -74,7 +74,7 @@ class ConfirmBooking
                 \log::info('date', [
                     "passed"
                 ]);
-                $time = CheckCheckAvailability::execute($day->id)?$conversation->data['selected_slot']:"00:00";
+                $time = CheckAvailability::execute($day->id)?$conversation->data['selected_slot']:"00:00";
                 \log::info('time', [
                     "passed"
                 ]);
