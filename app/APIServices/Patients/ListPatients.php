@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class ListPatients
 {
-    public static function execute(int $userId, int $perPage = 50)
+    public static function execute(int $userId, int $perPage = 50,string $search = null, array $filters = null)
     {
         $user = User::findOrFail($userId);
         
@@ -21,6 +21,50 @@ class ListPatients
             return null;
         }
 
+        if ($filters) {
+
+            if (!is_null($filters['age_from'] ?? null)) {
+                $appointments->where('users.age', '>=', $filters['age_from']);
+            }
+
+            if (!is_null($filters['age_to'] ?? null)) {
+                $appointments->where('users.age', '<=', $filters['age_to']);
+            }
+
+            if (!is_null($filters['date_from'] ?? null)) {
+                $appointments->whereDate(
+                    'appointment_summary.last_appointment',
+                    '>=',
+                    $filters['date_from']
+                );
+            }
+
+            if (!is_null($filters['date_to'] ?? null)) {
+                $appointments->whereDate(
+                    'appointment_summary.last_appointment',
+                    '<=',
+                    $filters['date_to']
+                );
+            }
+
+            if (!is_null($filters['has_upcoming_appointment'] ?? null)) {
+
+                if ($filters['has_upcoming_appointment']) {
+                    // Only patients with an upcoming appointment
+                    $appointments->whereNotNull('appointment_summary.upcoming_appointment');
+                } else {
+                    // Only patients without an upcoming appointment
+                    $appointments->whereNull('appointment_summary.upcoming_appointment');
+                }
+            }
+        }
+        if ($search) {
+            $appointments->where(function ($query) use ($search) {
+                $query->where('users.name', 'like', "%{$search}%")
+                    ->orWhere('users.phone', 'like', "%{$search}%")
+                    ->orWhere('users.area', 'like', "%{$search}%");
+            });
+        }
     
         $patients = $appointments->select(self::getSelects())
                         ->groupBy('patients.id')
