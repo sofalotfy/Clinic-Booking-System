@@ -17,7 +17,7 @@ class BookSlot
             $conversation->doctor_whatsapp_account_id
         );
 
-        $page = $conversation->data['slot_page'] ?? 0;
+        $page = $conversation->data['slot_page'] ?? 1;
 
         $slots = GetAvailableSlots::execute(
             $conversation->data['selected_day']
@@ -72,7 +72,7 @@ class BookSlot
                 'data' => array_merge(
                     $conversation->data ?? [],
                     [
-                        'slot_page' => ($conversation->data['slot_page'] ?? 0) + 1,
+                        'slot_page' => ($conversation->data['slot_page'] ?? 1) + 1,
                     ]
                 ),
             ]);
@@ -82,24 +82,6 @@ class BookSlot
             return self::execute($conversation, $message);
         }
 
-        // User selected a day (coming from BookAppointment)
-        if ($conversation->state !== ConversationState::BOOK_SLOT) {
-
-            $conversation->update([
-                'state' => ConversationState::BOOK_SLOT,
-                'data' => array_merge(
-                    $conversation->data ?? [],
-                    [
-                        'selected_day' => $message['value'],
-                        'slot_page' => 0,
-                    ]
-                ),
-            ]);
-
-            $conversation->refresh();
-
-            return self::execute($conversation, $message);
-        }
 
         // User selected a slot
         $conversation->update([
