@@ -11,7 +11,7 @@ class EditNote
         $note = Note::find($noteId);
 
         if ($note->doctor_id !== auth()->user()->doctor->id) {
-            throw new \Exception('You are not authorized to edit this note');
+            throw new \Exception("You are not authorized to edit this note my id {$note->doctor_id} doctor id " . auth()->user()->doctor->id);
         }
 
         $note->update([
