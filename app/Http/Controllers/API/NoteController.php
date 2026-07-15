@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\APIServices\Notes\NotePatient;
+use App\APIServices\Notes\EditNote;
+use App\APIServices\Notes\DeleteNote;
 
 class NoteController extends Controller
 {
