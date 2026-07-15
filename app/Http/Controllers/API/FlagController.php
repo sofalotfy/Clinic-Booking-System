@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\APIServices\Flags\UnFlag;
 use App\APIServices\Flags\DeleteFlag;
+use App\Models\Flag;
 
 class FLagController extends Controller
 {
