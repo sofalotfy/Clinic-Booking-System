@@ -15,7 +15,8 @@ class SmartBookAppointment
             ->whereIn('status', [
                 AppointmentStatus::ACTIVE,
                 AppointmentStatus::QUEUED,
-            ]);
+            ])
+            ->first();
 
         if ($appointment) {
             $appointment->update([
