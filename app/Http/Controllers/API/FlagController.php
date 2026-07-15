@@ -81,7 +81,7 @@ class FLagController extends Controller
 
     public function destroy(Flag $flag)
     {
-        DeleteFlag::execute($flag);
+        DeleteFlag::execute($flag->id);
         
         return response()->json([
             'success' => true,
