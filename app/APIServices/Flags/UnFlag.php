@@ -8,9 +8,9 @@ use Illuminate\Validation\ValidationException;
 
 class UnFlag
 {
-    public static function execute(Request $request, int $flag_id, int $patient_id): void
+    public static function execute(int $flag_id, int $patient_id): void
     {
-        $doctorId = $request->user()->doctor->id;
+        $doctorId = auth()->user()->doctor->id;
 
         // Ensure the flag belongs to the authenticated doctor
         $flag = Flag::where('id', $flag_id)
