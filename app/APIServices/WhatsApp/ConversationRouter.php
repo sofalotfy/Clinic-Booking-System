@@ -35,8 +35,8 @@ class ConversationRouter
             ConversationState::BOOK_SLOT =>
                 BookSlot::handleResponse($conversation, $message),
 
-            // ConversationState::RESCHEDULE =>
-            //     RescheduleState::execute($conversation, $message),
+            ConversationState::CONFIRM_BOOKING =>
+                ConfirmBooking::handleResponse($conversation, $message),
 
             // ConversationState::CANCEL =>
             //     CancelState::execute($conversation, $message),
