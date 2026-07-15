@@ -7,6 +7,7 @@ use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\GetUpComingAppointment;
 use App\APIServices\Doctors\GetAvailableDays;
+use App\APIServices\WhatsApp\States\BookSlot;
 USE App\Models\Day;
 
 class BookAppointment
