@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
+    Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
 
 
     Route::post('/appointment', [AppointmentController::class, 'store'])->name('store-appointment');
