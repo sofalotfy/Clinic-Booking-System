@@ -24,7 +24,7 @@ class ListPatients
     
         $patients = $appointments->select(self::getSelects())
                         ->groupBy('patients.id')
-                        ->get();
+                        ->get()->paginate($perPage);
 
         $flags = self::getFlagsData($patients, $user->doctor->id);
         
@@ -40,7 +40,7 @@ class ListPatients
             return $patient;
         });
 
-        return $patients->paginate($perPage);
+        return $patients;
     }
 
     private static function getSelects()
