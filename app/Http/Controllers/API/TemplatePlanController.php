@@ -20,7 +20,7 @@ class TemplatePlanController extends Controller
 
     public function index()
     {
-        $plans = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->get();
+        $plans = TemplatePlan::with('templateDays')->where('doctor_id', auth()->user()->doctor->id)->get();
         return response()->json([
             'plans' => $plans,
         ]);
