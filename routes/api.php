@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/unflag-patient', [FlagController::class, 'unflagPatient'])->name('unflag-patient');
 
     Route::post('/note-patient', [NoteController::class, 'notePatient'])->name('note-patient');
-    Route::put('/edit-note/{noteId}', [NoteController::class, 'editNote'])->name('edit-note');
+    Route::post('/edit-note/{noteId}', [NoteController::class, 'editNote'])->name('edit-note');
     Route::delete('/delete-note/{noteId}', [NoteController::class, 'deleteNote'])->name('delete-note');
 });
 
