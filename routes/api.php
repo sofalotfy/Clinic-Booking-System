@@ -44,6 +44,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('/template-plan', [TemplatePlanController::class, 'store'])->name('create-template');
+    Route::get('/template-plans', [TemplatePlanController::class, 'index'])->name('get-template-plans');
+    Route::get('/template-plan/{templatPLan}', [TemplatePlanController::class, 'show'])->name('show-template');
+    Route::post('/template-plan/{templatPLan}', [TemplatePlanController::class, 'update'])->name('update-template');
+    Route::delete('/template-plan/{templatPLan}', [TemplatePlanController::class, 'destroy'])->name('delete-template');
+    Route::post('/template-plan/{templatPLan}/activate', [TemplatePlanController::class, 'activate'])->name('activate-template');
+    Route::post('/template-plan/{templatPLan}/deactivate', [TemplatePlanController::class, 'deactivate'])->name('deactivate-template');
+    
 });
 
 Route::get('/test', [TestController::class, 'test']);
