@@ -10,6 +10,13 @@ class SmartBookAppointment
 {
     public static function execute($patient, $doctor, $date, $duration, $status)
     {
+        \Log::info('SmartBookAppointment', [
+            'patient' => $patient,
+            'doctor' => $doctor,
+            'date' => $date,
+            'duration' => $duration,
+            'status' => $status,
+        ]);
         $appointment = Appointment::where('doctor_id', $doctor->id)
             ->where('patient_id', $patient->id)
             ->whereIn('status', [
