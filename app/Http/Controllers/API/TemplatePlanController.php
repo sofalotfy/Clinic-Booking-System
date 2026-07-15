@@ -9,6 +9,7 @@ use App\Services\TemplatePlans\UpdatePlan;
 use App\Services\TemplatePlans\DeletePlan;
 use App\Models\TemplatePlan;
 use App\Enums\TemplatePlanStatus;
+use App\Services\TemplatePlans\ActivatatePlan;
 
 
 class TemplatePlanController extends Controller
@@ -62,10 +63,8 @@ class TemplatePlanController extends Controller
 
     public function activate($id)
     {
-        $plan = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->find($id);
-        $plan->update([
-            'status' => TemplatePlanStatus::ACTIVE,
-        ]);
+        $plan = ActivatatePlan::execute($id);
+
         return response()->json([
             'message' => 'Plan activated successfully',
         ]);
