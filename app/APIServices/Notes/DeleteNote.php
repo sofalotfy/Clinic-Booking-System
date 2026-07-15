@@ -10,7 +10,7 @@ class DeleteNote
     {
         $note = Note::find($noteId);
 
-        if ($note->doctor_id !== auth()->user()->doctor->id) {
+        if ($note->doctor_id != auth()->user()->doctor->id) {
             throw new \Exception('You are not authorized to delete this note');
         }
 
