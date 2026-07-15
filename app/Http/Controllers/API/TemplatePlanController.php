@@ -28,7 +28,7 @@ class TemplatePlanController extends Controller
 
     public function show($id)
     {
-        $plan = TemplatePlan::where('doctor_id', auth()->user()->doctor->id)->find($id);
+        $plan = TemplatePlan::with('templateDays')->where('doctor_id', auth()->user()->doctor->id)->find($id);
         return response()->json([
             'plan' => $plan,
         ]);
