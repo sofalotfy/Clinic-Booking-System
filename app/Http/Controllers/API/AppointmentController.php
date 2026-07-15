@@ -36,8 +36,6 @@ class AppointmentController extends Controller
     {
         \Log::info([
             'all' => $request->all(),
-            'json' => $request->json()->all(),
-            'content' => $request->getContent(),
         ]);
         $appointments = [];
 
@@ -52,6 +50,10 @@ class AppointmentController extends Controller
                 $appointments = [$request->all()];
             }
         }
+
+        \Log::info([
+            'appointments' => $appointments,
+        ]);
 
         foreach ($appointments as $appointment) {
             if (is_array($appointment) && isset($appointment['id'])) {
