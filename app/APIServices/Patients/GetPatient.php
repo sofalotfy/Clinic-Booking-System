@@ -13,14 +13,13 @@ class GetPatient
 {
     public static function execute(int $patientId)
     {   
-        $patient = Patient::with('flags')->with('notes')
-            ->leftJoin('users', 'patients.user_id', '=', 'users.id')
-            ->where('patients.id', $patientId)
-            ->get();
-        
-        return $patient;
+        $patient = Patient::with([
+            'user',
+            'flags',
+            'notes',
+        ])->findOrFail($patientId);
 
-        
+        return $patient;
     }
 
     private static function getSelects()
