@@ -10,6 +10,7 @@ use App\APIServices\WhatsApp\States\CancelState;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\States\InfoConfirmation;
 use App\APIServices\WhatsApp\States\BookAppointment;
+use App\APIServices\WhatsApp\States\BookSlot;
 
 class ConversationRouter
 {
