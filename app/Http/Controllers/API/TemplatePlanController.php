@@ -10,10 +10,9 @@ class TemplatePlanController extends Controller
 {
     public function store(Request $request)
     {
-        return response()->json([
-            'plan' => $request->days,
-        ]);
         $plan = CreteaTemplate::execute($request->name, $request->description, $request->days);
-        
+        return response()->json([
+            'plan' => $plan,
+        ]);
     }
 }
