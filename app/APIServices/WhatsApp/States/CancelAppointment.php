@@ -43,6 +43,8 @@ class CancelAppointment
             case 'confirm':
                 $appointment = Appointment::find($conversation->data['appointment_id']);
                 \Log::info('Appointment cancelled', [
+                    'appointment_id' => $conversation->data['appointment_id'],
+                    
                     'appointment' => $appointment,
                     
                 ]);
