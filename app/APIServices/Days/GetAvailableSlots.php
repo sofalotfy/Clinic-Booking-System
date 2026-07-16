@@ -10,62 +10,58 @@ use Carbon\Carbon;
 class GetAvailableSlots
 {
     public static function execute(int $dayId): array
-    {
-        $day = Day::findOrFail($dayId);
+{
+    $day = Day::findOrFail($dayId);
 
-        $activeAppointments = Appointment::where('date', $day->date)
-            ->where('status', AppointmentStatus::ACTIVE)
-            ->orderBy('date')
-            ->get();
+    $activeAppointments = Appointment::whereDate('date', $day->date)
+        ->where('status', AppointmentStatus::ACTIVE)
+        ->get();
 
-        $queuedAppointments = Appointment::where('date', $day->date)
-            ->where('status', AppointmentStatus::QUEUED)
-            ->count();
+    $queuedAppointments = Appointment::whereDate('date', $day->date)
+        ->where('status', AppointmentStatus::QUEUED)
+        ->count();
 
-        // Generate all possible slots
-        $slots = [];
+    // Build a lookup table of occupied times
+    $occupied = $activeAppointments
+        ->map(function ($appointment) {
+            return Carbon::parse($appointment->date)->format('H:i');
+        })
+        ->flip()
+        ->all();
 
-        $current = Carbon::createFromFormat('H:i:s', $day->start_time);
-        $end = Carbon::createFromFormat('H:i:s', $day->end_time);
+    $slots = [];
 
-        while ($current < $end) {
-            $slots[] = $current->copy();
-            $current->addMinutes($day->appointment_duration);
+    $current = Carbon::parse($day->date)
+        ->setTimeFromTimeString($day->start_time);
+
+    $end = Carbon::parse($day->date)
+        ->setTimeFromTimeString($day->end_time);
+
+    while ($current < $end) {
+
+        if (!isset($occupied[$current->format('H:i')])) {
+            $slots[] = [
+                'time' => $current->format('H:i'),
+            ];
         }
 
-        // Remove occupied slots
-        foreach ($activeAppointments as $appointment) {
-            $appointmentTime = Carbon::createFromFormat(
-                'H:i:s',
-                $appointment->date
-            )->format('H:i');
-
-            $slots = array_values(array_filter($slots, function ($slot) use ($appointmentTime) {
-                return $slot->format('H:i') !== $appointmentTime;
-            }));
-        }
-
-        // Return up to 7 available slots
-        if (!empty($slots)) {
-            return collect($slots)
-                ->map(function ($slot) {
-                    return [
-                        'time' => $slot->format('H:i'),
-                    ];
-                })
-                ->values()
-                ->toArray();
-        }
-
-        // Otherwise check the waiting queue
-        if ($queuedAppointments < $day->queue_length) {
-            return [[
-                'type' => 'queue',
-                'title' => 'Join Waiting Queue',
-            ]];
-        }
-
-        // Day is completely full
-        return [];
+        $current->addMinutes((int) $day->appointment_duration);
     }
+
+    // Normal available slots
+    if (!empty($slots)) {
+        return $slots;
+    }
+
+    // No slots left, offer waiting queue if possible
+    if ($queuedAppointments < $day->queue_length) {
+        return [[
+            'type'  => 'queue',
+            'title' => 'Join Waiting Queue',
+        ]];
+    }
+
+    // Day completely full
+    return [];
+}
 }
