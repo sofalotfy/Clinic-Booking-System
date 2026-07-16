@@ -141,6 +141,14 @@ class MainMenu
             case 'update_profile':
                 $conversation->update([
                     'state' => ConversationState::INFO_INQUIRY,
+                    'data' => array_merge(
+                        $conversation->data ?? [],
+                        ['callStack' => array_merge(
+                                [ConversationState::MAIN_MENU],
+                                $conversation->data->callStack ?? [],
+                            )
+                        ]
+                    ),
                 ]);
 
                 return InfoInquiry::execute($conversation, $message);
