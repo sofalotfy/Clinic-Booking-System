@@ -12,6 +12,7 @@ use App\APIServices\WhatsApp\States\InfoConfirmation;
 use App\APIServices\WhatsApp\States\BookAppointment;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
+use App\APIServices\WhatsApp\States\CancelAppointment;
 
 class ExecutionRouter
 {
@@ -39,8 +40,8 @@ class ExecutionRouter
             ConversationState::CONFIRM_BOOKING =>
                 ConfirmBooking::execute($conversation, $message),
 
-            // ConversationState::CANCEL =>
-            //     CancelState::execute($conversation, $message),
+            ConversationState::CANCEL_APPOINTMENT =>
+                CancelAppointment::execute($conversation, $message),
 
             default =>
                 Start::execute($conversation, $message),
