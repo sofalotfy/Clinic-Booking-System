@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\APIServices\Days\GetDays;
 use App\APIServices\Days\GetDayAppointments;
+use App\Models\Day;
 
 class DayController extends Controller
 {
@@ -27,6 +28,7 @@ class DayController extends Controller
         return response()->json([
             'success' => true,
             'appointments' => $appointments,
+            'day'  => Day::where('date',$request->date)->first(),
         ]);
     }
 }
