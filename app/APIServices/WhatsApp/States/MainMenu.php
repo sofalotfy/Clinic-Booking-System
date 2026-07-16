@@ -138,7 +138,7 @@ class MainMenu
                 return BookAppointment::execute($conversation, $message);
                 break;
 
-            case 'change_profile_information':
+            case 'update_profile':
                 $conversation->update([
                     'state' => ConversationState::INFO_INQUIRY,
                 ]);
