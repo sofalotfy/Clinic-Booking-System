@@ -74,8 +74,8 @@ class MainMenu
                     'title' => 'Cancel',
                 ],
                 [
-                    'id' => 'change_profile_information',
-                    'title' => 'Change Profile Information',
+                    'id' => 'update_profile',
+                    'title' => 'Update Profile',
                 ],
             ]
         );
@@ -98,14 +98,13 @@ class MainMenu
                     'title' => 'Book Appointment',
                 ],
                 [
-                    'id' => 'change_profile_information',
-                    'title' => 'Change Profile Information',
+                    'id' => 'update_profile',
+                    'title' => 'Update Profile',
                 ],
                 [
                     'id' => 'end_conversation',
                     'title' => 'End Conversation',
                 ],
-                
             ]
         );
     }
