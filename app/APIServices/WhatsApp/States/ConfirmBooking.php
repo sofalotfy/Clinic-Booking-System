@@ -59,12 +59,10 @@ class ConfirmBooking
 
     public static function handleResponse($conversation, $message)
     {
+        if ($message['type'] !== 'interactive') {return;}
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        \log::info('handleResponse', [
-            $message['value']
-        ]);
         switch ($message['value']) {
 
             case 'confirm':

@@ -26,6 +26,7 @@ class InfoInquiry
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
+        if ($message['type'] !== 'text') {return;}
         $conversation->update([
             'data' => array_merge(
                 $conversation->data ?? [],

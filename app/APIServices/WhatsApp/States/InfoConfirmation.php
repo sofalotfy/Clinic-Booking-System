@@ -38,6 +38,7 @@ class InfoConfirmation
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
+        if ($message['type'] !== 'interactive') {return;}
         switch ($message['value']) {
 
             case 'confirm':
