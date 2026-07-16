@@ -72,6 +72,10 @@ class MainMenu
                     'id' => 'cancel_appointment',
                     'title' => 'Cancel',
                 ],
+                [
+                    'id' => 'change_profile_information',
+                    'title' => 'Change Profile Information',
+                ],
             ]
         );
     }
@@ -93,9 +97,14 @@ class MainMenu
                     'title' => 'Book Appointment',
                 ],
                 [
+                    'id' => 'change_profile_information',
+                    'title' => 'Change Profile Information',
+                ],
+                [
                     'id' => 'end_conversation',
                     'title' => 'End Conversation',
                 ],
+                
             ]
         );
     }
@@ -127,6 +136,14 @@ class MainMenu
                 ]);
 
                 return BookAppointment::execute($conversation, $message);
+                break;
+
+            case 'change_profile_information':
+                $conversation->update([
+                    'state' => ConversationState::INFO_INQUIRY,
+                ]);
+
+                return InfoInquiry::execute($conversation, $message);
                 break;
 
             case 'end_conversation':
