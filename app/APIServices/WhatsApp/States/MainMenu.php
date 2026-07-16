@@ -170,6 +170,13 @@ class MainMenu
             case 'end_conversation':
                 $conversation->delete();
 
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'Thank you for using our services.',
+                );
+
                 return;
         }
         return self::execute($conversation, $message);
