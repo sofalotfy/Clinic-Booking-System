@@ -26,7 +26,20 @@ class InfoInquiry
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        if ($message['type'] !== 'text') {return;}
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        if ($message['type'] !== 'text') {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please enter your name.',
+            );
+            
+            return self::execute($conversation, $message);
+        }
         $conversation->update([
             'data' => array_merge(
                 $conversation->data ?? [],

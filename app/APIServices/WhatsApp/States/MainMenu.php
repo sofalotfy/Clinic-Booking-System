@@ -111,7 +111,20 @@ class MainMenu
 
     public static function handleResponse($conversation, $message)
     {
-        if ($message['type'] !== 'interactive') {return;}
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        if ($message['type'] !== 'interactive') {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please choose an option.',
+            );
+            
+            return self::execute($conversation, $message);
+        }
         switch ($message['value']) {
 
             case 'reschedule_appointment':
