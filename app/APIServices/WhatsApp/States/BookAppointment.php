@@ -60,7 +60,7 @@ class BookAppointment
 
     public static function handleResponse($conversation, $message)
     {
-        $day = Day::where('id' , $message['value']);
+        $day = Day::findOrFail($message['value']);
 
         if(CheckAvailability::execute($day->id)){
             $conversation->update([
