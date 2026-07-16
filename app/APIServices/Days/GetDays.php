@@ -47,7 +47,7 @@ class GetDays
                 $query->whereIn('appointments.status', $filters['status']);
             })
             ->when(isset($filters['date_from']) && isset($filters['date_to']), function ($query) use ($filters) {
-                $query->whereBetween('days.date', [$filters['from'], $filters['to']]);
+                $query->whereBetween('days.date', [$filters['date_from'], $filters['date_to']]);
             });
     }
 }
