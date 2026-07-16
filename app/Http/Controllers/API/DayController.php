@@ -10,7 +10,6 @@ class DayController extends Controller
 {
     public function index()
     {
-        // list all appointments for patient
         $days = GetDays::execute();
         
         return response()->json([

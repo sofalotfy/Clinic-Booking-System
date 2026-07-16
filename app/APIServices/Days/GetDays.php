@@ -8,7 +8,7 @@ use App\Enums\AppointmentStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class CheckAvailability
+class GetDays
 {
     public static function execute()
     {
