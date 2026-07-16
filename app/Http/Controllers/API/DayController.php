@@ -28,7 +28,7 @@ class DayController extends Controller
         return response()->json([
             'success' => true,
             'appointments' => $appointments,
-            'day'  => Day::where('date',$request->date)->first(),
+            'day'  => Day::where('date',$request->date)->where('doctor_id',auth()->user()->doctor->id)->first(),
         ]);
     }
 }
