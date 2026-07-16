@@ -14,7 +14,7 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'days' => GetAvailableDays::execute(1),
+            'slots' => GetAvailableSlots::execute(7),
         ]);
     }
 
