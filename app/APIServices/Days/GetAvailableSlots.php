@@ -37,7 +37,7 @@ class GetAvailableSlots
         foreach ($activeAppointments as $appointment) {
             $appointmentTime = Carbon::createFromFormat(
                 'H:i:s',
-                $appointment->start_time
+                $appointment->date
             )->format('H:i');
 
             $slots = array_values(array_filter($slots, function ($slot) use ($appointmentTime) {
