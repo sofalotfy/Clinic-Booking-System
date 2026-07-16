@@ -77,6 +77,10 @@ class MainMenu
                     'id' => 'update_profile',
                     'title' => 'Update Profile',
                 ],
+                [
+                    'id' => 'end_conversation',
+                    'title' => 'End Conversation',
+                ],
             ]
         );
     }
