@@ -10,9 +10,11 @@ use App\Models\Day;
 
 class DayController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $days = GetDays::execute();
+        $days = GetDays::execute([
+            "status" => $request->status,
+        ]);
         
         return response()->json([
             'success' => true,
