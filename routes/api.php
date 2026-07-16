@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('get-appointments');
     Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
     
+    
 
 
     Route::get('/flags', [FlagController::class, 'index'])->name('get-flags');

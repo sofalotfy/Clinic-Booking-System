@@ -24,6 +24,11 @@ class AppointmentController extends Controller
 
     public function store(Request $request)
     {
+        if(!$request->user()->patient){
+            throw ValidationException::withMessages([
+                'date' => 'the User is not a Patient.',
+            ]);
+        }
         $appointment = BookAppointment::execute($request);
         
         return response()->json([
