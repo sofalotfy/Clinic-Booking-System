@@ -168,11 +168,7 @@ class MainMenu
                 break;
 
             case 'end_conversation':
-                $conversation->update([
-                    'state' => ConversationState::START,
-                    'step' => null,
-                    'data' => [],
-                ]);
+                $conversation->delete();
 
                 return;
         }
