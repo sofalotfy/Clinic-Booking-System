@@ -10,6 +10,7 @@ use App\Http\Controllers\API\FlagController;
 use App\Http\Controllers\API\WhatsAppController;
 use App\Http\Controllers\API\NoteController;
 use App\Http\Controllers\API\TemplatePlanController;
+use App\Http\Controllers\API\DayController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -30,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('get-appointments');
     Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
     
-    
+    Route::get('/days', [DayController::class, 'index'])->name('days');
 
 
     Route::get('/flags', [FlagController::class, 'index'])->name('get-flags');
