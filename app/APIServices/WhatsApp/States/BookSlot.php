@@ -17,7 +17,7 @@ class BookSlot
             $conversation->doctor_whatsapp_account_id
         );
 
-        $page = $conversation->data['slot_page'] ?? 1;
+        $page = $conversation->data['slot_page'] ?? 0;
 
         $slots = GetAvailableSlots::execute(
             $conversation->data['selected_day']
@@ -28,10 +28,14 @@ class BookSlot
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'No available slots for this day.'
+                'Sorry, there are no available time slots for this day anymore. Please choose another day.'
             );
 
-            return;
+            $conversation->update([
+                'state' => ConversationState::BOOK_APPOINTMENT,
+            ]);
+
+            return BookAppointment::execute($conversation, $message);
         }
 
         $rows = collect($slots)
@@ -44,6 +48,21 @@ class BookSlot
             })
             ->values();
 
+        // Page became invalid because availability changed
+        if ($rows->isEmpty()) {
+
+            $conversation->update([
+                'data' => array_merge(
+                    $conversation->data ?? [],
+                    [
+                        'slot_page' => 0,
+                    ]
+                ),
+            ]);
+
+            return self::execute($conversation, $message);
+        }
+
         if (count($slots) > (($page + 1) * self::PAGE_SIZE)) {
             $rows->push([
                 'id' => 'more_slots',
@@ -55,16 +74,33 @@ class BookSlot
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Please choose a time slot.',
-            'Select Slot',
+            'Please choose your preferred appointment time.',
+            'Select Time',
             $rows->toArray(),
-            'Available Slots',
-            'Day'
+            'Available Times',
+            'Time Slots'
         );
     }
 
     public static function handleResponse($conversation, $message)
     {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        // This state only accepts interactive list replies
+        if ($message['type'] !== 'interactive') {
+
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please choose a time from the list below.'
+            );
+
+            return self::execute($conversation, $message);
+        }
+
         // User requested the next page
         if ($message['value'] === 'more_slots') {
 
@@ -72,18 +108,36 @@ class BookSlot
                 'data' => array_merge(
                     $conversation->data ?? [],
                     [
-                        'slot_page' => ($conversation->data['slot_page'] ?? 1) + 1,
+                        'slot_page' => ($conversation->data['slot_page'] ?? 0) + 1,
                     ]
                 ),
             ]);
 
-            $conversation->refresh();
+            return self::execute($conversation, $message);
+        }
+
+        // Validate that the selected slot is still available
+        $slots = GetAvailableSlots::execute(
+            $conversation->data['selected_day']
+        );
+
+        $validSlots = collect($slots)
+            ->pluck('time')
+            ->all();
+
+        if (! in_array($message['value'], $validSlots, true)) {
+
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'That time slot is no longer available. Please choose another one.'
+            );
 
             return self::execute($conversation, $message);
         }
 
-
-        // User selected a slot
+        // Save the selected slot
         $conversation->update([
             'state' => ConversationState::CONFIRM_BOOKING,
             'data' => array_merge(

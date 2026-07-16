@@ -27,7 +27,7 @@ class BookAppointment
                     $conversation->data ?? [],
                     ['callStack' => array_merge(
                             [ConversationState::BOOK_APPOINTMENT],
-                            $conversation->data->callStack ?? [],
+                            $conversation->data['callStack'] ?? []
                         )
                     ]
                 ),
@@ -54,13 +54,20 @@ class BookAppointment
             'Available Days',
             'Next 7 Days'
         );
-        \Log::info('here');
     }
 
 
     public static function handleResponse($conversation, $message)
     {
-        $day = Day::findOrFail($message['value']);
+        if ($message['type'] !== 'interactive') {return;}
+        
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        $day = Day::where('doctor_id', $account->doctor_id)->find($message['value']);
+
+        if (!$day) {return;}
 
         if(CheckAvailability::execute($day->id)){
             $conversation->update([

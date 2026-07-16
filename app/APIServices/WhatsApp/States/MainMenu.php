@@ -111,7 +111,7 @@ class MainMenu
 
     public static function handleResponse($conversation, $message)
     {
-
+        if ($message['type'] !== 'interactive') {return;}
         switch ($message['value']) {
 
             case 'reschedule_appointment':
