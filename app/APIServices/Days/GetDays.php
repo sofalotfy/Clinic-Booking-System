@@ -14,13 +14,12 @@ class GetDays
     {
         $days = Day::select(self::getSelects())
                     ->leftJoin('appointments',function($join){
-                        $join->on(
+                        $join->whereColumn(
                             DB::raw('DATE(appointments.date)'),
-                            '=',
                             'days.date'
                         );
                     })
-                    ->groupBy('days.id')
+                    
                     ->orderBy('days.date', 'desc')
                     ->get();
                     
@@ -35,7 +34,7 @@ class GetDays
             'days.start_time',
             'days.end_time',
             'days.appointment_duration',
-            DB::raw('COUNT(appointments.id) as total_appointments')
+            // DB::raw('COUNT(appointments.id) as total_appointments')
         ];
     }
 }
