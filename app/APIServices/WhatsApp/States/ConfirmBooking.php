@@ -69,13 +69,7 @@ class ConfirmBooking
 
                 $day = Day::find($conversation->data['selected_day']);
                 $date = $day->date;
-                \log::info('date', [
-                    "passed"
-                ]);
                 $time = CheckAvailability::execute($day->id)?$conversation->data['selected_slot']:"00:00";
-                \log::info('time', [
-                    "passed"
-                ]);
                 $dateTime = Carbon::parse($date . ' ' . $time);
                 
                 SmartBookAppointment::execute(
@@ -86,6 +80,13 @@ class ConfirmBooking
                     $conversation->data['booking_state'],
                 );
                 
+
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'Your appointment has been booked.',
+                );
 
                 $conversation->update([
                     'state' => ConversationState::START,

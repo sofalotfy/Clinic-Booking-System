@@ -46,6 +46,14 @@ class InfoConfirmation
                     'name' => $conversation->data['name'],
                 ]);
                 
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'Your profile has been updated.',
+                );
+
+
                 $data = $conversation->data;
 
                 $state = array_shift($data['callStack']);
