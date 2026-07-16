@@ -14,6 +14,8 @@ class DayController extends Controller
     {
         $days = GetDays::execute([
             "status" => $request->status,
+            'date_from'  =>  $request->date_from,
+            'date_to'  =>  $request->date_to,
         ]);
         
         return response()->json([
