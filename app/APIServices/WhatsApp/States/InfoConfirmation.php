@@ -7,6 +7,7 @@ use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ConversationRouter;
+use App\APIServices\WhatsApp\ExecutionRouter;
 
 class InfoConfirmation
 {
@@ -53,7 +54,7 @@ class InfoConfirmation
                     'data'  => $data,
                 ]);
 
-                return ConversationRouter::execute($conversation, $message);
+                return ExecutionRouter::execute($conversation, $message);
 
                 break;
 
