@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\APIServices\Days\GetDays;
 
-class AppointmentController extends Controller
+class DayController extends Controller
 {
     public function index()
     {
