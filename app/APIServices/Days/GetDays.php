@@ -14,8 +14,10 @@ class GetDays
     {
         $days = Day::select(self::getSelects())
                     ->leftJoin('appointments',function($join){
-                        $join->on(DB::raw('DATE(appointments.date)'), '=', 'days.date');
+                        $join->on(DB::raw('DATE(appointments.date)'), '=', 'days.date')
+                            ->where('appointments.doctor_id', auth()->user()->doctor->id);
                     })
+                    ->where('days.doctor_id', auth()->user()->doctor->id)
                     ->groupBy('days.id')
                     ->orderBy('days.date', 'desc')
                     ->get();
