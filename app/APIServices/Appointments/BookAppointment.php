@@ -13,6 +13,11 @@ class BookAppointment
 {
     public static function execute(Request $request): Appointment
     {
+        if(!$request->user()->patient){
+            throw ValidationException::withMessages([
+                'date' => 'the User is not a Patient.',
+            ]);
+        }
         $appointment = Appointment::where('doctor_id', $request->doctor_id)
                 ->where('patient_id', $request->user()->patient->id)
                 ->where('date', '<=', Carbon::now()->format('Y-m-d H:i:s'))
