@@ -26,7 +26,14 @@ class MainMenu
 
         if ($appointment) {
 
-            $conversation->putData('appointment_id', $appointment->id);
+            $conversation->update([
+                    'data' => array_merge(
+                        $conversation->data ?? [],
+                        [
+                            'appointment_id' => $appointment->id,
+                        ]
+                    ),
+                ]);
 
             return self::sendAppointmentMenu(
                 $account,
@@ -57,10 +64,6 @@ class MainMenu
             $message['from'],
             $greeting . "You have an appointment on {$appointment->date} at {$appointment->start_time}.\n\nPlease choose an option:",
             [
-                [
-                    'id' => 'confirm_appointment',
-                    'title' => 'Confirm',
-                ],
                 [
                     'id' => 'reschedule_appointment',
                     'title' => 'Reschedule',
@@ -102,16 +105,12 @@ class MainMenu
 
         switch ($message['value']) {
 
-            case 'confirm_appointment':
-                // TODO: ConfirmAppointment::execute(...)
-                break;
-
             case 'reschedule_appointment':
                 $conversation->update([
-                    'state' => ConversationState::RESCHEDULE_APPOINTMENT,
+                    'state' => ConversationState::BOOK_APPOINTMENT,
                 ]);
 
-                // return RescheduleAppointment::execute($conversation, $message);
+                return BookAppointment::execute($conversation, $message);
                 break;
 
             case 'cancel_appointment':
@@ -119,7 +118,7 @@ class MainMenu
                     'state' => ConversationState::CANCEL_APPOINTMENT,
                 ]);
 
-                // return CancelAppointment::execute($conversation, $message);
+                return CancelAppointment::execute($conversation, $message);
                 break;
 
             case 'book_appointment':
@@ -139,15 +138,6 @@ class MainMenu
 
                 return;
         }
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
-        // return SendMessage::text(
-        //     $account->phone_number_id,
-        //     $account->access_token,
-        //     $message['from'],
-        //     'hello :D ' . $message['value'],
-        // );
         return self::execute($conversation, $message);
     }
 }
