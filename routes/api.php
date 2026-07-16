@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('get-appointments');
     Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
     
+    Route::get('/day/appointments', [DayController::class, 'dayAppointments'])->name('day-appointments');
     Route::get('/days', [DayController::class, 'index'])->name('days');
 
 
