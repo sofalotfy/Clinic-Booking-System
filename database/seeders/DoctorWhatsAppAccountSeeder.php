@@ -16,7 +16,7 @@ class DoctorWhatsAppAccountSeeder extends Seeder
             ['doctor_id' => 1],
             [
                 'phone_number_id' => '1137805152755860',
-                'access_token' => 'EABBbX1ZCpBBsBR7GxBJNB6NoYgIhjtLIkN2ZCl4u2argDIqvd02CxYH7ZCZCly4XzNHPC5EIHQZAWepZBwDMp9gTHZAfHQzvNVJuj68FZAefLLaawX9LwWetM8W64uJRq6ZATiKxZAbDCrksf6Ln5RNnDf93xT8rW6NasYOKZBURPhZBywUID92yW0E1ZAVWNoceofmeYclFt7c25y6M2TIITvv4RAgaMubFNUV0lO0uoXtSDhIUCZCNAQBaIw1sAYxh5ppz5m720vaqIvGxIKBEU21Wf1YXbB',
+                'access_token' => 'EABBbX1ZCpBBsBSIZBcQLChYGC7jwDP6PTXYhbLoBOPZBDMZAdsvVCNu9dX9qibJw0XjCUXT0InOxqV7Uvz4i2nl6RtZBAejK9UrhnpNymHRlZCzvczNsqFuTuJb9OMZAjwzjZAylutPsuRmZCNq7hez4oEWAWiLb9LdnzLHhPO0MuQr5pexb3aXYo3SRUM5nllfDkud5UetINwEKKbD7SQx7JbX1SnkXtpyZBRe1FjqqNud8X8bz746WpAaF4VswG1Bruw8QIBUoUyS0sZCHVMQCZCOhriRf',
                 'is_active' => true,
                 //commit
             ]

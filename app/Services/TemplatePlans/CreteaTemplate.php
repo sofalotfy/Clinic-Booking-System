@@ -19,7 +19,7 @@ class CreteaTemplate
             CreateTemplateDay::execute($template->id, $day);
         }
 
-        ActivatatePlan::execute($template->id);
+        ActivatePlan::execute($template->id);
 
         return $template->with('templateDays');
     }
