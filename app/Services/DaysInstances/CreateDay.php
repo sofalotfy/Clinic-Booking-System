@@ -16,9 +16,7 @@ class CreateDay
         $templateDay = $template->templateDays
             ->firstWhere('day_of_week', $dayOfWeek);
 
-        if (!$templateDay) {
-            return null;
-        }
+        
 
         if (Appointment::whereDate('date', $date)->where('doctor_id', $template->doctor_id)->exists()) {
             return null;
@@ -26,6 +24,10 @@ class CreateDay
 
         if ($day = Day::where('date', $date)->where('doctor_id', $template->doctor_id)->first()) {
             $day->delete();
+        }
+
+        if (!$templateDay) {
+            return null;
         }
 
         return Day::create([
