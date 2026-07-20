@@ -32,6 +32,16 @@ class FLagController extends Controller
         ]);
     }
 
+    public function update(Request $request, Flag $flag)
+    {
+        $flag = UpdateFlag::execute($request, $flag);
+        
+        return response()->json([
+            'success' => true,
+            'flag' => $flag,
+        ]);
+    }
+
     public function flagPatient(Request $request)
     {
          // Allow a single ID or an array of IDs

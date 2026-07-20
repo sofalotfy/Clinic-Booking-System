@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/flags', [FlagController::class, 'index'])->name('get-flags');
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');
+    Route::put('/flag/{flag}', [FlagController::class, 'update'])->name('update-flag');
     Route::delete('/flag/{flag}', [FlagController::class, 'destroy'])->name('delete-flag');
     Route::post('/flag-patient', [FlagController::class, 'flagPatient'])->name('flag-patient');
     Route::post('/unflag-patient', [FlagController::class, 'unflagPatient'])->name('unflag-patient');
