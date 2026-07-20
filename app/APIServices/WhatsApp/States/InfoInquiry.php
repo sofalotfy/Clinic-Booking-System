@@ -78,7 +78,7 @@ class InfoInquiry
 
             case self::STEP_AGE:
 
-                if (!is_numeric($message['value'])) {
+                if (!is_numeric($message['value']) or $message['value'] < 1 or $message['value'] > 120) {
                     return SendMessage::text(
                         $account->phone_number_id,
                         $account->access_token,
