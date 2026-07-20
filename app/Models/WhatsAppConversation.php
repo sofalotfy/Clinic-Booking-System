@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\ConversationState;
-use App\Enums\BookingStep;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Patient;
@@ -24,7 +23,6 @@ class WhatsAppConversation extends Model
 
     protected $casts = [
         'state' => ConversationState::class,
-        'step' => BookingStep::class,
         'data' => 'array',
         'last_activity_at' => 'datetime',
         'expires_at' => 'datetime',
