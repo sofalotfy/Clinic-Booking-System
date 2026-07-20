@@ -12,6 +12,7 @@ use App\Models\Patient;
 use Illuminate\Validation\Rule;
 use App\Enums\Gender;
 use App\Enums\UserType;
+use App\APIServices\Users\CreateAssistant;
 
 class UserController extends Controller
 {
@@ -105,6 +106,24 @@ class UserController extends Controller
             'user' => $user,
             'token' => $token,
         ]);
+    }
+
+    public function registerAssistant(Request $request)
+    {
+        $user = $request->user();
+        if($user->type != UserType::DOCTOR){
+            return response()->json([
+                'message' => 'you must be a doctor to perform this action.',
+            ], 403);
+        }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'phone' => 'required|string|max:15',
+        ]);
+
+        return CreateAssistant::execute($validated,$user->doctor);
     }
 
     public function editProfile(Request $request)

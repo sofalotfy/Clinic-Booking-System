@@ -11,12 +11,15 @@ use App\Http\Controllers\API\WhatsAppController;
 use App\Http\Controllers\API\NoteController;
 use App\Http\Controllers\API\TemplatePlanController;
 use App\Http\Controllers\API\DayController;
+use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\PermissionController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/register-assistant', [UserController::class, 'registerAssistant'])->name('register-assistant');
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
     Route::get('/me', [UserController::class, 'me'])->name('me');
     Route::post('/edit-profile', [UserController::class, 'editProfile'])->name('edit-profile');
@@ -52,6 +55,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/template-plan/{templatPLan}', [TemplatePlanController::class, 'update'])->name('update-template');
     Route::delete('/template-plan/{templatPLan}', [TemplatePlanController::class, 'destroy'])->name('delete-template');
     Route::post('/template-plan/{templatPLan}/activate', [TemplatePlanController::class, 'activate'])->name('activate-template'); 
+
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles');
+    Route::get('/roles/{role}', [RoleController::class, 'show'])->name('roles.show');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::post('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
+
+
+    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions');
+    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+    Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
+    Route::post('/permissions/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+    Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 });
 
 Route::get('/test', [TestController::class, 'test']);
