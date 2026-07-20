@@ -62,7 +62,7 @@ class InfoConfirmation
                 $conversation->patient->user->update([
                     'name' => $conversation->data['name'],
                     'age' => $conversation->data['age'],
-                    'address' => $conversation->data['address'],
+                    'area' => $conversation->data['address'],
                 ]);
                 
                 SendMessage::text(
