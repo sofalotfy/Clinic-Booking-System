@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Services\TemplatePlans\CreteaTemplate;
 use App\APIServices\Days\GetAvailableSlots;
 use App\APIServices\Doctors\GetAvailableDays;
-use App\Services\TemplatePlans\ActivatePlan;
 
 class TestController extends Controller
 {
@@ -15,14 +14,14 @@ class TestController extends Controller
     {
         return response()->json([
             'success' => true,
-            'slots' => GetAvailableSlots::execute(6),
+            'plan' => ActivatePlan::execute(13),
         ]);
     }
 
     public function makePlan(Request $request)
     {
-        ActivatePlan::execute(13);
-    
+        
+        $plan = CreteaTemplate::execute($request->doctor_id, $request->days);
         return response()->json([
             'success' => true,
             'message' => 'Plan created successfully!',
