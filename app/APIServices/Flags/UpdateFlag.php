@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateFlag
 {
-    public static function execute(Request $request): Flag
+    public static function execute(Request $request, $flag): Flag
     {
         $validated = Validator::make($request->all(), [
             'name' => ['nullable', 'string', 'max:191'],
