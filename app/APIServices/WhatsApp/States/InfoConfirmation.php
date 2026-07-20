@@ -61,6 +61,8 @@ class InfoConfirmation
             case 'confirm':
                 $conversation->patient->user->update([
                     'name' => $conversation->data['name'],
+                    'age' => $conversation->data['age'],
+                    'address' => $conversation->data['address'],
                 ]);
                 
                 SendMessage::text(
