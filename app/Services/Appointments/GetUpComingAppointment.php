@@ -13,6 +13,7 @@ class GetUpComingAppointment
         return Appointment::where('patient_id', $patient_id)
             ->where('doctor_id', $doctor_id)
             ->where('date', '>=', Carbon::today()->toDateString())
+            ->whereIn('status', [AppointmentStatus::ACTIVE, AppointmentStatus::QUEUED, AppointmentStatus::PENDING])
             ->first();
     }
 }
