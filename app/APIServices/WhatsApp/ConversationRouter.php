@@ -13,6 +13,7 @@ use App\APIServices\WhatsApp\States\BookAppointment;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
 use App\APIServices\WhatsApp\States\CancelAppointment;
+use App\APIServices\WhatsApp\States\ConfirmReshedule;
 
 class ConversationRouter
 {
