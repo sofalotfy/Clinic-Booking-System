@@ -29,7 +29,7 @@ class ConfirmReshedule
         $newDate = $conversation->data['new_date'] ?? $appointment->date;
 
         if ($rescheduleType === 'truncate') {
-            $text = "We are sorry, but our clinic schedule has changed, and we no longer work on this day. Your appointment has been moved to the waiting list. Would you like to confirm?";
+            $text = "We are sorry, but our clinic schedule has changed, and we no longer work on this day. Your appointment has been Cancelled. Would you like to book another appointment?";
         } elseif ($rescheduleType === 'overflow') {
             $text = "Due to a schedule update, all slots for this day are full. Your appointment has been moved to the waiting list. Would you like to confirm?";
         } else {

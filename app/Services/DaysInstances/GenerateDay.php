@@ -34,7 +34,11 @@ class GenerateDay
                     ->whereIn('status', [AppointmentStatus::ACTIVE, AppointmentStatus::QUEUED, AppointmentStatus::PENDING])
                     ->get();
                 foreach ($appointments as $appointment) {
-                    QueueAppointment::execute($appointment, null, 'truncate');
+                    $appointment->update([
+                        'status' => AppointmentStatus::CANCELLED,
+                        'isConfirmed'  => false,
+                    ]);
+                    NotifyReshedule::execute($appointment, null, 'truncate');
                 }
             }
             return null;
