@@ -4,6 +4,7 @@ namespace App\Services\Appointments;
 
 use App\Models\Appointment;
 use Carbon\Carbon;
+use App\Enums\AppointmentStatus;
 
 
 class GetUpComingAppointment
