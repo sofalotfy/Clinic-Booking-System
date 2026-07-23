@@ -4,7 +4,7 @@ namespace App\Services\TemplatePlans;
 
 use App\Models\TemplatePlan;
 use App\Enums\TemplatePlanStatus;
-use App\Services\DaysInstances\CreateDay;
+use App\Services\DaysInstances\GenerateDay;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -18,7 +18,7 @@ class GeneratePlanDays
         );
 
         foreach ($period as $date) {
-            CreateDay::execute($template, $date->toDateString());
+            GenerateDay::execute($template, $date->toDateString());
         }
 
         return true;

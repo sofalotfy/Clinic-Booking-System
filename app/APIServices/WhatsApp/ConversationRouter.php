@@ -43,6 +43,9 @@ class ConversationRouter
             ConversationState::CANCEL_APPOINTMENT =>
                 CancelAppointment::handleResponse($conversation, $message),
 
+            ConversationState::CONFIRM_RESHEDULE =>
+                ConfirmReshedule::handleResponse($conversation, $message),
+
             default =>
                 Start::execute($conversation, $message),
         };

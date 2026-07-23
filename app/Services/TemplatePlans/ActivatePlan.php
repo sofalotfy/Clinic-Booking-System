@@ -4,9 +4,10 @@ namespace App\Services\TemplatePlans;
 
 use App\Models\TemplatePlan;
 use App\Enums\TemplatePlanStatus;
-use App\Services\DaysInstances\CreateDay;
+use App\Services\DaysInstances\GenerateDay;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Services\Appointments\ResheduleAppointment;
 
 class ActivatePlan
 {
@@ -30,12 +31,12 @@ class ActivatePlan
         }
 
         $period = CarbonPeriod::create(
-            Carbon::today(),
-            Carbon::today()->addDays(30)
+            Carbon::today()->addDays(1),
+            Carbon::today()->addDays(31)
         );
 
         foreach ($period as $date) {
-            CreateDay::execute($template, $date->toDateString());
+            GenerateDay::execute($template, $date->toDateString(), true);
         }
     }
 }

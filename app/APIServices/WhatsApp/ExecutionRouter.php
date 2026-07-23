@@ -13,10 +13,11 @@ use App\APIServices\WhatsApp\States\BookAppointment;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
 use App\APIServices\WhatsApp\States\CancelAppointment;
+use App\APIServices\WhatsApp\States\ConfirmReshedule;
 
 class ExecutionRouter
 {
-    public static function execute( WhatsAppConversation $conversation, array $message) 
+    public static function execute( WhatsAppConversation $conversation, array $message = null) 
     {
         return match ($conversation->state) {
 
@@ -42,6 +43,9 @@ class ExecutionRouter
 
             ConversationState::CANCEL_APPOINTMENT =>
                 CancelAppointment::execute($conversation, $message),
+
+            ConversationState::CONFIRM_RESHEDULE =>
+                ConfirmReshedule::execute($conversation, $message),
 
             default =>
                 Start::execute($conversation, $message),

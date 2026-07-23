@@ -9,8 +9,9 @@ enum ConversationState: string
     case BOOK_APPOINTMENT = 'book_appointment';
     case RESCHEDULE_APPOINTMENT = 'reschedule_appointment';
     case CANCEL_APPOINTMENT = 'cancel_appointment';
-    Case INFO_INQUIRY = 'info_inquiry';
-    Case INFO_CONFIRMATION = 'info_confirmation';
-    Case BOOK_SLOT = 'book_slot';
-    Case CONFIRM_BOOKING = 'confirm_booking';
+    case INFO_INQUIRY = 'info_inquiry';
+    case INFO_CONFIRMATION = 'info_confirmation';
+    case BOOK_SLOT = 'book_slot';
+    case CONFIRM_BOOKING = 'confirm_booking';
+    case CONFIRM_RESHEDULE = 'confirm_reshedule';
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\APIServices\Days\GetDays;
 use App\APIServices\Days\GetDayAppointments;
+use App\APIServices\Days\MapAppointments;
 use App\Models\Day;
 
 class DayController extends Controller
@@ -33,6 +34,16 @@ class DayController extends Controller
             'success' => true,
             'appointments' => $appointments,
             'day'  => Day::where('date',$request->date)->where('doctor_id',auth()->user()->doctor->id)->first(),
+        ]);
+    }
+
+    public function mapAppointments(Request $request)
+    {
+        $days = MapAppointments::execute();
+
+        return response()->json([
+            "success"  => true,
+            "days"     => $days,
         ]);
     }
 }

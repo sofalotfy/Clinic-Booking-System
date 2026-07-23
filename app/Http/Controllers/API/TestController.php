@@ -8,14 +8,18 @@ use App\Services\TemplatePlans\CreteaTemplate;
 use App\APIServices\Days\GetAvailableSlots;
 use App\APIServices\Doctors\GetAvailableDays;
 USE App\Services\TemplatePlans\ActivatePlan;
+use App\Services\TemplatePlans\CountColidingAppoinments;
+use App\APIServices\Days\MapAppointments;
 
 class TestController extends Controller
 {
     public function test(Request $request)
     {
+        $colidingAppointments = MapAppointments::execute();
+
         return response()->json([
-            'success' => true,
-            'plan' => ActivatePlan::execute(13),
+            'appo' => $colidingAppointments,
+            'message' => 'Plan activated successfully',
         ]);
     }
 

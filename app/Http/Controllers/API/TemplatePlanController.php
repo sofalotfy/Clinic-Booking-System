@@ -10,7 +10,10 @@ use App\Services\TemplatePlans\DeletePlan;
 use App\Models\TemplatePlan;
 use App\Enums\TemplatePlanStatus;
 use App\Services\TemplatePlans\ActivatePlan;
-
+use App\Services\TemplatePlans\CountColidingAppoinments;
+use App\Services\TemplatePlans\CountTruncatedAppointments;
+use App\Services\TemplatePlans\CountOverflowedAppointments;
+use Carbon\Carbon;
 
 class TemplatePlanController extends Controller
 {
@@ -58,6 +61,25 @@ class TemplatePlanController extends Controller
 
         return response()->json([
             'message' => 'Plan deleted successfully',
+        ]);
+    }
+
+    public function check(Request $request, $id)
+    {
+        $template = TemplatePlan::with('templateDays')
+            ->where('doctor_id', auth()->user()->doctor->id)
+            ->findOrFail($id);
+
+        $start_date = $request->input('start_date', Carbon::now()->addDays(1)->toDateString());
+
+        $colidingAppointments = count(CountColidingAppoinments::execute($template, $start_date));
+        $truncatedAppointments = count(CountTruncatedAppointments::execute($template, $start_date));
+        $overflowedAppointments = count(CountOverflowedAppointments::execute($template, $start_date));
+
+        return response()->json([
+            'colliding_appointments' => $colidingAppointments,
+            'truncated_appointments' => $truncatedAppointments,
+            'overflowed_appointments' => $overflowedAppointments,
         ]);
     }
 
