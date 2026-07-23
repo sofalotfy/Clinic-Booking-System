@@ -44,9 +44,10 @@ class CountOverflowedAppointments
             $end = Carbon::parse($date . ' ' . $templateDay->end_time);
             $slotCount = 0;
             $current = $start->copy();
-            while ($current->copy()->addMinutes($templateDay->appointment_duration)->lte($end)) {
+            $duration = (int) $templateDay->appointment_duration;
+            while ($current->copy()->addMinutes($duration)->lte($end)) {
                 $slotCount++;
-                $current->addMinutes($templateDay->appointment_duration);
+                $current->addMinutes($duration);
             }
 
             $sortedAppointments = $dateAppointments->sortBy('date');
