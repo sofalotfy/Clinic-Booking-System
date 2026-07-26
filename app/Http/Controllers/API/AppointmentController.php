@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\APIServices\Appointments\BookAppointment;
 use App\APIServices\Appointments\ListAppointments;
 use App\APIServices\Appointments\UpdateAppointment;
+use App\Services\Appointments\BulkUpdateAppointment;
 
 class AppointmentController extends Controller
 {
@@ -35,16 +36,9 @@ class AppointmentController extends Controller
 
     public function update(Request $request)
     {
-        \Log::info([
-            'all' => $request->all(),
-        ]);
         $appointments = $request->all();
 
         $appointments = $appointments['updates'];
-
-        \Log::info([
-            'appointments' => $appointments,
-        ]);
 
         foreach ($appointments as $appointment) {
             if (is_array($appointment) && isset($appointment['id'])) {

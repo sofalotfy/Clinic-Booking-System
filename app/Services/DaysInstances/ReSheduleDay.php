@@ -2,15 +2,11 @@
 
 namespace App\Services\DaysInstances;
 
-use App\Models\Day;
 use App\Models\Appointment;
 use Carbon\Carbon;
 use App\Enums\AppointmentStatus;
-use Carbon\CarbonPeriod;
-use Carbon\CarbonInterval;
-use App\Services\Appointments\ResheduleAppointment;
 use App\Services\Appointments\QueueAppointment;
-
+use App\Services\Appointments\ResheduleAppointment;
 
 class ReSheduleDay
 {
@@ -18,27 +14,123 @@ class ReSheduleDay
     {
         $appointments = Appointment::whereDate('date', $day->date)
             ->where('doctor_id', $day->doctor_id)
-            ->whereIn('status', [AppointmentStatus::ACTIVE, AppointmentStatus::QUEUED, AppointmentStatus::PENDING])
+            ->whereIn('status', [
+                AppointmentStatus::ACTIVE,
+                AppointmentStatus::QUEUED,
+                AppointmentStatus::PENDING,
+            ])
             ->orderBy('date')
             ->get();
 
+        // Generate slots
         $slots = [];
-        $start = Carbon::parse("{$day->date} {$day->start_time}");
+
+        $current = Carbon::parse("{$day->date} {$day->start_time}");
         $end = Carbon::parse("{$day->date} {$day->end_time}");
 
-        $current = $start->copy();
         while ($current->copy()->addMinutes($day->appointment_duration)->lte($end)) {
             $slots[] = $current->copy();
             $current->addMinutes($day->appointment_duration);
         }
 
-        foreach ($appointments as $index => $appointment) {
-            if ($index < count($slots)) {
-                $slotTime = $slots[$index];
-                ResheduleAppointment::execute($appointment, $slotTime->toDateTimeString(), $day->appointment_duration);
+        $used = array_fill(0, count($slots), false);
+
+        foreach ($appointments as $appointment) {
+
+            $appointmentTime = Carbon::parse($appointment->date);
+
+            $slotIndex = self::findClosestAvailableSlot(
+                $appointmentTime,
+                $slots,
+                $used
+            );
+
+            if ($slotIndex === null) {
+                QueueAppointment::execute(
+                    $appointment,
+                    $day->appointment_duration,
+                    'overflow'
+                );
+
+                continue;
+            }
+
+            $used[$slotIndex] = true;
+
+            ResheduleAppointment::execute(
+                $appointment,
+                $slots[$slotIndex]->toDateTimeString(),
+                $day->appointment_duration
+            );
+        }
+    }
+
+    /**
+     * Returns the index of the closest available slot.
+     */
+    private static function findClosestAvailableSlot(
+        Carbon $appointmentTime,
+        array $slots,
+        array $used
+    ): ?int {
+
+        $count = count($slots);
+
+        if ($count === 0) {
+            return null;
+        }
+
+        // ---------- Binary Search ----------
+
+        $low = 0;
+        $high = $count - 1;
+
+        while ($low <= $high) {
+
+            $mid = intdiv($low + $high, 2);
+
+            if ($slots[$mid]->lt($appointmentTime)) {
+                $low = $mid + 1;
             } else {
-                QueueAppointment::execute($appointment, $day->appointment_duration, 'overflow');
+                $high = $mid - 1;
             }
         }
+
+        // $low is the insertion point.
+
+        $left = $low - 1;
+        $right = $low;
+
+        // ---------- Expand outwards ----------
+
+        while ($left >= 0 || $right < $count) {
+
+            while ($left >= 0 && $used[$left]) {
+                $left--;
+            }
+
+            while ($right < $count && $used[$right]) {
+                $right++;
+            }
+
+            if ($left < 0) {
+                return $right < $count ? $right : null;
+            }
+
+            if ($right >= $count) {
+                return $left;
+            }
+
+            $leftDiff = abs($appointmentTime->diffInSeconds($slots[$left], false));
+            $rightDiff = abs($appointmentTime->diffInSeconds($slots[$right], false));
+
+            if ($leftDiff <= $rightDiff) {
+                return $left;
+            }
+
+            return $right;
+        }
+
+        return null;
     }
 }

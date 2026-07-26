@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\APIServices\Days\GetDays;
 use App\APIServices\Days\GetDayAppointments;
 use App\APIServices\Days\MapAppointments;
+use App\Services\DaysInstances\UpdateDay;
 use App\Models\Day;
 
 class DayController extends Controller
@@ -22,6 +23,16 @@ class DayController extends Controller
         return response()->json([
             'success' => true,
             'days' => $days,
+        ]);
+    }
+
+    public function update(Day $day, Request $request)
+    {
+        UpdateDay::execute($day, $request->day);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Day updated successfully',
         ]);
     }
 

@@ -10,22 +10,26 @@ use App\APIServices\Doctors\GetAvailableDays;
 USE App\Services\TemplatePlans\ActivatePlan;
 use App\Services\TemplatePlans\CountColidingAppoinments;
 use App\APIServices\Days\MapAppointments;
-
+use App\APIServices\Days\GetDayAppointments;
+use App\Models\Day;
+use App\Services\Appointments\BulkUpdateAppointment;
 class TestController extends Controller
 {
     public function test(Request $request)
     {
-        $colidingAppointments = MapAppointments::execute();
+        $appointments = $request->all();
+
+        $appointments = $appointments['updates'];
+
+        BulkUpdateAppointment::execute($appointments);
 
         return response()->json([
-            'appo' => $colidingAppointments,
-            'message' => 'Plan activated successfully',
+            'success' => true,
         ]);
     }
 
     public function makePlan(Request $request)
     {
-        
         $plan = CreteaTemplate::execute($request->doctor_id, $request->days);
         return response()->json([
             'success' => true,

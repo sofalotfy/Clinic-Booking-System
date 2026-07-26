@@ -83,9 +83,9 @@ class TemplatePlanController extends Controller
         ]);
     }
 
-    public function activate($id)
+    public function activate($id,Request $request)
     {
-        $plan = ActivatePlan::execute($id);
+        $plan = ActivatePlan::execute($id,$request->start_date);
 
         return response()->json([
             'message' => 'Plan activated successfully',

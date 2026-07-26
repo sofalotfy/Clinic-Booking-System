@@ -11,7 +11,7 @@ use App\Services\Appointments\ResheduleAppointment;
 
 class ActivatePlan
 {
-    public static function execute($template_id)
+    public static function execute($template_id,$date)
     {
         $template = TemplatePlan::with('templateDays')->findOrFail($template_id);
 
@@ -30,9 +30,11 @@ class ActivatePlan
             ]);
         }
 
+        $startDate = Carbon::parse($date);
+
         $period = CarbonPeriod::create(
-            Carbon::today()->addDays(1),
-            Carbon::today()->addDays(31)
+            $startDate,
+            $startDate->copy()->addDays(30)
         );
 
         foreach ($period as $date) {

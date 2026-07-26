@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
     
     Route::get('/day/appointments', [DayController::class, 'dayAppointments'])->name('day-appointments');
+    Route::post('/days/{day}/update', [DayController::class, 'update'])->name('update');
     Route::get('/days', [DayController::class, 'index'])->name('days');
     Route::get('/days/appointments', [DayController::class, 'mapAppointments'])->name('daysAppointments');
 
@@ -71,11 +72,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
     Route::post('/permissions/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+
+    
+    Route::get('/test', [TestController::class, 'test']);
 });
-
-Route::get('/test', [TestController::class, 'test']);
-Route::post('/make-plan', [TestController::class, 'makePlan']);
-
 
 Route::get('/webhook/whatsapp', [WhatsAppController::class, 'verify']);
 Route::post('/webhook/whatsapp', [WhatsAppController::class, 'receive']);
