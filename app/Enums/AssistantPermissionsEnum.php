@@ -2,7 +2,7 @@
 namespace App\Enums;
 
 
-enum PermissionsEnum: string {
+enum AssistantPermissionsEnum: string {
     case VIEW_ALL_APPOINTMENTS = 'view all appointments';
     case VIEW_SINGLE_APPOINTMENT = 'view single appointment';
     case CREATE_APPOINTMENT = 'create appointment';
@@ -32,4 +32,17 @@ enum PermissionsEnum: string {
     case CREATE_ROLE = 'create role';
     case UPDATE_ROLE = 'update role';
     case DELETE_ROLE = 'delete role';
+    case MANAGE_ASSISTANT_ROLES = 'manage assistant roles';
+
+    case VIEW_ALL_FLAGS = 'view all flags';
+    case VIEW_SINGLE_FLAG = 'view single flag';
+    case CREATE_FLAG = 'create flag';
+    case UPDATE_FLAG = 'update flag';
+    case DELETE_FLAG = 'delete flag';
+
+    case VIEW_ALL_COMMENTS = 'view all comments';
+    case VIEW_SINGLE_COMMENT = 'view single comment';
+    case CREATE_COMMENT = 'create comment';
+    case UPDATE_COMMENT = 'update comment';
+    case DELETE_COMMENT = 'delete comment';
 }

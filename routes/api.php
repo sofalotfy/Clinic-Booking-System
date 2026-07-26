@@ -13,6 +13,7 @@ use App\Http\Controllers\API\TemplatePlanController;
 use App\Http\Controllers\API\DayController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\PermissionController;
+use App\Http\Controllers\API\AssistantController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -68,12 +69,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions');
-    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
-    Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
-    Route::post('/permissions/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
-    Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+    Route::get('/permissions/assistants', [PermissionController::class, 'listAssistantPermissions'])->name('assistant-permissions');
+    Route::get('/my-permissions', [PermissionController::class, 'GetUserPermissions'])->name('my-permissions');
+    // Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+    // Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
+    // Route::post('/permissions/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+    // Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
     
+    Route::get('/assistants', [AssistantController::class, 'index']);
+    Route::get('/assistants/{assistant}', [AssistantController::class, 'show']);
+    Route::post('/assistants', [AssistantController::class, 'store']);
+    Route::post('/assistants/{assistant}', [AssistantController::class, 'update']);
+    Route::delete('/assistants/{assistant}', [AssistantController::class, 'destroy']);
+    Route::post('/assistants/{assistant}/assign-role/{role}', [AssistantController::class, 'assignRole']);
+    
+
     Route::get('/test', [TestController::class, 'test']);
 });
 

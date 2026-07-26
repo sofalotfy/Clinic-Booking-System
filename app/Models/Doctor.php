@@ -92,4 +92,8 @@ class Doctor extends Model
         return $this->hasOne(DoctorWhatsAppAccount::class);
     }
 
+    public function assistants()
+    {
+        return $this->hasMany(Assistant::class);
+    }
 }

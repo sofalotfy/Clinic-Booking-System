@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->hasOne(Patient::class);
     }
 
+    public function assistant()
+    {
+        return $this->hasOne(Assistant::class);
+    }
+
     /**
      * Determine if the user is a doctor.
      */
