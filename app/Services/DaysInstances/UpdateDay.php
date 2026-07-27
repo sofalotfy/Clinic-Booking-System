@@ -14,12 +14,11 @@ class UpdateDay
 {
     public static function execute($day, $updates)
     {
-        if(!$auth()->user->doctor || auth()->user()->doctor->id != $day->doctor_id){
+        if(!auth()->user()->doctor || auth()->user()->doctor->id != $day->doctor_id){
             throw new \Exception('You are not authorized to perform this action');
         }
 
         $day->update($updates);
-        
         ReSheduleDay::execute($day);
 
         return $day;
