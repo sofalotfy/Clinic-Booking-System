@@ -36,6 +36,7 @@ class GetDays
             'days.start_time',
             'days.end_time',
             'days.appointment_duration',
+            'days.queue_length',
             DB::raw('COUNT(appointments.id) as total_appointments')
         ];
     }
