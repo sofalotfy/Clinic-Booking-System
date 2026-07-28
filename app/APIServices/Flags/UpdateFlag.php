@@ -20,7 +20,7 @@ class UpdateFlag
         $flag->update([
             'name' => $validated['name'] ?? $flag->name,
             'color' => $validated['color'] ?? $flag->color,
-            'description' => isset($validated['description']) ? $validated['description'] : $flag->description,
+            'description' => $request->has('description') ? $request->description : $flag->description,
         ]);
 
         return $flag->refresh();
