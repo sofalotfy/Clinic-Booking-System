@@ -20,7 +20,7 @@ class UpdateFlag
         $flag->update([
             'name' => $validated['name'] ?? $flag->name,
             'color' => $validated['color'] ?? $flag->color,
-            'description' => $validated['description']!=null ?? $flag->description,
+            'description' => $validated['description'] ?? $flag->description,
         ]);
 
         return $flag->refresh();
