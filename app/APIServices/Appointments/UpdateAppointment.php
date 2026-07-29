@@ -70,14 +70,29 @@ class UpdateAppointment
 
     private static function notifyIfNeeded($model, $oldStatus, $oldDate)
     {
+        \Log::info('notification check', [
+            'oldStatus' => $oldStatus,
+            'newStatus' => $model->status,
+            'oldDate' => $oldDate,
+            'newDate' => $model->date,
+        ]);
         if (
             $oldStatus !== $model->status
         ) {
+            \Log::info('notification check', [
+                'status changed' => true
+            ]);
             if ($model->status == AppointmentStatus::CANCELLED->value) {
+                \Log::info('notification check', [
+                    'cancel' => true
+                ]);
                 NotifyReshedule::execute($model, null, AppointmentUpdateNotificationTypes::CANCEL);
             }
 
             if ($model->status == AppointmentStatus::QUEUED->value) {
+                \Log::info('notification check', [
+                    'queued' => true
+                ]);
                 NotifyReshedule::execute($model, null, AppointmentUpdateNotificationTypes::OVERFLOW);
             }
 
@@ -85,6 +100,9 @@ class UpdateAppointment
         }
 
         if ($oldDate !== $model->date) {
+            \Log::info('notification check', [
+                'date changed' => true
+            ]);
             NotifyReshedule::execute($model, $model->date, AppointmentUpdateNotificationTypes::RESHEEDULE);
         }
     }
