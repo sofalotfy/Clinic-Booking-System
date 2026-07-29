@@ -9,6 +9,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Enums\AppointmentUpdateNotificationTypes;
+use App\Enums\AppointmentStatus;
+use App\Services\Appointments\NotifyReshedule;
 
 class UpdateAppointment
 {
