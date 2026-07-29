@@ -5,7 +5,7 @@ namespace App\Services\Appointments;
 use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
 use Carbon\Carbon;
-
+use App\Enums\AppointmentUpdateNotificationTypes;
 
 class ResheduleAppointment
 {
@@ -20,7 +20,7 @@ class ResheduleAppointment
             ]
         );
 
-        NotifyReshedule::execute($appointment, $new_date, 'collide');
+        NotifyReshedule::execute($appointment, $new_date, AppointmentUpdateNotificationTypes::COLIDE);
 
         return $appointment;
     }

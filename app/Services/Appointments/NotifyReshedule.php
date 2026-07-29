@@ -8,12 +8,11 @@ use App\Models\WhatsAppConversation;
 use App\Enums\ConversationState;
 use Carbon\Carbon;
 use App\APIServices\WhatsApp\ExecutionRouter;
-
+use App\Enums\AppointmentUpdateNotificationTypes;
 class NotifyReshedule
 {
-    public static function execute($appointment, $new_date = null, $type = 'collide')
+    public static function execute($appointment, $new_date = null, $type = AppointmentUpdateNotificationTypes::COLIDE)
     {
-        return;
         $conversation = WhatsAppConversation::where('patient_id',$appointment->patient_id)->first();
         $patient = Patient::find($appointment->patient_id);
         if(!$conversation){

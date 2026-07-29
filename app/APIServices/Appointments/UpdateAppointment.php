@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Enums\AppointmentUpdateNotificationTypes;
 
 class UpdateAppointment
 {
     public static function execute($appointment)
     {
         $model = Appointment::findOrFail($appointment['id']);
-
+        $oldStatus = $model->status;
+        $oldDate = $model->date;
         // Support both nested changes and flat fields
         $changes = $appointment['changes'] ?? $appointment;
 
@@ -46,10 +48,14 @@ class UpdateAppointment
         if (array_key_exists('time', $validated) && $validated['time'] !== null && $validated['time'] !== '') {
             $data['date'] = self::updateTime($model->date, $validated['time']);
         }
+        
 
         if (!empty($data)) {
             $model->update($data);
         }
+
+        self::notifyIfNeeded($model, $oldStatus, $oldDate);
+        
     }    
 
     private static function updateTime(string $dateTime, string $time): string
@@ -61,5 +67,26 @@ class UpdateAppointment
             ->setTime($hour, $minute)
             ->toDateTimeString();
     }
-    
+
+    private static function notifyIfNeeded($model, $oldStatus, $oldDate)
+    {
+        if (
+            $oldStatus !== $model->status
+        ) {
+            if ($model->status == AppointmentStatus::CANCELLED->value) {
+                NotifyReshedule::execute($model, null, AppointmentUpdateNotificationTypes::CANCEL);
+            }
+
+            if ($model->status == AppointmentStatus::QUEUED->value) {
+                NotifyReshedule::execute($model, null, AppointmentUpdateNotificationTypes::OVERFLOW);
+            }
+
+            return;
+        }
+
+        if ($oldDate !== $model->date) {
+            NotifyReshedule::execute($model, $model->date, AppointmentUpdateNotificationTypes::RESHEEDULE);
+        }
+    }
+
 }

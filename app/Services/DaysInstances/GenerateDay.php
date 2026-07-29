@@ -6,7 +6,8 @@ use App\Models\Day;
 use App\Models\Appointment;
 use Carbon\Carbon;
 use App\Services\Appointments\NotifyReshedule;
-
+use App\Services\Appointments\CancelAppointment;
+use App\Enums\AppointmentUpdateNotificationTypes;
 use App\Enums\AppointmentStatus;
 
 
@@ -34,11 +35,7 @@ class GenerateDay
                     ->whereIn('status', [AppointmentStatus::ACTIVE, AppointmentStatus::QUEUED, AppointmentStatus::PENDING])
                     ->get();
                 foreach ($appointments as $appointment) {
-                    $appointment->update([
-                        'status' => AppointmentStatus::CANCELLED,
-                        'isConfirmed'  => false,
-                    ]);
-                    NotifyReshedule::execute($appointment, null, 'truncate');
+                    CancelAppointment::execute($appointment, AppointmentUpdateNotificationTypes::TRUNCATE);
                 }
             }
             return null;

@@ -5,6 +5,7 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Enums\AppointmentStatus;
+use App\Enums\AppointmentUpdateNotificationTypes;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Day;
 use App\Models\Appointment;
@@ -21,19 +22,22 @@ class ConfirmReshedule
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        
-        
+
+
 
         $rescheduleType = $conversation->data['reschedule_type'] ?? null;
         $appointment = Appointment::find($conversation->data['appointment_id']);
         $newDate = $conversation->data['new_date'] ?? $appointment->date;
 
-        if ($rescheduleType === 'truncate') {
+        if ($rescheduleType === AppointmentUpdateNotificationTypes::TRUNCATE) {
             $text = "We are sorry, but our clinic schedule has changed, and we no longer work on this day. Your appointment has been Cancelled. Would you like to book another appointment?";
-        } elseif ($rescheduleType === 'overflow') {
+        } elseif ($rescheduleType === AppointmentUpdateNotificationTypes::OVERFLOW) {
             $text = "Due to a schedule update, all slots for this day are full. Your appointment has been moved to the waiting list. Would you like to confirm?";
+        } elseif ($rescheduleType === AppointmentUpdateNotificationTypes::CANCEL) {
+            $text = "We’re sorry, but your appointment has been cancelled by the doctor. Would you like to book a new appointment at a different time?";
+        } elseif ($rescheduleType === AppointmentUpdateNotificationTypes::COLIDE) {
+            $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
         } else {
-            // collide / default
             $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
         }
             

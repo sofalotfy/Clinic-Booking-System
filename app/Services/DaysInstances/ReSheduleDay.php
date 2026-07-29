@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Enums\AppointmentStatus;
 use App\Services\Appointments\QueueAppointment;
 use App\Services\Appointments\ResheduleAppointment;
-
+use App\Enums\AppointmentUpdateNotificationTypes;
 class ReSheduleDay
 {
     public static function execute($day)
@@ -49,7 +49,7 @@ class ReSheduleDay
                 QueueAppointment::execute(
                     $appointment,
                     $day->appointment_duration,
-                    'overflow'
+                    AppointmentUpdateNotificationTypes::OVERFLOW
                 );
 
                 continue;

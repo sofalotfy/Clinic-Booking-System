@@ -7,15 +7,13 @@ use App\Models\Appointment;
 use Carbon\Carbon;
 use App\Enums\AppointmentUpdateNotificationTypes;
 
-class QueueAppointment
+class CancelAppointment
 {
-    public static function execute($appointment, $duration = null, $type = AppointmentUpdateNotificationTypes::OVERFLOW)
-    {   
+    public static function execute($appointment, $type = AppointmentUpdateNotificationTypes::CANCEL)
+    {
         $appointment->update(
             [
-                'duration' => $duration ?? $appointment->duration,
-                'status'  =>  AppointmentStatus::QUEUED,
-                'isConfirmed' => false,
+                'status'  =>  AppointmentStatus::CANCELLED,
             ]
         );
 
