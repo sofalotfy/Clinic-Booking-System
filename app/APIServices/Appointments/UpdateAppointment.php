@@ -34,9 +34,6 @@ class UpdateAppointment
 
         $validated = $validator->validated();
 
-        $model->update([
-            "status" =>  $validated['status']??$model['status'],
-        ]);
         $data = [];
 
         if (array_key_exists('status', $validated) && $validated['status'] !== null && $validated['status'] !== '') {
@@ -54,6 +51,7 @@ class UpdateAppointment
 
         if (!empty($data)) {
             $model->update($data);
+            $model->refresh();
         }
 
         self::notifyIfNeeded($model, $oldStatus, $oldDate);
