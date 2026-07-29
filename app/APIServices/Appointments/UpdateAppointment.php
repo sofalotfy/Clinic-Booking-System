@@ -82,14 +82,14 @@ class UpdateAppointment
             \Log::info('notification check', [
                 'status changed' => true
             ]);
-            if ($model->status == AppointmentStatus::CANCELLED->value) {
+            if ($model->status == AppointmentStatus::CANCELLED) {
                 \Log::info('notification check', [
                     'cancel' => true
                 ]);
                 NotifyReshedule::execute($model, null, AppointmentUpdateNotificationTypes::CANCEL);
             }
 
-            if ($model->status == AppointmentStatus::QUEUED->value) {
+            if ($model->status == AppointmentStatus::QUEUED) {
                 \Log::info('notification check', [
                     'queued' => true
                 ]);
