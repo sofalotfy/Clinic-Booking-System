@@ -37,6 +37,8 @@ class ConfirmReshedule
             $text = "We’re sorry, but your appointment has been cancelled by the doctor. Would you like to book a new appointment at a different time?";
         } elseif ($rescheduleType === AppointmentUpdateNotificationTypes::COLIDE) {
             $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
+        } elseif ($rescheduleType === AppointmentUpdateNotificationTypes::QUEUED) {
+            $text = "Your appointment has been added to waiting list. Would you like to confirm?";
         } else {
             $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
         }

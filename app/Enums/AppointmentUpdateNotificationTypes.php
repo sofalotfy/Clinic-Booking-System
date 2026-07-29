@@ -9,4 +9,5 @@ enum AppointmentUpdateNotificationTypes: string
     case TRUNCATE = 'Truncate';
     case OVERFLOW = 'Overflow';
     case RESHEEDULE = 'Reshedule';
+    case QUEUED = 'Queued';
 }
