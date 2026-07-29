@@ -2,92 +2,103 @@
 
 namespace App\APIServices\Patients;
 
-use App\Models\Patient;
-use App\Models\User;
-use App\Models\Appointment;
 use App\Enums\UserType;
+use App\Models\Appointment;
+use App\Models\Patient;
+use App\Models\PatientBlock;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
-
 
 class GetPatient
 {
-    public static function execute(int $patientId)
-    {   
-        $patient = Patient::with([
-            'user',
-            'flags',
-            'notes',
-            'appointments'
-        ])->findOrFail($patientId);
+    public static function execute(int $userId, int $patientId)
+    {
+        $query = self::getAuthData($userId);
 
-        return $patient;
+        if (!$query) {
+            return null;
+        }
+
+        return $query
+            ->where('patients.id', $patientId)
+            ->select(self::getSelects())
+            ->firstOrFail();
     }
 
-    private static function getSelects()
+    private static function getSelects(): array
     {
         return [
-            'patients.id as id',
-            'users.name as name',
-            'users.phone as phone',
-            'users.email as email',
+            'patients.id',
+
+            'users.name',
+            'users.phone',
+            'users.email',
             'users.image as avatar',
-            'users.age as age',
-            'users.area as area',
+            'users.age',
+            'users.area',
+
             DB::raw('DATE(appointment_summary.last_appointment) as last_appointment_date'),
             DB::raw('TIME(appointment_summary.last_appointment) as last_appointment_time'),
+
             DB::raw('DATE(appointment_summary.upcoming_appointment) as upcoming_appointment_date'),
             DB::raw('TIME(appointment_summary.upcoming_appointment) as upcoming_appointment_time'),
+
+            'patient_blocks.reason as block_reason',
+            'patient_blocks.blocked_at',
+            'patient_blocks.expires_at',
+
+            DB::raw("
+                CASE
+                    WHEN patient_blocks.id IS NULL THEN 0
+                    ELSE 1
+                END AS is_blocked
+            "),
         ];
     }
 
     private static function getAuthData(int $userId)
     {
-        $user = User::where('id', $userId)->first();
+        $user = User::findOrFail($userId);
 
-        if($user->type == UserType::DOCTOR){
-            $appointmentSummary = self::getAppintmentSummarData($user->doctor->id);
-
-            return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
-                        ->leftJoin('users', 'patients.user_id', '=', 'users.id')
-                        ->leftJoinSub($appointmentSummary, 'appointment_summary', function ($join) {
-                            $join->on('patients.id', '=', 'appointment_summary.patient_id');
-                        })
-                        ->where('appointments.doctor_id', $user->doctor->id);
-        }
-        else{
+        if ($user->type !== UserType::DOCTOR) {
             return null;
         }
-    }
 
+        $doctorId = $user->doctor->id;
 
-    private static function getAppintmentSummarData(int $doctorId)
-    {
-        $appointmentSummary = Appointment::select(
-            'patient_id',
-            DB::raw('MAX(CASE WHEN date < NOW() THEN date END) as last_appointment'),
-            DB::raw('MIN(CASE WHEN date >= NOW() THEN date END) as upcoming_appointment')
-        )
-        ->where('doctor_id', $doctorId)
-        ->groupBy('patient_id');
-
-        return $appointmentSummary;
-    }
-
-    private static function getFlagsData($patients,$doctorId)
-    {
-        return DB::table('flag_patient')
-            ->join('flags', 'flags.id', '=', 'flag_patient.flag_id')
-            ->where('flag_patient.doctor_id', $doctorId)
-            ->whereIn('flag_patient.patient_id', $patients->pluck('id'))
-            ->select(
-                'flag_patient.patient_id',
-                'flags.id',
-                'flags.name',
-                'flags.color',
-                'flags.description'
+        return Patient::query()
+            ->leftJoin('appointments', function ($join) use ($doctorId) {
+                $join->on('patients.id', '=', 'appointments.patient_id')
+                    ->where('appointments.doctor_id', $doctorId);
+            })
+            ->leftJoin('users', 'patients.user_id', '=', 'users.id')
+            ->leftJoinSub(
+                self::getAppointmentSummaryData($doctorId),
+                'appointment_summary',
+                function ($join) {
+                    $join->on('patients.id', '=', 'appointment_summary.patient_id');
+                }
             )
-            ->get()
+            ->leftJoin('patient_blocks', function ($join) use ($doctorId) {
+                $join->on('patients.id', '=', 'patient_blocks.patient_id')
+                    ->where('patient_blocks.doctor_id', $doctorId)
+                    ->whereNull('patient_blocks.unblocked_at')
+                    ->where(function ($query) {
+                        $query->whereNull('patient_blocks.expires_at')
+                            ->orWhere('patient_blocks.expires_at', '>', now());
+                    });
+            });
+    }
+
+    private static function getAppointmentSummaryData(int $doctorId)
+    {
+        return Appointment::query()
+            ->select(
+                'patient_id',
+                DB::raw('MAX(CASE WHEN date < NOW() THEN date END) as last_appointment'),
+                DB::raw('MIN(CASE WHEN date >= NOW() THEN date END) as upcoming_appointment')
+            )
+            ->where('doctor_id', $doctorId)
             ->groupBy('patient_id');
     }
-
 }

@@ -25,6 +25,11 @@ class Patient extends Model
             }
         });
     }
+    
+    public function blocks()
+    {
+        return $this->hasMany(PatientBlock::class);
+    }
 
     /**
      * Get the user that owns the patient profile.

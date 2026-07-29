@@ -96,4 +96,9 @@ class Doctor extends Model
     {
         return $this->hasMany(Assistant::class);
     }
+
+    public function blockedPatients()
+    {
+        return $this->hasMany(PatientBlock::class);
+    }
 }

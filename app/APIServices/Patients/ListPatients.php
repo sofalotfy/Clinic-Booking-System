@@ -68,14 +68,21 @@ class ListPatients
                         ->paginate($perPage);
 
         $flags = self::getFlagsData($patients, $user->doctor->id);
+        $blocks = self::getBlockData($patients, $user->doctor->id);
         
 
-        $patients->transform(function ($patient) use ($flags) {
+        $patients->transform(function ($patient) use ($flags, $blocks) {
             $patient->avatar = $patient->avatar
                 ? asset('storage/' . $patient->avatar)
                 : null;
 
             $patient->flags = $flags->get($patient->id, collect())->values();
+            
+            $block = $blocks->get($patient->id);
+
+            $patient->is_blocked = !is_null($block);
+
+            $patient->block = $block;
 
 
             return $patient;
@@ -106,7 +113,7 @@ class ListPatients
         $user = User::where('id', $userId)->first();
 
         if($user->type == UserType::DOCTOR){
-            $appointmentSummary = self::getAppintmentSummarData($user->doctor->id);
+            $appointmentSummary = self::getAppintmentSummaryData($user->doctor->id);
 
             return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
                         ->leftJoin('users', 'patients.user_id', '=', 'users.id')
@@ -121,7 +128,7 @@ class ListPatients
     }
 
 
-    private static function getAppintmentSummarData(int $doctorId)
+    private static function getAppintmentSummaryData(int $doctorId)
     {
         $appointmentSummary = Appointment::select(
             'patient_id',
@@ -151,4 +158,23 @@ class ListPatients
             ->groupBy('patient_id');
     }
 
+    private static function getBlockData($patients, int $doctorId)
+    {
+        return DB::table('patient_blocks')
+            ->where('doctor_id', $doctorId)
+            ->whereNull('unblocked_at')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->whereIn('patient_id', $patients->pluck('id'))
+            ->select(
+                'patient_id',
+                'reason',
+                'blocked_at',
+                'expires_at'
+            )
+            ->get()
+            ->keyBy('patient_id');
+    }
 }

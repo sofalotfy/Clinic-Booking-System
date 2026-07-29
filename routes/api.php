@@ -14,6 +14,7 @@ use App\Http\Controllers\API\DayController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\AssistantController;
+use App\Http\Controllers\API\PatientBlockController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -29,6 +30,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
+
+
+    Route::get('/patients-block', [PatientBlockController::class, 'index']);
+    Route::post('/patients-block/{patient}', [PatientBlockController::class, 'store']);
+    Route::delete('/patients-block/{patient}', [PatientBlockController::class, 'destroy']);
 
 
     Route::post('/appointment', [AppointmentController::class, 'store'])->name('store-appointment');
