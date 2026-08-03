@@ -8,6 +8,8 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Models\Appointment;
+use App\Services\Appointments\CancelAppointment as CancelService;
+use App\Enums\AppointmentUpdateNotificationTypes;
 
 class CancelAppointment
 {
@@ -56,8 +58,9 @@ class CancelAppointment
         switch ($message['value']) {
 
             case 'confirm':
+                
                 $appointment = Appointment::find($conversation->data['appointment_id']);
-                $appointment->delete();
+                CancelService::execute($appointment, AppointmentUpdateNotificationTypes::CANCEL);
 
                 
                 $conversation->update([
