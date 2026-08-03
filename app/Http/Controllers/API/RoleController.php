@@ -17,7 +17,7 @@ class RoleController extends Controller
     {
         abort_if(
             ! CheckClinicPermission::execute(
-                $request,
+                $request->user(),
                 AssistantPermissionsEnum::VIEW_ALL_ROLES->value
             ),
             403
@@ -38,7 +38,7 @@ class RoleController extends Controller
     {
         abort_if(
             ! CheckClinicPermission::execute(
-                $request,
+                $request->user(),
                 AssistantPermissionsEnum::VIEW_SINGLE_ROLE->value,
                 $role
             ),
@@ -54,7 +54,7 @@ class RoleController extends Controller
     {
         abort_if(
             ! CheckClinicPermission::execute(
-                $request,
+                $request->user(),
                 AssistantPermissionsEnum::CREATE_ROLE->value
             ),
             403
@@ -88,7 +88,7 @@ class RoleController extends Controller
     {
         abort_if(
             ! CheckClinicPermission::execute(
-                $request,
+                $request->user(),
                 AssistantPermissionsEnum::UPDATE_ROLE->value,
                 $role
             ),
@@ -117,7 +117,7 @@ class RoleController extends Controller
     {
         abort_if(
             ! CheckClinicPermission::execute(
-                $request,
+                $request->user(),
                 AssistantPermissionsEnum::DELETE_ROLE->value,
                 $role
             ),

@@ -13,19 +13,14 @@ use App\APIServices\Days\MapAppointments;
 use App\APIServices\Days\GetDayAppointments;
 use App\Models\Day;
 use App\Services\Appointments\BulkUpdateAppointment;
+use App\Services\Notifications\Doctor\PatientRename;
+use App\Models\Patient;
+
 class TestController extends Controller
 {
     public function test(Request $request)
     {
-        $appointments = $request->all();
-
-        $appointments = $appointments['updates'];
-
-        BulkUpdateAppointment::execute($appointments);
-
-        return response()->json([
-            'success' => true,
-        ]);
+        PatientRename::execute(Patient::find(1),"sofa","sofa1");
     }
 
     public function makePlan(Request $request)

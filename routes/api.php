@@ -15,6 +15,7 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\AssistantController;
 use App\Http\Controllers\API\PatientBlockController;
+use App\Http\Controllers\API\NotificationController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -37,9 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/patients-block/{patient}', [PatientBlockController::class, 'destroy']);
 
 
-    Route::post('/appointment', [AppointmentController::class, 'store'])->name('store-appointment');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('store-appointment');
+    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('update-appointment');
     Route::get('/appointments', [AppointmentController::class, 'index'])->name('get-appointments');
-    Route::post('/appointments', [AppointmentController::class, 'update'])->name('update-appointment');
+    Route::put('/appointments', [AppointmentController::class, 'bulkUpdate'])->name('bulk-update-appointment');
     
     Route::get('/day/appointments', [DayController::class, 'dayAppointments'])->name('day-appointments');
     Route::post('/days/{day}/update', [DayController::class, 'update'])->name('update');
@@ -88,8 +90,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/assistants', [AssistantController::class, 'store']);
     Route::post('/assistants/{assistant}', [AssistantController::class, 'update']);
     Route::delete('/assistants/{assistant}', [AssistantController::class, 'destroy']);
-    Route::post('/assistants/{assistant}/assign-role/{role}', [AssistantController::class, 'assignRole']);
+    Route::post('/assistants/{assistant}/roles/{role}', [AssistantController::class, 'assignRole']);
+    Route::delete('/assistants/{assistant}/roles/{role}', [AssistantController::class, 'removeRole']);
     
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/historical', [NotificationController::class, 'historical']);
+    Route::post('/notifications/view-bulk', [NotificationController::class, 'viewBulk']);
+    Route::post('/notifications/{notification}', [NotificationController::class, 'view']);
+
 
     Route::get('/test', [TestController::class, 'test']);
 });

@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use App\APIServices\Appointments\BookAppointment;
 use App\APIServices\Appointments\ListAppointments;
 use App\APIServices\Appointments\UpdateAppointment;
-use App\Services\Appointments\BulkUpdateAppointment;
+use App\APIServices\Appointments\BulkUpdateAppointments;
+use App\Models\Appointment;
 
 class AppointmentController extends Controller
 {
@@ -34,20 +35,24 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request, Appointment $appointment)
     {
-        $appointments = $request->all();
-
-        $appointments = $appointments['updates'];
-
-        foreach ($appointments as $appointment) {
-            if (is_array($appointment) && isset($appointment['id'])) {
-                UpdateAppointment::execute($appointment);
-            }
-        }
+        $appointment = UpdateAppointment::execute($appointment,$request->all());
         
         return response()->json([
             'success' => true,
+            'appointment' => $appointment,
         ]);
     }
+
+    public function bulkUpdate(Request $request)
+    {
+        $appointments = BulkUpdateAppointments::execute($request);
+        
+        return response()->json([
+            'success' => true,
+            'appointments' => $appointments,
+        ]);
+    }
+
 }

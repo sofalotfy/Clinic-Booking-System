@@ -8,6 +8,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ConversationRouter;
 use App\APIServices\WhatsApp\ExecutionRouter;
+use App\Services\Notifications\Doctor\Profile\PatientRename;
 
 class InfoConfirmation
 {
@@ -59,11 +60,19 @@ class InfoConfirmation
         switch ($message['value']) {
 
             case 'confirm':
+                $oldName = $conversation->patient->user->name;
+                $newName = $conversation->data['name'];
+                
                 $conversation->patient->user->update([
-                    'name' => $conversation->data['name'],
+                    'name' => $newName,
                     'age' => $conversation->data['age'],
                     'area' => $conversation->data['address'],
                 ]);
+
+                if ($oldName !== $newName) {
+                    $patient = $conversation->patient;
+                    PatientRename::execute($patient, $oldName, $newName);
+                }
                 
                 SendMessage::text(
                     $account->phone_number_id,
