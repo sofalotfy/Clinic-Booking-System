@@ -11,11 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class GetPatient
 {
-    public static function execute(int $userId = null, int $patientId)
+    public static function execute(int $userId, int $patientId)
     {
-        if(!$userId){
-            $userId = auth()->user()->id;
-        }
         $query = self::getAuthData($userId);
 
         if (!$query) {

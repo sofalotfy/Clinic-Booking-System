@@ -26,7 +26,7 @@ class PatientController extends Controller
 
     public function show(Patient $patient)
     {
-        $patient = GetPatient::execute($patient->id);
+        $patient = GetPatient::execute(auth()->user()->id, $patient->id);
         return response()->json([
             'patient' => $patient,
         ]);
