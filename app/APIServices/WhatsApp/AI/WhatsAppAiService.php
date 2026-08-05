@@ -5,6 +5,7 @@ namespace App\APIServices\WhatsApp\AI;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
 use OpenAI\Laravel\Facades\OpenAI;
+use Carbon\Carbon;
 
 class WhatsAppAiService
 {
@@ -13,15 +14,24 @@ class WhatsAppAiService
         'get_doctor_available_days' => GetDoctorAvailableDays::class,
     ];
 
-    public function ask(string $userMessage, array $history = []): string
+    /**
+     * @param string $userMessage
+     * @param array $history Past chat messages
+     * @param array $context Contextual details about patient, doctor, and clinic
+     */
+    public function ask(string $userMessage, array $history = [], array $context = []): string
     {
+        // 1. Build System Instruction with full context
+        $systemContent = $this->buildSystemPrompt($context);
+
         $messages = [
             [
                 'role' => 'system',
-                'content' => 'You are a clinic support assistant on WhatsApp. Today is ' . date('Y-m-d') . '. Use tools to look up doctors, schedules, or appointments as needed before answering.',
+                'content' => $systemContent,
             ],
         ];
 
+        // 2. Append past conversation history
         foreach ($history as $msg) {
             $messages[] = [
                 'role' => $msg['role'],
@@ -29,40 +39,39 @@ class WhatsAppAiService
             ];
         }
 
+        // 3. Append the newest incoming message
         $messages[] = [
             'role' => 'user',
             'content' => $userMessage,
         ];
 
-        // Wrap array_map with array_values to guarantee a indexed sequential array [0 => ..., 1 => ...]
         $toolSchemas = array_values(array_map(fn($class) => $class::definition(), $this->tools));
 
-        // Cap the maximum iterations to prevent infinite API loops
         $maxTurns = 5;
         $turns = 0;
 
         while ($turns < $maxTurns) {
             $turns++;
 
-            // Call model with current message thread
-            $response = OpenAI::chat()->create([
+            $payload = [
                 'model' => 'llama-3.3-70b-versatile',
                 'messages' => $messages,
-                'tools' => $toolSchemas,
-                'tool_choice' => 'auto',
-            ]);
+            ];
 
+            if (!empty($toolSchemas)) {
+                $payload['tools'] = $toolSchemas;
+                $payload['tool_choice'] = 'auto';
+            }
+
+            $response = OpenAI::chat()->create($payload);
             $responseMessage = $response->choices[0]->message;
 
-            // If the model DID NOT request any tools, it returned the final text answer
             if (empty($responseMessage->toolCalls)) {
                 return $responseMessage->content;
             }
 
-            // Append the AI's tool request intention to the conversation thread
             $messages[] = $responseMessage->toArray();
 
-            // Execute ALL tool calls requested in this turn (handles parallel calls)
             foreach ($responseMessage->toolCalls as $toolCall) {
                 $functionName = $toolCall->function->name;
                 $arguments = json_decode($toolCall->function->arguments, true) ?? [];
@@ -71,24 +80,62 @@ class WhatsAppAiService
 
                 if (isset($this->tools[$functionName])) {
                     try {
+                        // Automatically inject contextual IDs if missing from tool arguments
+                        if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
+                            $arguments['doctor_id'] = $context['doctor_id'];
+                        }
+                        
                         $result = $this->tools[$functionName]::handle($arguments);
                     } catch (\Exception $e) {
                         $result = ['error' => $e->getMessage()];
                     }
                 }
 
-                // Append each individual tool output back to the thread
                 $messages[] = [
                     'role' => 'tool',
                     'tool_call_id' => $toolCall->id,
                     'content' => json_encode($result),
                 ];
             }
-
-            // Loop continues -> AI receives tool results and decides whether to write
-            // a final response or execute another tool!
         }
 
         return "I'm having trouble retrieving all the required details right now. Please try again.";
+    }
+
+    /**
+     * Construct the detailed system prompt using dynamic context.
+     */
+    protected function buildSystemPrompt(array $context): string
+    {
+        $today = Carbon::now();
+        $currentTime = Carbon::now()->format('H:i');
+
+        $patientName = $context['patient_name'] ?? 'Valued Patient';
+        $patientPhone = $context['patient_phone'] ?? 'Unknown';
+        $doctorName = $context['doctor_name'] ?? 'our clinic doctor';
+        $doctorId = $context['doctor_id'] ?? 'Not specified';
+
+        return <<<PROMPT
+You are an intelligent, friendly customer support assistant currently assisting patients on behalf of Dr. {$doctorName}.
+
+=== CURRENT SYSTEM CONTEXT ===
+- Today's Date & Day: {$today}
+- Current Time: {$currentTime}
+
+=== PATIENT CONTEXT ===
+- Patient Name: {$patientName}
+- Patient Phone: {$patientPhone}
+
+=== DOCTOR CONTEXT ===
+- Doctor Name: Dr. {$doctorName}
+- Doctor ID: {$doctorId}
+
+=== OPERATIONAL RULES ===
+1. Personalization: Greet the patient naturally using their name when appropriate.
+2. Tool Usage: NEVER invent or guess available schedule dates, time slots, or appointments. Always call the appropriate tool.
+3. Default Parameters: When calling schedule or slot tools, use Doctor ID {$doctorId} unless the patient explicitly asks for a different doctor.
+4. Language: Always respond in the same language the user speaks (Arabic or English).
+5. Medical Disclaimer: Never offer direct medical diagnoses or emergency prescriptions. Advise emergency patients to visit the clinic directly or contact emergency services.
+PROMPT;
     }
 }

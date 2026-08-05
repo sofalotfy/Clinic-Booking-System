@@ -88,9 +88,18 @@ class ConversationManager
                     'content' => $userText,
                 ]);
 
+                // Build context array from database models
+                $context = [
+                    'doctor_id'     => $doctorAccount->doctor_id ?? $doctorAccount->id,
+                    'doctor_name'   => $doctorAccount->doctor->name ?? 'Specialist',
+                    'patient_id'    => $patient->id ?? null,
+                    'patient_name'  => $patient->user->name ?? 'Patient',
+                    'patient_phone' => $message['from'],
+                ];
+
                 // C. Call AI with user text + past history
                 $aiService = app(WhatsAppAiService::class);
-                $replyText = $aiService->ask($userText, $history);
+                $replyText = $aiService->ask($userText, $history, $context);
 
                 // D. Save AI's response to history
                 $conversation->messages()->create([

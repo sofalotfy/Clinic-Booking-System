@@ -2,6 +2,7 @@
 
 namespace App\APIServices\WhatsApp\AI\Services;
 
+use App\APIServices\Days\GetAvailableSlots;
 use Illuminate\Support\Facades\DB;
 
 class GetDoctorSlotsTool
@@ -19,16 +20,12 @@ class GetDoctorSlotsTool
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
-                        'doctor_id' => [
+                        'day_id' => [
                             'type' => 'integer',
-                            'description' => 'The ID of the doctor.',
-                        ],
-                        'date' => [
-                            'type' => 'string',
-                            'description' => 'The requested date in YYYY-MM-DD format.',
+                            'description' => 'The ID of the day.',
                         ],
                     ],
-                    'required' => ['doctor_id', 'date'],
+                    'required' => ['day_id'],
                 ],
             ],
         ];
@@ -40,8 +37,18 @@ class GetDoctorSlotsTool
     public static function handle(array $args): array
     {
         \Log::info('GetDoctorSlotsTool called with:', $args);
-        $doctorId = $args['doctor_id'];
-        $date = $args['date'];
+        $dayId = $args['day_id'];
+        $day = Day::find($dayId);
+        if(!$day){
+            return ['status' => 'error', 'message' => 'Day not found.'];
+        }
+        $slots = GetAvailableSlots::execute($dayId);
+
+        if (empty($slots)) {
+            return ['status' => 'no_slots', 'message' => 'No available slots found for this date.'];
+        }
+
+        return ['status' => 'success', 'slots' => $slots];
 
         // Query available slots (adjust table/view name to match your database)
         $slots = DB::table('doctor_schedules')
