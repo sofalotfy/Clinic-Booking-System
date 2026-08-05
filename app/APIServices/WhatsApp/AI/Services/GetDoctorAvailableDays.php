@@ -15,7 +15,7 @@ class GetDoctorAvailableDays
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'get_doctor_available_days',
+                'name' => 'get_available_days',
                 'description' => 'Retrieve available booking days for a doctor on a specific date.',
                 'parameters' => [
                     'type' => 'object',

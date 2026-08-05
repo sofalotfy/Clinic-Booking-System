@@ -17,7 +17,7 @@ class GetDoctorDays
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'get_doctor_days_ids',
+                'name' => 'get_days_ids',
                 'description' => 'retrieve the doctor data including the id',
                 'parameters' => [
                     'type' => 'object',
