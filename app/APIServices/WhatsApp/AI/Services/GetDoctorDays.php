@@ -18,13 +18,13 @@ class GetDoctorDays
             'type' => 'function',
             'function' => [
                 'name' => 'get_days_ids',
-                'description' => 'retrieve the doctor data including the id',
+                'description' => 'Retrieve available working schedule days for a doctor using the doctor ID.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The integer ID of the doctor whose working days are being checked.',
+                            'description' => 'The integer ID of the doctor.',
                         ],
                     ],
                     'required' => ['doctor_id'],
@@ -38,7 +38,7 @@ class GetDoctorDays
      */
     public static function handle(array $args): array
     {
-        Log::info('GetDoctorAvailableDays Tool Called', ['args' => $args]);
+        Log::info('GetDoctorDays Tool Called', ['args' => $args]);
 
         try {
             $doctorId = $args['doctor_id'] ?? null;
@@ -70,19 +70,19 @@ class GetDoctorDays
 
             return [
                 'status' => 'success',
-                'doctor_id' => $doctorId,
+                'doctor_id' => (int) $doctorId,
                 'days' => $days,
             ];
 
         } catch (Throwable $e) {
-            Log::error('GetDoctorAvailableDays Tool Error: ' . $e->getMessage(), [
+            Log::error('GetDoctorDays Tool Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'args' => $args,
             ]);
 
             return [
                 'status' => 'error',
-                'message' => 'Failed to retrieve available days: ' . $e->getMessage(),
+                'message' => 'Failed to retrieve working days: ' . $e->getMessage(),
             ];
         }
     }

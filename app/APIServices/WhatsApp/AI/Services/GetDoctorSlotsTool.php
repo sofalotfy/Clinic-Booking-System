@@ -24,7 +24,7 @@ class GetDoctorSlotsTool
                     'properties' => [
                         'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The ID of the doctor.',
+                            'description' => 'The integer ID of the doctor.',
                         ],
                         'date' => [
                             'type' => 'string',
@@ -42,7 +42,7 @@ class GetDoctorSlotsTool
      */
     public static function handle(array $args): array
     {
-        Log::info('GetDoctorSlotsTool called with:', $args);
+        Log::info('GetDoctorSlotsTool Called', ['args' => $args]);
 
         try {
             $doctorId = $args['doctor_id'] ?? null;
@@ -56,7 +56,6 @@ class GetDoctorSlotsTool
             }
 
             // Find the day record for the given doctor and date
-            // Adjust column names ('doctor_id', 'date') if your table schema differs
             $day = Day::where('doctor_id', $doctorId)
                 ->where('date', $date)
                 ->first();
@@ -80,7 +79,7 @@ class GetDoctorSlotsTool
 
             return [
                 'status' => 'success',
-                'doctor_id' => $doctorId,
+                'doctor_id' => (int) $doctorId,
                 'date' => $date,
                 'slots' => $slots,
             ];

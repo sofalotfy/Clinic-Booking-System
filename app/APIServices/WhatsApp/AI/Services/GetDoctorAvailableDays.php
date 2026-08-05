@@ -3,7 +3,8 @@
 namespace App\APIServices\WhatsApp\AI\Services;
 
 use App\APIServices\Doctors\GetAvailableDays;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GetDoctorAvailableDays
 {
@@ -16,13 +17,13 @@ class GetDoctorAvailableDays
             'type' => 'function',
             'function' => [
                 'name' => 'get_available_days',
-                'description' => 'Retrieve available booking days for a doctor on a specific date.',
+                'description' => 'Retrieve summary of available booking dates for a doctor.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The integer ID of the doctor. it\'s always 1',
+                            'description' => 'The integer ID of the doctor.',
                         ],
                     ],
                     'required' => ['doctor_id'],
@@ -36,12 +37,43 @@ class GetDoctorAvailableDays
      */
     public static function handle(array $args): array
     {
-        \Log::info('GetDoctorAvailableDaysTool called with:', $args);
-        
-        $doctorId = $args['doctor_id'];
-        
-        $days = GetAvailableDays::execute($doctorId);
+        Log::info('GetDoctorAvailableDays Tool Called', ['args' => $args]);
 
-        return ['status' => 'success', 'days' => $days];
+        try {
+            $doctorId = $args['doctor_id'] ?? null;
+
+            if (!$doctorId) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Doctor ID is required.',
+                ];
+            }
+
+            $days = GetAvailableDays::execute($doctorId);
+
+            if (empty($days)) {
+                return [
+                    'status' => 'no_available_days',
+                    'message' => 'No available days found for doctor ID ' . $doctorId,
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'doctor_id' => (int) $doctorId,
+                'days' => $days,
+            ];
+
+        } catch (Throwable $e) {
+            Log::error('GetDoctorAvailableDays Tool Error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'args' => $args,
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Failed to retrieve available days: ' . $e->getMessage(),
+            ];
+        }
     }
 }
