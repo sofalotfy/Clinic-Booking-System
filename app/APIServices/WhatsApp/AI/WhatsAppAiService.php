@@ -2,15 +2,15 @@
 
 namespace App\APIServices\WhatsApp\AI;
 
-use App\APIServices\WhatsApp\AI\Tools\GetDoctorSlotsTool;
-use App\APIServices\WhatsApp\AI\Tools\SearchDoctorTool;
+use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
+use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
 use OpenAI\Laravel\Facades\OpenAI;
 
 class WhatsAppAiService
 {
     protected array $tools = [
         'get_doctor_slots' => GetDoctorSlotsTool::class,
-        'search_doctor'    => SearchDoctorTool::class,
+        'get_doctor_available_days' => GetDoctorAvailableDays::class,
     ];
 
     public function ask(string $userMessage, array $history = []): string
