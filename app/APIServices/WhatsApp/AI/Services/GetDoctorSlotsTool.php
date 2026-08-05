@@ -3,7 +3,9 @@
 namespace App\APIServices\WhatsApp\AI\Services;
 
 use App\APIServices\Days\GetAvailableSlots;
-use Illuminate\Support\Facades\DB;
+use App\Models\Day;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GetDoctorSlotsTool
 {
@@ -16,52 +18,83 @@ class GetDoctorSlotsTool
             'type' => 'function',
             'function' => [
                 'name' => 'get_doctor_available_slots',
-                'description' => 'Retrieve available booking slots for a doctor on a specific date.',
+                'description' => 'Retrieve available booking time slots for a doctor on a specific date.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
-                        'day_id' => [
+                        'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The integer ID of the day.',
+                            'description' => 'The ID of the doctor.',
+                        ],
+                        'date' => [
+                            'type' => 'string',
+                            'description' => 'The target date in YYYY-MM-DD format (e.g., "2026-08-06").',
                         ],
                     ],
-                    'required' => ['day_id'],
+                    'required' => ['doctor_id', 'date'],
                 ],
             ],
         ];
     }
 
     /**
-     * Execute the query against your database or AI view.
+     * Execute the query against your database/service.
      */
     public static function handle(array $args): array
     {
-        \Log::info('GetDoctorSlotsTool called with:', $args);
-        $dayId = $args['day_id'];
-        $day = Day::find($dayId);
-        if(!$day){
-            return ['status' => 'error', 'message' => 'Day not found.'];
+        Log::info('GetDoctorSlotsTool called with:', $args);
+
+        try {
+            $doctorId = $args['doctor_id'] ?? null;
+            $date = $args['date'] ?? null;
+
+            if (!$doctorId || !$date) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Both doctor_id and date are required parameters.',
+                ];
+            }
+
+            // Find the day record for the given doctor and date
+            // Adjust column names ('doctor_id', 'date') if your table schema differs
+            $day = Day::where('doctor_id', $doctorId)
+                ->where('date', $date)
+                ->first();
+
+            if (!$day) {
+                return [
+                    'status' => 'no_schedule',
+                    'message' => "No working schedule record found for doctor ID {$doctorId} on {$date}.",
+                ];
+            }
+
+            // Execute service using the resolved day ID
+            $slots = GetAvailableSlots::execute($day->id);
+
+            if (empty($slots)) {
+                return [
+                    'status' => 'no_slots',
+                    'message' => "No available slots found for doctor ID {$doctorId} on {$date}.",
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'doctor_id' => $doctorId,
+                'date' => $date,
+                'slots' => $slots,
+            ];
+
+        } catch (Throwable $e) {
+            Log::error('GetDoctorSlotsTool Error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'args' => $args,
+            ]);
+
+            return [
+                'status' => 'error',
+                'message' => 'Failed to retrieve slots: ' . $e->getMessage(),
+            ];
         }
-        $slots = GetAvailableSlots::execute($dayId);
-
-        if (empty($slots)) {
-            return ['status' => 'no_slots', 'message' => 'No available slots found for this date.'];
-        }
-
-        return ['status' => 'success', 'slots' => $slots];
-
-        // Query available slots (adjust table/view name to match your database)
-        $slots = DB::table('doctor_schedules')
-            ->where('doctor_id', $doctorId)
-            ->where('date', $date)
-            ->where('is_booked', false)
-            ->select('id', 'start_time', 'end_time')
-            ->get();
-
-        if ($slots->isEmpty()) {
-            return ['status' => 'no_slots', 'message' => 'No available slots found for this date.'];
-        }
-
-        return ['status' => 'success', 'slots' => $slots->toArray()];
     }
 }
