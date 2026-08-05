@@ -7,7 +7,7 @@ use App\Models\Doctor;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class GetDoctorAvailableDays
+class GetDoctorDays
 {
     /**
      * Define the schema so the AI model knows when and how to call this tool.
