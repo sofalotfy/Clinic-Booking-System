@@ -42,6 +42,6 @@ class GetDoctorAvailableDays
         
         $days = GetAvailableDays::execute($doctorId);
 
-        return ['status' => 'success', 'days' => $days->toArray()];
+        return ['status' => 'success', 'days' => $days];
     }
 }
