@@ -13,6 +13,7 @@ class SendMessage
         string $message
     ): array
     {
+        \Log::info('SEND MESSAGE ' . $accessToken);
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
                 'messaging_product' => 'whatsapp',
