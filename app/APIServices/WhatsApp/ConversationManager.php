@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Enums\UserType;
 use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\SendMessage;
-use App\Models\WhatsAppMessages;
+use App\Models\WhatsappMessages;
 
 class ConversationManager
 {
@@ -79,7 +79,7 @@ class ConversationManager
                 $userText = $message['value'];
 
                 // A. Retrieve recent history for this conversation (last 10 messages)
-                $history = WhatsAppMessages::getHistory($conversation->id, 5);
+                $history = WhatsappMessages::getHistory($conversation->id, 5);
 
                 // B. Save incoming user message
                 $conversation->messages()->create([
