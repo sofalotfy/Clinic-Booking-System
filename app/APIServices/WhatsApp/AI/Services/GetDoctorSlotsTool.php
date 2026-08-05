@@ -14,7 +14,7 @@ class GetDoctorSlotsTool
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'get_doctor_slots',
+                'name' => 'get_doctor_available_slots',
                 'description' => 'Retrieve available booking slots for a doctor on a specific date.',
                 'parameters' => [
                     'type' => 'object',
@@ -39,6 +39,7 @@ class GetDoctorSlotsTool
      */
     public static function handle(array $args): array
     {
+        \Log::info('GetDoctorSlotsTool called with:', $args);
         $doctorId = $args['doctor_id'];
         $date = $args['date'];
 

@@ -2,13 +2,15 @@
 
 namespace App\APIServices\WhatsApp\AI;
 
-use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
+use App\APIServices\WhatsApp\AI\Tools\GetDoctorSlotsTool;
+use App\APIServices\WhatsApp\AI\Tools\SearchDoctorTool;
 use OpenAI\Laravel\Facades\OpenAI;
 
 class WhatsAppAiService
 {
     protected array $tools = [
         'get_doctor_slots' => GetDoctorSlotsTool::class,
+        'search_doctor'    => SearchDoctorTool::class,
     ];
 
     public function ask(string $userMessage, array $history = []): string
@@ -16,7 +18,7 @@ class WhatsAppAiService
         $messages = [
             [
                 'role' => 'system',
-                'content' => 'You are a helpful clinic assistant on WhatsApp. Today is ' . date('Y-m-d') . '. Use tools when necessary to query information before answering.',
+                'content' => 'You are a clinic support assistant on WhatsApp. Today is ' . date('Y-m-d') . '. Use tools to look up doctors, schedules, or appointments as needed before answering.',
             ],
         ];
 
@@ -32,50 +34,60 @@ class WhatsAppAiService
             'content' => $userMessage,
         ];
 
-        // Format tools array for OpenAI / Groq API
         $toolSchemas = array_map(fn($class) => $class::definition(), $this->tools);
 
-        // First Call: Ask AI (providing available tools)
-        $response = OpenAI::chat()->create([
-            'model' => 'llama-3.3-70b-versatile',
-            'messages' => $messages,
-            'tools' => $toolSchemas,
-            'tool_choice' => 'auto',
-        ]);
+        // Cap the maximum iterations to prevent infinite API loops
+        $maxTurns = 5;
+        $turns = 0;
 
-        $responseMessage = $response->choices[0]->message;
+        while ($turns < $maxTurns) {
+            $turns++;
 
-        // Check if AI requested a tool execution
-        if (!empty($responseMessage->toolCalls)) {
-            // Append AI's intent to call the tool
-            $messages[] = $responseMessage->toArray();
-
-            foreach ($responseMessage->toolCalls as $toolCall) {
-                $functionName = $toolCall->function->name;
-                $arguments = json_decode($toolCall->function->arguments, true);
-
-                if (isset($this->tools[$functionName])) {
-                    // Execute tool logic
-                    $result = $this->tools[$functionName]::handle($arguments);
-
-                    // Append tool output back to conversation thread
-                    $messages[] = [
-                        'role' => 'tool',
-                        'tool_call_id' => $toolCall->id,
-                        'content' => json_encode($result),
-                    ];
-                }
-            }
-
-            // Second Call: Get final natural response from AI with tool results included
-            $finalResponse = OpenAI::chat()->create([
+            // Call model with current message thread
+            $response = OpenAI::chat()->create([
                 'model' => 'llama-3.3-70b-versatile',
                 'messages' => $messages,
+                'tools' => $toolSchemas,
+                'tool_choice' => 'auto',
             ]);
 
-            return $finalResponse->choices[0]->message->content;
+            $responseMessage = $response->choices[0]->message;
+
+            // If the model DID NOT request any tools, it returned the final text answer
+            if (empty($responseMessage->toolCalls)) {
+                return $responseMessage->content;
+            }
+
+            // Append the AI's tool request intention to the conversation thread
+            $messages[] = $responseMessage->toArray();
+
+            // Execute ALL tool calls requested in this turn (handles parallel calls)
+            foreach ($responseMessage->toolCalls as $toolCall) {
+                $functionName = $toolCall->function->name;
+                $arguments = json_decode($toolCall->function->arguments, true) ?? [];
+
+                $result = ['error' => 'Tool not found'];
+
+                if (isset($this->tools[$functionName])) {
+                    try {
+                        $result = $this->tools[$functionName]::handle($arguments);
+                    } catch (\Exception $e) {
+                        $result = ['error' => $e->getMessage()];
+                    }
+                }
+
+                // Append each individual tool output back to the thread
+                $messages[] = [
+                    'role' => 'tool',
+                    'tool_call_id' => $toolCall->id,
+                    'content' => json_encode($result),
+                ];
+            }
+
+            // Loop continues -> AI receives tool results and decides whether to write
+            // a final response or execute another tool!
         }
 
-        return $responseMessage->content;
+        return "I'm having trouble retrieving all the required details right now. Please try again.";
     }
 }
