@@ -8,7 +8,7 @@ use App\Models\WhatsAppConversation;
 use App\Models\User;
 use App\Enums\UserType;
 use App\Enums\ConversationState;
-
+use App\APIServices\WhatsApp\SendMessage;
 class ConversationManager
 {
     public static function execute(array $payload)
@@ -70,6 +70,27 @@ class ConversationManager
             'last_activity_at' => now(),
             'expires_at' => now()->addMinutes(10),
         ]);
+
+        // // 6. Direct AI Execution (Bypassing Router)
+        // if ($message['type'] === 'text' && !empty($message['value'])) {
+        //     try {
+        //         $aiService = app(\App\Services\WhatsAppAiService::class);
+                
+        //         // Pass the user text and patient_id to the AI service
+        //         $replyText = $aiService->ask($message['value'], $patient->id);
+
+        //         // Send reply back using your doctor account credentials
+        //         SendMessage::text(
+        //             $doctorAccount->phone_number_id,
+        //             $doctorAccount->access_token,
+        //             $message['from'],
+        //             $replyText
+        //         );
+                
+        //     } catch (\Exception $e) {
+        //         \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage());
+        //     }
+        // }
 
         // 6. Hand off to the router
         ConversationRouter::execute(
