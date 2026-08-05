@@ -22,7 +22,7 @@ class GetDoctorSlotsTool
                     'properties' => [
                         'day_id' => [
                             'type' => 'integer',
-                            'description' => 'The ID of the day.',
+                            'description' => 'The integer ID of the day.',
                         ],
                     ],
                     'required' => ['day_id'],

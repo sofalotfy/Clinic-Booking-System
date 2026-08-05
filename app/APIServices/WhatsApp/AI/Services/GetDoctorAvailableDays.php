@@ -22,7 +22,7 @@ class GetDoctorAvailableDays
                     'properties' => [
                         'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The ID of the doctor. it\'s always 1',
+                            'description' => 'The integer ID of the doctor. it\'s always 1',
                         ],
                     ],
                     'required' => ['doctor_id'],
