@@ -34,7 +34,8 @@ class WhatsAppAiService
             'content' => $userMessage,
         ];
 
-        $toolSchemas = array_map(fn($class) => $class::definition(), $this->tools);
+        // Wrap array_map with array_values to guarantee a indexed sequential array [0 => ..., 1 => ...]
+        $toolSchemas = array_values(array_map(fn($class) => $class::definition(), $this->tools));
 
         // Cap the maximum iterations to prevent infinite API loops
         $maxTurns = 5;
