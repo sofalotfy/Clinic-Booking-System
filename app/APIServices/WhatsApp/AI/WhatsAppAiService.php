@@ -4,6 +4,7 @@ namespace App\APIServices\WhatsApp\AI;
 
 use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
+use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 
@@ -12,6 +13,7 @@ class WhatsAppAiService
     protected array $tools = [
         'get_doctor_slots' => GetDoctorSlotsTool::class,
         'get_doctor_available_days' => GetDoctorAvailableDays::class,
+        'get_doctor_days' => GetDoctorDays::class,
     ];
 
     /**
