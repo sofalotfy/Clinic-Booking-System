@@ -37,4 +37,9 @@ class WhatsAppConversation extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+
+    public function messages()
+    {
+        return $this->hasMany(WhatsappMessages::class, 'whats_app_conversation_id');
+    }
 }
