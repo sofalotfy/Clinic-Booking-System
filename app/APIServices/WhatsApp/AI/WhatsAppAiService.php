@@ -11,9 +11,9 @@ use Carbon\Carbon;
 class WhatsAppAiService
 {
     protected array $tools = [
-        'get_doctor_slots' => GetDoctorSlotsTool::class,
-        'get_doctor_available_days' => GetDoctorAvailableDays::class,
-        'get_doctor_days_id' => GetDoctorDays::class,
+        'get_available_slots' => GetDoctorSlotsTool::class,
+        'get_available_days' => GetDoctorAvailableDays::class,
+        'get_days_ids' => GetDoctorDays::class,
     ];
 
     /**
