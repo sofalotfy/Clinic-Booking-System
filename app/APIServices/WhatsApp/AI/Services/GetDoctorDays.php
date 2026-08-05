@@ -24,7 +24,7 @@ class GetDoctorAvailableDays
                     'properties' => [
                         'doctor_id' => [
                             'type' => 'integer',
-                            'description' => 'The ID of the doctor whose working days are being checked.',
+                            'description' => 'The integer ID of the doctor whose working days are being checked.',
                         ],
                     ],
                     'required' => ['doctor_id'],
