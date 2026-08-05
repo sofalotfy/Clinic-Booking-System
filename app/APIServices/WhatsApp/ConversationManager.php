@@ -10,6 +10,7 @@ use App\Enums\UserType;
 use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\WhatsappMessages;
+use App\APIServices\WhatsApp\AI\WhatsAppAiService;
 
 class ConversationManager
 {
@@ -79,7 +80,7 @@ class ConversationManager
                 $userText = $message['value'];
 
                 // A. Retrieve recent history for this conversation (last 10 messages)
-                $history = WhatsappMessages::getHistory($conversation->id, 5);
+                $history = WhatsappMessages::getHistory($conversation->id, 10);
 
                 // B. Save incoming user message
                 $conversation->messages()->create([
@@ -88,7 +89,7 @@ class ConversationManager
                 ]);
 
                 // C. Call AI with user text + past history
-                $aiService = app(\App\Services\WhatsAppAiService::class);
+                $aiService = app(WhatsAppAiService::class);
                 $replyText = $aiService->ask($userText, $history);
 
                 // D. Save AI's response to history
