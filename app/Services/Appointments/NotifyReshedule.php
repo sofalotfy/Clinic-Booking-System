@@ -13,7 +13,6 @@ class NotifyReshedule
 {
     public static function execute($appointment, $new_date = null, $type = AppointmentUpdateNotificationTypes::COLIDE)
     {
-        return;
         $conversation = WhatsAppConversation::where('patient_id',$appointment->patient_id)->first();
         $patient = Patient::find($appointment->patient_id);
         if(!$conversation){
