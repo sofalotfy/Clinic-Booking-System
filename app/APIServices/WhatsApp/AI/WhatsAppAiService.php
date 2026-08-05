@@ -21,7 +21,6 @@ class WhatsAppAiService
      */
     public function ask(string $userMessage, array $history = [], array $context = []): string
     {
-        // 1. Build System Instruction with full context
         $systemContent = $this->buildSystemPrompt($context);
 
         $messages = [
@@ -31,7 +30,6 @@ class WhatsAppAiService
             ],
         ];
 
-        // 2. Append past conversation history
         foreach ($history as $msg) {
             $messages[] = [
                 'role' => $msg['role'],
@@ -39,7 +37,6 @@ class WhatsAppAiService
             ];
         }
 
-        // 3. Append the newest incoming message
         $messages[] = [
             'role' => 'user',
             'content' => $userMessage,
@@ -66,42 +63,61 @@ class WhatsAppAiService
             $response = OpenAI::chat()->create($payload);
             $responseMessage = $response->choices[0]->message;
 
-            if (empty($responseMessage->toolCalls)) {
-                return $responseMessage->content;
-            }
+            // Check for standard tool calls
+            if (!empty($responseMessage->toolCalls)) {
+                $messages[] = $responseMessage->toArray();
 
-            $messages[] = $responseMessage->toArray();
+                foreach ($responseMessage->toolCalls as $toolCall) {
+                    $functionName = $toolCall->function->name;
+                    $arguments = json_decode($toolCall->function->arguments, true) ?? [];
 
-            foreach ($responseMessage->toolCalls as $toolCall) {
-                $functionName = $toolCall->function->name;
-                $arguments = json_decode($toolCall->function->arguments, true) ?? [];
+                    $result = ['error' => 'Tool not found'];
 
-                $result = ['error' => 'Tool not found'];
+                    if (isset($this->tools[$functionName])) {
+                        try {
+                            if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
+                                $arguments['doctor_id'] = $context['doctor_id'];
+                            }
 
-                if (isset($this->tools[$functionName])) {
-                    try {
-                        // Automatically inject contextual IDs if missing from tool arguments
-                        if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
-                            $arguments['doctor_id'] = $context['doctor_id'];
+                            $result = $this->tools[$functionName]::handle($arguments);
+                        } catch (\Exception $e) {
+                            $result = ['error' => $e->getMessage()];
                         }
-                        
-                        $result = $this->tools[$functionName]::handle($arguments);
-                    } catch (\Exception $e) {
-                        $result = ['error' => $e->getMessage()];
                     }
+
+                    $messages[] = [
+                        'role' => 'tool',
+                        'tool_call_id' => $toolCall->id,
+                        'content' => json_encode($result),
+                    ];
                 }
 
-                $messages[] = [
-                    'role' => 'tool',
-                    'tool_call_id' => $toolCall->id,
-                    'content' => json_encode($result),
-                ];
+                // Continue loop so AI uses tool output to produce final text
+                continue;
             }
+
+            // If no standard tool calls, sanitize final content and return
+            $content = $responseMessage->content ?? '';
+            return $this->cleanOutput($content);
         }
 
         return "I'm having trouble retrieving all the required details right now. Please try again.";
     }
 
+    /**
+     * Clean residual function tags from AI text output.
+     */
+    protected function cleanOutput(string $text): string
+    {
+        // Strip <function=...>...</function> or similar tags
+        $cleaned = preg_replace('/<function=.*?>.*?<\/function>/s', '', $text);
+        
+        // Strip standalone <function> tags if present
+        $cleaned = preg_replace('/<function>.*?<\/function>/s', '', $cleaned);
+
+        return trim($cleaned);
+    }
+    
     /**
      * Construct the detailed system prompt using dynamic context.
      */

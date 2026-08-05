@@ -91,7 +91,7 @@ class ConversationManager
                 // Build context array from database models
                 $context = [
                     'doctor_id'     => $doctorAccount->doctor_id ?? $doctorAccount->id,
-                    'doctor_name'   => $doctorAccount->doctor->name ?? 'Specialist',
+                    'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
                     'patient_id'    => $patient->id ?? null,
                     'patient_name'  => $patient->user->name ?? 'Patient',
                     'patient_phone' => $message['from'],
