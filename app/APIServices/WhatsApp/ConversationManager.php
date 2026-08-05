@@ -98,8 +98,9 @@ class ConversationManager
                 ]);
 
                 // E. Send reply back to user via WhatsApp
-                \App\APIServices\WhatsApp\SendMessage::execute(
-                    $doctorAccount,
+                SendMessage::text(
+                    $doctorAccount->phone_number_id,
+                    $doctorAccount->access_token,
                     $message['from'],
                     $replyText
                 );
