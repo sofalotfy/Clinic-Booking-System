@@ -13,7 +13,7 @@ class WhatsAppAiService
     protected array $tools = [
         'get_doctor_slots' => GetDoctorSlotsTool::class,
         'get_doctor_available_days' => GetDoctorAvailableDays::class,
-        'get_doctor_days' => GetDoctorDays::class,
+        'get_doctor_days_id' => GetDoctorDays::class,
     ];
 
     /**
