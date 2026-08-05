@@ -80,8 +80,8 @@ class WhatsAppAiService
                             if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
                                 $arguments['doctor_id'] = $context['doctor_id'];
                             }
-                            Log::info('function:', $functionName);
-                            Log::info('arguments:', $arguments);
+                            \Log::info('function:', $functionName);
+                            \Log::info('arguments:', $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
                         } catch (\Exception $e) {
                             $result = ['error' => $e->getMessage()];
