@@ -10,17 +10,19 @@ use Illuminate\Support\Facades\DB;
 
 class GetDays
 {
-    public static function execute($filters = null)
+    public static function execute($filters = null,$user = null)
     {
+        $user = $user ?? auth()->user();
+        
         $days = Day::select(self::getSelects())
                     ->leftJoin('appointments',function($join) use ($filters){
                         $join->on(DB::raw('DATE(appointments.date)'), '=', 'days.date')
-                            ->where('appointments.doctor_id', auth()->user()->doctor->id);
+                            ->where('appointments.doctor_id', $user->doctor->id);
                     });
 
         $days = self::filter($days, $filters);
 
-        $days = $days->where('days.doctor_id', auth()->user()->doctor->id)
+        $days = $days->where('days.doctor_id', $user->doctor->id)
                     ->groupBy('days.id')
                     ->orderBy('days.date', 'desc')
                     ->get();
