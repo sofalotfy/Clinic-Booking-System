@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\APIServices\WhatsApp\ExecutionRouter;
 
-class GetDoctorDays
+class GuideTemplate
 {
     /**
      * Define the schema so the AI model knows when and how to call this tool.
@@ -35,7 +35,7 @@ class GetDoctorDays
         try {
             
             ExecutionRouter::execute()
-            
+
             return [
                 'status' => 'success',
             ];
