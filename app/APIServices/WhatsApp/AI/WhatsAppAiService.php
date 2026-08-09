@@ -157,9 +157,9 @@ class WhatsAppAiService
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
         // Build active appointment context block if date exist
-        $appointmentContext = '';
+        $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===\n patient doesn't have an appointment";
         if ($appointmentDate) {
-            $appointmentContext = "\n=== ACTIVE APPOINTMENT CONTEXT ===";
+            $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===";
             $appointmentContext .= "\n- Selected Date: {$appointmentDate}";
             $appointmentContext .= "\n";
         }
