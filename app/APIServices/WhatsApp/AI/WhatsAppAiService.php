@@ -17,7 +17,7 @@ class WhatsAppAiService
         // 'get_available_days'  => GetDoctorAvailableDays::class,
         // 'get_days_ids'        => GetDoctorDays::class,
         // 'book_appointment'    => BookAppointmentTool::class,
-        'send to the template chat'    => GuideTemplate::class,
+        'send_to_the_template_chat'    => GuideTemplate::class,
     ];
 
     /**
