@@ -10,16 +10,17 @@ use App\APIServices\WhatsApp\AI\Services\CancelAppointmentTool;
 use App\APIServices\WhatsApp\AI\Services\ExitAiModeTool;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class WhatsAppAiService
 {
     protected array $tools = [
-        // 'get_available_slots' => GetDoctorSlotsTool::class,
-        // 'get_available_days'  => GetDoctorAvailableDays::class,
-        // 'get_days_ids'        => GetDoctorDays::class,
-        'start_cancellation_flow'   => CancelAppointmentTool::class,
-        'start_booking_or_reschedule_flow'    => BookAppointmentTool::class,
-        'exit_ai_mode'          => ExitAiModeTool::class,
+        // 'get_available_slots'             => GetDoctorSlotsTool::class,
+        // 'get_available_days'              => GetDoctorAvailableDays::class,
+        // 'get_days_ids'                    => GetDoctorDays::class,
+        'start_cancellation_flow'         => CancelAppointmentTool::class,
+        'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
+        'exit_ai_mode'                    => ExitAiModeTool::class,
     ];
 
     /**
@@ -29,7 +30,7 @@ class WhatsAppAiService
     {
         $messages = [
             [
-                'role' => 'system',
+                'role'    => 'system',
                 'content' => $this->buildSystemPrompt($context),
             ],
         ];
@@ -107,7 +108,7 @@ class WhatsAppAiService
                                 $arguments['patient_id'] = $context['patient_id'];
                             }
                             
-                            \Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
+                            Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
                         } catch (\Exception $e) {
                             $result = ['error' => $e->getMessage()];
@@ -143,26 +144,31 @@ class WhatsAppAiService
     protected function buildSystemPrompt(array $context): string
     {
         $now = Carbon::now();
-        $dayOfWeek = $now->format('l');      // e.g., Sunday
+        $dayOfWeek = $now->format('l');          // e.g., Sunday
         $dateFormatted = $now->format('F j, Y'); // e.g., August 9, 2026
-        $currentTime = $now->format('g:i A');  // e.g., 11:59 AM
+        $currentTime = $now->format('g:i A');    // e.g., 11:59 AM
 
         $patientID    = $context['patient_id'] ?? 'Unknown';
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
 
         $appointmentDate = $context['appointment_date'] ?? null;
+        $appointmentTime = $context['appointment_time'] ?? null;
         
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
-        // Build active appointment context block if date exist
-        $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===\n patient doesn't have an appointment";
+        // Format Active Appointment Context
         if ($appointmentDate) {
-            $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===";
-            $appointmentContext .= "\n- Selected Date: {$appointmentDate}";
-            $appointmentContext .= "\n";
+            $appointmentDetails = "- Selected Date: {$appointmentDate}";
+            if ($appointmentTime) {
+                $appointmentDetails .= "\n- Selected Time: {$appointmentTime}";
+            }
+            $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===\n" . $appointmentDetails;
+        } else {
+            $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===\n- Patient currently has no active booked appointment.";
         }
+
         return <<<PROMPT
 You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clinic on WhatsApp.
 
@@ -180,16 +186,23 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 - Doctor Name: Dr. {$doctorName}
 - Doctor ID: {$doctorId} (integer)
 
-    {$appointmentContext}
+{$appointmentContext}
+
+=== TOOL ROUTING RULES ===
+- BOOKING / RESCHEDULING: Call `start_booking_or_reschedule_flow` when the patient explicitly requests to book a new appointment or reschedule an existing one.
+- CANCELLATION: Call `start_cancellation_flow` when the patient explicitly requests to cancel an existing appointment.
+- EXIT TO MENU: Call `exit_ai_mode` ONLY when the user explicitly requests to go back to the main menu, talk to a human, or reset the chat.
 
 === CRITICAL OPERATIONAL RULES ===
 1. LANGUAGE: Respond ONLY in the primary language used by the patient in their last message (Arabic or English).
-2. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or available time slots. You MUST execute the proper tool to query real-time clinic data.
-3. DEFAULT PARAMETERS: Pass `doctor_id`: {$doctorId} as an integer when querying availability tools unless instructed otherwise.
-4. WHATSAPP FORMATTING: Keep responses concise and easy to read on mobile devices. Use short paragraphs and bold text (*bold*) where appropriate.
-5. SCOPE & SAFETY: Do not offer direct medical diagnoses or emergency triage. For emergency conditions, instruct the patient to proceed directly to the nearest emergency room.
-6. FLOWS: do not exit ai mode while use is in a flow (booking, cancelation, etc.) unless explicitly asked to by the user
-7. APPOINTMENTS:If the user want to reschedule or cancel appointment first check if he has any and then take action
+2. APPOINTMENT ACTIONS:
+   - If the patient wants to CANCEL or RESCHEDULE, check `=== ACTIVE APPOINTMENT CONTEXT ===`.
+   - If NO appointment is active, inform the patient politely that they do not have an active appointment to cancel or reschedule, then offer to help them book a new one.
+   - If an active appointment exists, call the corresponding tool immediately (`start_cancellation_flow` or `start_booking_or_reschedule_flow`).
+3. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or time slots.
+4. AUTOMATIC PARAMETERS: Always pass `doctor_id`: {$doctorId} and `patient_id`: {$patientID} when triggering tools.
+5. WHATSAPP FORMATTING: Keep responses brief, clean, and mobile-friendly. Use short paragraphs and bold text (*bold*) where appropriate.
+6. SAFETY & SCOPE: Do not provide medical diagnoses or emergency triage. For medical emergencies, instruct the patient to contact emergency services or proceed to the nearest emergency room immediately.
 PROMPT;
     }
 }
