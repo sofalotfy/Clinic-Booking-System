@@ -81,7 +81,7 @@ class ConversationManager
                 $userText = $message['value'];
 
                 // 1. Retrieve recent history BEFORE saving current message (e.g., last 10 messages)
-                $history = WhatsappMessages::getHistory($conversation->id, 10);
+                $history = WhatsappMessages::getHistory($conversation->id, 5);
 
                 // 2. Save incoming user message
                 $conversation->messages()->create([
