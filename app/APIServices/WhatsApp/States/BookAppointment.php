@@ -67,6 +67,7 @@ class BookAppointment
         );
 
         if ($message['type'] !== 'interactive') {
+            \Log::info('message type is not interactive');
             return ExecutionRouter::execute($conversation, $message);
         }
 
