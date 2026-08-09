@@ -150,10 +150,6 @@ class WhatsAppAiService
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
 
         $appointmentDate = $context['appointment_date'] ?? null;
-
-        if ($appointmentDate) {
-            $appointmentDate = Carbon::parse($appointmentDate)->format('F j, Y');
-        }
         
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
