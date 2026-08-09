@@ -12,10 +12,10 @@ use Carbon\Carbon;
 class WhatsAppAiService
 {
     protected array $tools = [
-        'get_available_slots' => GetDoctorSlotsTool::class,
-        'get_available_days'  => GetDoctorAvailableDays::class,
-        'get_days_ids'        => GetDoctorDays::class,
-        'book_appointment'    => BookAppointmentTool::class,
+        // 'get_available_slots' => GetDoctorSlotsTool::class,
+        // 'get_available_days'  => GetDoctorAvailableDays::class,
+        // 'get_days_ids'        => GetDoctorDays::class,
+        // 'book_appointment'    => BookAppointmentTool::class,
     ];
 
     /**
