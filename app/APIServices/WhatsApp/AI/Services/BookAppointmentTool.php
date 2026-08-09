@@ -2,6 +2,9 @@
 
 namespace App\APIServices\WhatsApp\AI\Services;
 
+use App\Models\WhatsAppConversation;
+use App\Enums\ConversationState;
+use App\APIServices\WhatsApp\ExecutionRouter;
 use App\APIServices\Appointments\SmartBookAppointment;
 use App\Models\Doctor;
 use App\Models\Patient;
