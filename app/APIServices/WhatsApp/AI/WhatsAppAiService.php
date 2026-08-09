@@ -12,35 +12,33 @@ class WhatsAppAiService
 {
     protected array $tools = [
         'get_available_slots' => GetDoctorSlotsTool::class,
-        'get_available_days' => GetDoctorAvailableDays::class,
-        'get_days_ids' => GetDoctorDays::class,
+        'get_available_days'  => GetDoctorAvailableDays::class,
+        'get_days_ids'        => GetDoctorDays::class,
     ];
 
     /**
-     * @param string $userMessage
-     * @param array $history Past chat messages
-     * @param array $context Contextual details about patient, doctor, and clinic
+     * Send user message and chat history to LLM and handle tool calls.
      */
     public function ask(string $userMessage, array $history = [], array $context = []): string
     {
-        $systemContent = $this->buildSystemPrompt($context);
-
         $messages = [
             [
                 'role' => 'system',
-                'content' => $systemContent,
+                'content' => $this->buildSystemPrompt($context),
             ],
         ];
 
+        // Format history correctly (Ensuring array structure)
         foreach ($history as $msg) {
             $messages[] = [
-                'role' => $msg['role'],
-                'content' => $msg['content'],
+                'role'    => $msg['role'],
+                'content' => $msg['content'] ?? '',
             ];
         }
 
+        // Append active user message
         $messages[] = [
-            'role' => 'user',
+            'role'    => 'user',
             'content' => $userMessage,
         ];
 
@@ -53,7 +51,7 @@ class WhatsAppAiService
             $turns++;
 
             $payload = [
-                'model' => 'llama-3.3-70b-versatile',
+                'model'    => 'llama-3.3-70b-versatile',
                 'messages' => $messages,
             ];
 
@@ -63,12 +61,31 @@ class WhatsAppAiService
             }
 
             $response = OpenAI::chat()->create($payload);
-            $responseMessage = $response->choices[0]->message;
+            $choice = $response->choices[0];
+            $responseMessage = $choice->message;
 
-            // Check for standard tool calls
+            // Handshake & Tool Call Resolution
             if (!empty($responseMessage->toolCalls)) {
-                $messages[] = $responseMessage->toArray();
+                // Properly serialize assistant message with tool calls
+                $assistantMsg = [
+                    'role'       => 'assistant',
+                    'content'    => $responseMessage->content ?? null,
+                    'tool_calls' => [],
+                ];
 
+                foreach ($responseMessage->toolCalls as $toolCall) {
+                    $assistantMsg['tool_calls'][] = [
+                        'id'       => $toolCall->id,
+                        'type'     => 'function',
+                        'function' => [
+                            'name'      => $toolCall->function->name,
+                            'arguments' => $toolCall->function->arguments,
+                        ],
+                    ];
+                }
+                $messages[] = $assistantMsg;
+
+                // Execute tools
                 foreach ($responseMessage->toolCalls as $toolCall) {
                     $functionName = $toolCall->function->name;
                     $arguments = json_decode($toolCall->function->arguments, true) ?? [];
@@ -80,8 +97,8 @@ class WhatsAppAiService
                             if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
                                 $arguments['doctor_id'] = $context['doctor_id'];
                             }
-                            \Log::info('function: ' . $functionName);
-                            \Log::info('arguments: ' . json_encode($arguments));
+                            
+                            \Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
                         } catch (\Exception $e) {
                             $result = ['error' => $e->getMessage()];
@@ -89,75 +106,65 @@ class WhatsAppAiService
                     }
 
                     $messages[] = [
-                        'role' => 'tool',
+                        'role'         => 'tool',
                         'tool_call_id' => $toolCall->id,
-                        'content' => json_encode($result),
+                        'content'      => json_encode($result),
                     ];
                 }
 
-                // Continue loop so AI uses tool output to produce final text
+                // Loop back to give tools output to LLM
                 continue;
             }
 
-            // If no standard tool calls, sanitize final content and return
-            $content = $responseMessage->content ?? '';
-            return $this->cleanOutput($content);
+            // Return clean final answer text
+            return $this->cleanOutput($responseMessage->content ?? '');
         }
 
-        return "I'm having trouble retrieving all the required details right now. Please try again.";
+        return "I am currently unable to retrieve the schedule details. Please try again or speak with our receptionist.";
     }
 
-    /**
-     * Clean residual function tags from AI text output.
-     */
     protected function cleanOutput(string $text): string
     {
-        // Strip <function=...>...</function> or similar tags
         $cleaned = preg_replace('/<function=.*?>.*?<\/function>/s', '', $text);
-        
-        // Strip standalone <function> tags if present
         $cleaned = preg_replace('/<function>.*?<\/function>/s', '', $cleaned);
 
         return trim($cleaned);
     }
-    
-    /**
-     * Construct the detailed system prompt using dynamic context.
-     */
+
     protected function buildSystemPrompt(array $context): string
     {
-        $today = Carbon::now();
-        $currentTime = Carbon::now()->format('H:i');
+        $now = Carbon::now();
+        $dayOfWeek = $now->format('l');      // e.g., Sunday
+        $dateFormatted = $now->format('F j, Y'); // e.g., August 9, 2026
+        $currentTime = $now->format('g:i A');  // e.g., 11:59 AM
 
-        $patientName = $context['patient_name'] ?? 'Valued Patient';
+        $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
-        $doctorName = $context['doctor_name'] ?? 'our clinic doctor';
-        $doctorId = $context['doctor_id'] ?? 'Not specified';
+        $doctorName   = $context['doctor_name'] ?? 'our specialist';
+        $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
         return <<<PROMPT
-You are an intelligent, friendly customer support assistant currently assisting patients on behalf of Dr. {$doctorName}.
+You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clinic on WhatsApp.
 
-=== CURRENT SYSTEM CONTEXT ===
-- Today's Date & Day: {$today}
+=== CLINIC TEMPORAL CONTEXT ===
+- Day of Week: {$dayOfWeek}
+- Today's Date: {$dateFormatted}
 - Current Time: {$currentTime}
 
-=== PATIENT CONTEXT ===
+=== ACTIVE PATIENT CONTEXT ===
 - Patient Name: {$patientName}
 - Patient Phone: {$patientPhone}
 
-=== DOCTOR CONTEXT ===
+=== ASSIGNED DOCTOR CONTEXT ===
 - Doctor Name: Dr. {$doctorName}
-- Doctor ID: {$doctorId}
+- Doctor ID: {$doctorId} (integer)
 
-=== OPERATIONAL RULES ===
-1. Personalization: Greet the patient naturally using their name when appropriate.
-2. Tool Usage: NEVER invent or guess available schedule dates, time slots, or appointments. Always call the appropriate tool.
-3. Default Parameters: When calling schedule or slot tools, use Doctor ID {$doctorId} unless the patient explicitly asks for a different doctor.
-4. Language: Always respond in the same language the user speaks (Arabic or English).
-5. Medical Disclaimer: Never offer direct medical diagnoses or emergency prescriptions. Advise emergency patients to visit the clinic directly or contact emergency services.
-
-=== NOTES ===
-Always remember any id is an integer
+=== CRITICAL OPERATIONAL RULES ===
+1. LANGUAGE: Respond ONLY in the primary language used by the patient in their last message (Arabic or English).
+2. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or available time slots. You MUST execute the proper tool to query real-time clinic data.
+3. DEFAULT PARAMETERS: Pass `doctor_id`: {$doctorId} as an integer when querying availability tools unless instructed otherwise.
+4. WHATSAPP FORMATTING: Keep responses concise and easy to read on mobile devices. Use short paragraphs and bold text (*bold*) where appropriate.
+5. SCOPE & SAFETY: Do not offer direct medical diagnoses or emergency triage. For emergency conditions, instruct the patient to proceed directly to the nearest emergency room.
 PROMPT;
     }
 }

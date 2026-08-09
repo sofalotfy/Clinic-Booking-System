@@ -74,40 +74,41 @@ class ConversationManager
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        // 6. Direct AI Execution with Memory
+        // In ConversationManager::execute()
+
         if ($message['type'] === 'text' && !empty($message['value'])) {
             try {
                 $userText = $message['value'];
 
-                // A. Retrieve recent history for this conversation (last 10 messages)
+                // 1. Retrieve recent history BEFORE saving current message (e.g., last 10 messages)
                 $history = WhatsappMessages::getHistory($conversation->id, 10);
 
-                // B. Save incoming user message
+                // 2. Save incoming user message
                 $conversation->messages()->create([
-                    'role' => 'user',
+                    'role'    => 'user',
                     'content' => $userText,
                 ]);
 
-                // Build context array from database models
+                // 3. Context Payload
                 $context = [
-                    'doctor_id'     => $doctorAccount->doctor_id ?? $doctorAccount->id,
+                    'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
                     'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
                     'patient_id'    => $patient->id ?? null,
                     'patient_name'  => $patient->user->name ?? 'Patient',
                     'patient_phone' => $message['from'],
                 ];
 
-                // C. Call AI with user text + past history
+                // 4. Request AI Completion
                 $aiService = app(WhatsAppAiService::class);
                 $replyText = $aiService->ask($userText, $history, $context);
 
-                // D. Save AI's response to history
+                // 5. Save AI's response
                 $conversation->messages()->create([
-                    'role' => 'assistant',
+                    'role'    => 'assistant',
                     'content' => $replyText,
                 ]);
 
-                // E. Send reply back to user via WhatsApp
+                // 6. Send message via WhatsApp API
                 SendMessage::text(
                     $doctorAccount->phone_number_id,
                     $doctorAccount->access_token,
@@ -116,7 +117,9 @@ class ConversationManager
                 );
 
             } catch (\Exception $e) {
-                \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage());
+                \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage(), [
+                    'exception' => $e
+                ]);
             }
         }
 
