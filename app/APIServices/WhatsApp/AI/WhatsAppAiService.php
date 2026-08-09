@@ -16,7 +16,7 @@ class WhatsAppAiService
         // 'get_available_slots' => GetDoctorSlotsTool::class,
         // 'get_available_days'  => GetDoctorAvailableDays::class,
         // 'get_days_ids'        => GetDoctorDays::class,
-        // 'book_appointment'    => BookAppointmentTool::class,
+        'book_appointment'    => BookAppointmentTool::class,
         'exit_ai_mode'    => ExitAiModeTool::class,
     ];
 

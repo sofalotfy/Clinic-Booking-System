@@ -20,7 +20,7 @@ class BookAppointmentTool
             'type' => 'function',
             'function' => [
                 'name' => 'book_appointment',
-                'description' => 'Book or update an appointment for a patient with a doctor on a specific date and time.',
+                'description' => 'Book an appointment for a patient with a doctor',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -28,24 +28,8 @@ class BookAppointmentTool
                             'type' => 'integer',
                             'description' => 'The integer ID of the patient.',
                         ],
-                        'doctor_id' => [
-                            'type' => 'integer',
-                            'description' => 'The integer ID of the doctor.',
-                        ],
-                        'date' => [
-                            'type' => 'string',
-                            'description' => 'The full appointment datetime in YYYY-MM-DD HH:MM:SS format (e.g., "2026-08-10 14:30:00").',
-                        ],
-                        'duration' => [
-                            'type' => 'integer',
-                            'description' => 'Duration of the appointment in minutes. Default is 30.',
-                        ],
-                        'status' => [
-                            'type' => 'string',
-                            'description' => 'The status of the appointment (e.g., "active", "queued"). Default is "active".',
-                        ],
                     ],
-                    'required' => ['patient_id', 'doctor_id', 'date'],
+                    'required' => ['patient_id'],
                 ],
             ],
         ];
@@ -60,67 +44,53 @@ class BookAppointmentTool
 
         try {
             $patientId = $args['patient_id'] ?? null;
-            $doctorId  = $args['doctor_id'] ?? null;
-            $date      = $args['date'] ?? null;
-            $duration  = $args['duration'] ?? 30; // Default 30 mins
-            $statusRaw = $args['status'] ?? 'active';
 
-            if (!$patientId || !$doctorId || !$date) {
+            if (!$patientId) {
                 return [
                     'status' => 'error',
-                    'message' => 'patient_id, doctor_id, and date are required parameters.',
+                    'message' => 'patient_id is required.',
                 ];
             }
 
-            // Resolve models
-            $patient = Patient::find($patientId);
-            $doctor  = Doctor::find($doctorId);
+            // 1. Fetch the active conversation for this patient
+            $conversation = WhatsAppConversation::where('patient_id', $patientId)
+                ->latest('last_activity_at')
+                ->first();
 
-            if (!$patient) {
+            if (!$conversation) {
                 return [
                     'status' => 'error',
-                    'message' => "Patient with ID {$patientId} not found.",
+                    'message' => "No active conversation found for patient ID {$patientId}.",
                 ];
             }
 
-            if (!$doctor) {
-                return [
-                    'status' => 'error',
-                    'message' => "Doctor with ID {$doctorId} not found.",
-                ];
-            }
+            // 2. Update conversation state to MAIN_MENU
+            $conversation->update([
+                'state' => ConversationState::BOOK_APPOINTMENT,
+                'step'  => null,
+            ]);
 
-            // Resolve Status Enum (adjust based on your enum values)
-            $status = match (strtolower($statusRaw)) {
-                'queued' => AppointmentStatus::QUEUED,
-                default  => AppointmentStatus::ACTIVE,
-            };
-
-            // Execute service
-            $appointment = SmartBookAppointment::execute($patient, $doctor, $date, $duration, $status);
-
-            return [
-                'status' => 'success',
-                'message' => 'Appointment successfully booked/updated.',
-                'appointment' => [
-                    'id' => $appointment->id,
-                    'patient_id' => $appointment->patient_id,
-                    'doctor_id' => $appointment->doctor_id,
-                    'date' => $appointment->date,
-                    'duration' => $appointment->duration,
-                    'status' => $appointment->status,
-                ],
+            // 3. Create a fake message payload mimicking an interactive reset
+            $fakeMessage = [
+                'phone_number_id' => $conversation->doctorWhatsAppAccount->phone_number_id ?? null,
+                'from'            => $conversation->phone_number,
+                'type'            => 'text',
+                'value'           => 'BOOK_APPOINTMENT',
+                'message_id'      => 'fake_ai_exit_' . uniqid(),
             ];
 
+            // 4. Route execution back to the main router
+            return ExecutionRouter::execute($conversation, $fakeMessage);
+
         } catch (Throwable $e) {
-            Log::error('BookAppointmentTool Error: ' . $e->getMessage(), [
+            Log::error('ExitAiModeTool Error: ' . $e->getMessage(), [
                 'exception' => $e,
-                'args' => $args,
+                'args'      => $args,
             ]);
 
             return [
-                'status' => 'error',
-                'message' => 'Failed to book appointment: ' . $e->getMessage(),
+                'status'  => 'error',
+                'message' => 'Failed to exit AI mode: ' . $e->getMessage(),
             ];
         }
     }
