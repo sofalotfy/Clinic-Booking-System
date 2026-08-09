@@ -158,11 +158,9 @@ class WhatsAppAiService
 
         // Build active appointment context block if date and/or time exist
         $appointmentContext = '';
-        if ($appointmentDate || $appointmentTime) {
+        if ($appointmentDate) {
             $appointmentContext = "\n=== ACTIVE APPOINTMENT CONTEXT ===";
-            if ($appointmentDate) {
-                $appointmentContext .= "\n- Selected Date: {$appointmentDate}";
-            }
+            $appointmentContext .= "\n- Selected Date: {$appointmentDate}";
             $appointmentContext .= "\n";
         }
         return <<<PROMPT
