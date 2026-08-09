@@ -5,6 +5,7 @@ namespace App\APIServices\WhatsApp\AI;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
+use App\APIServices\WhatsApp\AI\Services\BookAppointmentTool;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 
@@ -14,6 +15,7 @@ class WhatsAppAiService
         'get_available_slots' => GetDoctorSlotsTool::class,
         'get_available_days'  => GetDoctorAvailableDays::class,
         'get_days_ids'        => GetDoctorDays::class,
+        'book_appointment'    => BookAppointmentTool::class,
     ];
 
     /**
@@ -97,6 +99,9 @@ class WhatsAppAiService
                             if (!isset($arguments['doctor_id']) && isset($context['doctor_id'])) {
                                 $arguments['doctor_id'] = $context['doctor_id'];
                             }
+                            if (!isset($arguments['patient_id']) && isset($context['patient_id'])) {
+                                $arguments['patient_id'] = $context['patient_id'];
+                            }
                             
                             \Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
@@ -140,6 +145,7 @@ class WhatsAppAiService
 
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
+        $patientID    = $context['patient_id'] ?? 'Unknown';
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
@@ -154,6 +160,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 === ACTIVE PATIENT CONTEXT ===
 - Patient Name: {$patientName}
 - Patient Phone: {$patientPhone}
+- Patient ID: {$patientID}
 
 === ASSIGNED DOCTOR CONTEXT ===
 - Doctor Name: Dr. {$doctorName}
