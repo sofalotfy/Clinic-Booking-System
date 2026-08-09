@@ -6,6 +6,7 @@ use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
 use App\APIServices\WhatsApp\AI\Services\BookAppointmentTool;
+use App\APIServices\WhatsApp\AI\Services\CancelAppointmentTool;
 use App\APIServices\WhatsApp\AI\Services\ExitAiModeTool;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
@@ -16,8 +17,9 @@ class WhatsAppAiService
         // 'get_available_slots' => GetDoctorSlotsTool::class,
         // 'get_available_days'  => GetDoctorAvailableDays::class,
         // 'get_days_ids'        => GetDoctorDays::class,
+        'cancel_booking'   => CancelAppointmentTool::class,
         'start_booking_flow'    => BookAppointmentTool::class,
-        'exit_ai_mode'    => ExitAiModeTool::class,
+        'exit_ai_mode'          => ExitAiModeTool::class,
     ];
 
     /**
