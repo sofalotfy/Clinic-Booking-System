@@ -1,96 +1,150 @@
 <?php
 
-namespace App\APIServices\WhatsApp\AI\Services;
+namespace App\APIServices\WhatsApp\States;
 
-use App\Models\WhatsAppConversation;
+use App\APIServices\Days\GetAvailableSlots;
+use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
-use App\APIServices\WhatsApp\ExecutionRouter;
-use Illuminate\Support\Facades\Log;
-use Throwable;
+use App\Models\DoctorWhatsAppAccount;
 
-class ExitAiModeTool
+class BookSlot
 {
-    /**
-     * Define the schema so the AI model knows when and how to call this tool.
-     */
-    public static function definition(): array
+    private const PAGE_SIZE = 9;
+
+    public static function execute($conversation, $message)
     {
-        return [
-            'type' => 'function',
-            'function' => [
-                'name' => 'exit_ai_mode',
-                'description' => 'Exit AI chat mode and return the user to the interactive main menu.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'patient_id' => [
-                            'type' => 'integer',
-                            'description' => 'The integer ID of the patient.',
-                        ],
-                    ],
-                    'required' => ['patient_id'],
-                ],
-            ],
-        ];
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        $page = $conversation->data['slot_page'] ?? 0;
+
+        $slots = GetAvailableSlots::execute(
+            $conversation->data['selected_day']
+        );
+
+        if (empty($slots)) {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Sorry, there are no available time slots for this day anymore. Please choose another day.'
+            );
+
+            $conversation->update([
+                'state' => ConversationState::BOOK_APPOINTMENT,
+            ]);
+
+            return BookAppointment::execute($conversation, $message);
+        }
+
+        $rows = collect($slots)
+            ->slice($page * self::PAGE_SIZE, self::PAGE_SIZE)
+            ->map(function ($slot) {
+                return [
+                    'id' => $slot['time'],
+                    'title' => $slot['time'],
+                ];
+            })
+            ->values();
+
+        // Page became invalid because availability changed
+        if ($rows->isEmpty()) {
+
+            $conversation->update([
+                'data' => array_merge(
+                    $conversation->data ?? [],
+                    [
+                        'slot_page' => 0,
+                    ]
+                ),
+            ]);
+
+            return self::execute($conversation, $message);
+        }
+
+        if (count($slots) > (($page + 1) * self::PAGE_SIZE)) {
+            $rows->push([
+                'id' => 'more_slots',
+                'title' => '➡️ More times',
+            ]);
+        }
+
+        SendMessage::list(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'Please choose your preferred appointment time.',
+            'Select Time',
+            $rows->toArray(),
+            'Available Times',
+            'Time Slots'
+        );
     }
 
-    /**
-     * Execute resetting the conversation state and routing to the main menu.
-     */
-    public static function handle(array $args): array
+    public static function handleResponse($conversation, $message)
     {
-        Log::info('ExitAiModeTool Called', ['args' => $args]);
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
 
-        try {
-            $patientId = $args['patient_id'] ?? null;
+        // This state only accepts interactive list replies
+        if ($message['type'] !== 'interactive') {
 
-            if (!$patientId) {
-                return [
-                    'status' => 'error',
-                    'message' => 'patient_id is required.',
-                ];
-            }
-
-            // 1. Fetch the active conversation for this patient
-            $conversation = WhatsAppConversation::where('patient_id', $patientId)
-                ->latest('last_activity_at')
-                ->first();
-
-            if (!$conversation) {
-                return [
-                    'status' => 'error',
-                    'message' => "No active conversation found for patient ID {$patientId}.",
-                ];
-            }
-
-            // 2. Update conversation state to MAIN_MENU
             $conversation->update([
-                'state' => ConversationState::MAIN_MENU,
-                'step'  => null,
+                'state' => ConversationState::AI,
             ]);
 
-            // 3. Create a fake message payload mimicking an interactive reset
-            $fakeMessage = [
-                'phone_number_id' => $conversation->doctorWhatsAppAccount->phone_number_id ?? null,
-                'from'            => $conversation->phone_number,
-                'type'            => 'text',
-                'value'           => 'main_menu',
-                'message_id'      => 'fake_ai_exit_' . uniqid(),
-            ];
-
-            // 4. Route execution back to the main router
-            return ExecutionRouter::execute($conversation, $fakeMessage);
-
-        } catch (Throwable $e) {
-            Log::error('ExitAiModeTool Error: ' . $e->getMessage(), [
-                'exception' => $e,
-                'args'      => $args,
-            ]);
-
-            return [
-                'status'  => 'error',
-                'message' => 'Failed to exit AI mode: ' . $e->getMessage(),
-            ];
+            return ExecutionRouter::execute($conversation, $message);
         }
+
+        // User requested the next page
+        if ($message['value'] === 'more_slots') {
+
+            $conversation->update([
+                'data' => array_merge(
+                    $conversation->data ?? [],
+                    [
+                        'slot_page' => ($conversation->data['slot_page'] ?? 0) + 1,
+                    ]
+                ),
+            ]);
+
+            return self::execute($conversation, $message);
+        }
+
+        // Validate that the selected slot is still available
+        $slots = GetAvailableSlots::execute(
+            $conversation->data['selected_day']
+        );
+
+        $validSlots = collect($slots)
+            ->pluck('time')
+            ->all();
+
+        if (! in_array($message['value'], $validSlots, true)) {
+
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'That time slot is no longer available. Please choose another one.'
+            );
+
+            return self::execute($conversation, $message);
+        }
+
+        // Save the selected slot
+        $conversation->update([
+            'state' => ConversationState::CONFIRM_BOOKING,
+            'data' => array_merge(
+                $conversation->data ?? [],
+                [
+                    'selected_slot' => $message['value'],
+                ]
+            ),
+        ]);
+
+        return ConfirmBooking::execute($conversation, $message);
     }
 }
