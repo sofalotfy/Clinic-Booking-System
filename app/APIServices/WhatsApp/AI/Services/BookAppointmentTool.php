@@ -22,7 +22,7 @@ class BookAppointmentTool
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'start_booking_flow', // Changed name from book_appointment to avoid confusion
+                'name' => 'start_booking_or_reschedule_flow', // Changed name from book_appointment to avoid confusion
                 'description' => 'Transfer the user to the interactive appointment booking system when they explicitly ask to book, schedule, or reserve an appointment.',
                 'parameters' => [
                     'type' => 'object',

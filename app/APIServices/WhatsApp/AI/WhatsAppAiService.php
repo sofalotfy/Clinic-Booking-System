@@ -18,7 +18,7 @@ class WhatsAppAiService
         // 'get_available_days'  => GetDoctorAvailableDays::class,
         // 'get_days_ids'        => GetDoctorDays::class,
         'start_cancellation_flow'   => CancelAppointmentTool::class,
-        'start_booking_flow'    => BookAppointmentTool::class,
+        'start_booking_or_reschedule_flow'    => BookAppointmentTool::class,
         'exit_ai_mode'          => ExitAiModeTool::class,
     ];
 
@@ -156,7 +156,7 @@ class WhatsAppAiService
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
-        // Build active appointment context block if date and/or time exist
+        // Build active appointment context block if date exist
         $appointmentContext = '';
         if ($appointmentDate) {
             $appointmentContext = "\n=== ACTIVE APPOINTMENT CONTEXT ===";
