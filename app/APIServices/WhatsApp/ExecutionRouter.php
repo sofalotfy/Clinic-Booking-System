@@ -14,6 +14,7 @@ use App\APIServices\WhatsApp\States\BookSlot;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
 use App\APIServices\WhatsApp\States\CancelAppointment;
 use App\APIServices\WhatsApp\States\ConfirmReshedule;
+use App\APIServices\WhatsApp\States\AI;
 
 class ExecutionRouter
 {
