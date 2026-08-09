@@ -9,6 +9,7 @@ use App\APIServices\WhatsApp\AI\WhatsAppAiService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Models\DoctorWhatsAppAccount;
+use App\Services\Appointments\GetUpComingAppointment;
 
 class AI
 {
@@ -49,6 +50,8 @@ class AI
                 'content' => $userText,
             ]);
 
+            $appointment = GetUpComingAppointment::execute($patient->id, $doctorAccount->doctor_id);
+
             // 3. Build dynamic context payload
             $context = [
                 'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
@@ -56,6 +59,7 @@ class AI
                 'patient_id'    => $patient->id ?? null,
                 'patient_name'  => $patient->user->name ?? 'Patient',
                 'patient_phone' => $message['from'],
+                'appointment_date' => $appointment->date->format('Y-m-d H:i:s') ?? null,
             ];
 
             // 4. Execute AI pipeline

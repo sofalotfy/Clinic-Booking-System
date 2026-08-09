@@ -145,12 +145,28 @@ class WhatsAppAiService
         $dateFormatted = $now->format('F j, Y'); // e.g., August 9, 2026
         $currentTime = $now->format('g:i A');  // e.g., 11:59 AM
 
+        $patientID    = $context['patient_id'] ?? 'Unknown';
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
-        $patientID    = $context['patient_id'] ?? 'Unknown';
+
+        $appointmentDate = $context['appointment_date'] ?? null;
+
+        if ($appointmentDate) {
+            $appointmentDate = Carbon::parse($appointmentDate)->format('F j, Y');
+        }
+        
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
+        // Build active appointment context block if date and/or time exist
+        $appointmentContext = '';
+        if ($appointmentDate || $appointmentTime) {
+            $appointmentContext = "\n=== ACTIVE APPOINTMENT CONTEXT ===";
+            if ($appointmentDate) {
+                $appointmentContext .= "\n- Selected Date: {$appointmentDate}";
+            }
+            $appointmentContext .= "\n";
+        }
         return <<<PROMPT
 You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clinic on WhatsApp.
 
@@ -167,6 +183,8 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 === ASSIGNED DOCTOR CONTEXT ===
 - Doctor Name: Dr. {$doctorName}
 - Doctor ID: {$doctorId} (integer)
+
+    {$appointmentContext}
 
 === CRITICAL OPERATIONAL RULES ===
 1. LANGUAGE: Respond ONLY in the primary language used by the patient in their last message (Arabic or English).
