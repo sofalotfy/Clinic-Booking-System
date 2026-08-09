@@ -8,6 +8,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\AI\WhatsAppAiService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Models\DoctorWhatsAppAccount;
 
 class AI
 {
@@ -34,7 +35,9 @@ class AI
 
         try {
             $userText = $message['value'];
-            $doctorAccount = $conversation->doctorWhatsAppAccount;
+            $doctorAccount = DoctorWhatsAppAccount::findOrFail(
+                $conversation->doctor_whatsapp_account_id
+            );
             $patient = $conversation->patient;
 
             // 1. Fetch history BEFORE appending current message
