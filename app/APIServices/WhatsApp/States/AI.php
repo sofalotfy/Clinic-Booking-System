@@ -59,7 +59,7 @@ class AI
                 'patient_id'    => $patient->id ?? null,
                 'patient_name'  => $patient->user->name ?? 'Patient',
                 'patient_phone' => $message['from'],
-                'appointment_date' => $appointment->date->format('Y-m-d H:i:s') ?? null,
+                'appointment_date' => $appointment->date ?? null,
             ];
 
             // 4. Execute AI pipeline
