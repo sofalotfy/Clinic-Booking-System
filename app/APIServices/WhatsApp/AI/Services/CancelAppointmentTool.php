@@ -7,6 +7,7 @@ use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Services\Appointments\GetUpComingAppointment;
 
 class CancelAppointmentTool
 {
@@ -50,7 +51,7 @@ class CancelAppointmentTool
                     'message' => 'patient_id is required.',
                 ];
             }
-
+            
             // 1. Fetch the active conversation for this patient
             $conversation = WhatsAppConversation::where('patient_id', $patientId)
                 ->latest('last_activity_at')
@@ -60,6 +61,15 @@ class CancelAppointmentTool
                 return [
                     'status' => 'error',
                     'message' => "No active conversation found for patient ID {$patientId}.",
+                ];
+            }
+
+            $appointment = GetUpComingAppointment::execute($patientId, $conversation->doctor_id);
+
+            if (!$appointment) {
+                return [
+                    'status' => 'error',
+                    'message' => "You don't have an active appointment to cancel.",
                 ];
             }
 
