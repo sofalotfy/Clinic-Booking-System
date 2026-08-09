@@ -10,6 +10,7 @@ use App\APIServices\Doctors\GetAvailableDays;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\Models\Day;
 use App\APIServices\Days\CheckAvailability;
+use App\APIServices\WhatsApp\ExecutionRouter;
 
 
 class BookAppointment
@@ -66,14 +67,7 @@ class BookAppointment
         );
 
         if ($message['type'] !== 'interactive') {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $message['from'],
-                'Please choose an appointment day.',
-            );
-            
-            return self::execute($conversation, $message);
+            return ExecutionRouter::execute($conversation, $message);
         }
 
         $day = Day::where('doctor_id', $account->doctor_id)->find($message['value']);

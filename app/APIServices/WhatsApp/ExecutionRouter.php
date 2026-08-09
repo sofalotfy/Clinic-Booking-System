@@ -46,6 +46,9 @@ class ExecutionRouter
 
             ConversationState::CONFIRM_RESHEDULE =>
                 ConfirmReshedule::execute($conversation, $message),
+            
+            ConversationState::AI =>
+                AI::execute($conversation, $message),
 
             default =>
                 Start::execute($conversation, $message),

@@ -76,58 +76,58 @@ class ConversationManager
 
         // In ConversationManager::execute()
 
-        if ($message['type'] === 'text' && !empty($message['value'])) {
-            try {
-                $userText = $message['value'];
+        // if ($message['type'] === 'text' && !empty($message['value'])) {
+        //     try {
+        //         $userText = $message['value'];
 
-                // 1. Retrieve recent history BEFORE saving current message (e.g., last 10 messages)
-                $history = WhatsappMessages::getHistory($conversation->id, 5);
+        //         // 1. Retrieve recent history BEFORE saving current message (e.g., last 10 messages)
+        //         $history = WhatsappMessages::getHistory($conversation->id, 5);
 
-                // 2. Save incoming user message
-                $conversation->messages()->create([
-                    'role'    => 'user',
-                    'content' => $userText,
-                ]);
+        //         // 2. Save incoming user message
+        //         $conversation->messages()->create([
+        //             'role'    => 'user',
+        //             'content' => $userText,
+        //         ]);
 
-                // 3. Context Payload
-                $context = [
-                    'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
-                    'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
-                    'patient_id'    => $patient->id ?? null,
-                    'patient_name'  => $patient->user->name ?? 'Patient',
-                    'patient_phone' => $message['from'],
-                ];
+        //         // 3. Context Payload
+        //         $context = [
+        //             'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
+        //             'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
+        //             'patient_id'    => $patient->id ?? null,
+        //             'patient_name'  => $patient->user->name ?? 'Patient',
+        //             'patient_phone' => $message['from'],
+        //         ];
 
-                // 4. Request AI Completion
-                $aiService = app(WhatsAppAiService::class);
-                $replyText = $aiService->ask($userText, $history, $context);
+        //         // 4. Request AI Completion
+        //         $aiService = app(WhatsAppAiService::class);
+        //         $replyText = $aiService->ask($userText, $history, $context);
 
-                // 5. Save AI's response
-                $conversation->messages()->create([
-                    'role'    => 'assistant',
-                    'content' => $replyText,
-                ]);
+        //         // 5. Save AI's response
+        //         $conversation->messages()->create([
+        //             'role'    => 'assistant',
+        //             'content' => $replyText,
+        //         ]);
 
-                // 6. Send message via WhatsApp API
-                SendMessage::text(
-                    $doctorAccount->phone_number_id,
-                    $doctorAccount->access_token,
-                    $message['from'],
-                    $replyText
-                );
+        //         // 6. Send message via WhatsApp API
+        //         SendMessage::text(
+        //             $doctorAccount->phone_number_id,
+        //             $doctorAccount->access_token,
+        //             $message['from'],
+        //             $replyText
+        //         );
 
-            } catch (\Exception $e) {
-                \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage(), [
-                    'exception' => $e
-                ]);
-            }
-        }
+        //     } catch (\Exception $e) {
+        //         \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage(), [
+        //             'exception' => $e
+        //         ]);
+        //     }
+        // }
 
-        // // 6. Hand off to the router
-        // ConversationRouter::execute(
-        //     $conversation,
-        //     $message
-        // );
+        // 6. Hand off to the router
+        ConversationRouter::execute(
+            $conversation,
+            $message
+        );
     }
 
     private static function extractMessage(array $payload): array
