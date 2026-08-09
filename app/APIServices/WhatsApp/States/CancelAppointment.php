@@ -46,14 +46,11 @@ class CancelAppointment
         );
 
         if ($message['type'] !== 'interactive') {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $message['from'],
-                'Please confirm or cancel your appointment.',
-            );
-            
-            return self::execute($conversation, $message);
+            $conversation->update([
+                'state' => ConversationState::AI,
+            ]);
+
+            return ExecutionRouter::execute($conversation, $message);
         }
         switch ($message['value']) {
 

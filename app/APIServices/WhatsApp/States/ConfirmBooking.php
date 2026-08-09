@@ -65,14 +65,11 @@ class ConfirmBooking
         );
 
         if ($message['type'] !== 'interactive') {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $message['from'],
-                'Please choose a valid option.',
-            );
-            
-            return self::execute($conversation, $message);
+            $conversation->update([
+                'state' => ConversationState::AI,
+            ]);
+
+            return ExecutionRouter::execute($conversation, $message);
         }
         
         switch ($message['value']) {

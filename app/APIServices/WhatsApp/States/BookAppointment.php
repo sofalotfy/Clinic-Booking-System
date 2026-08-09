@@ -67,8 +67,6 @@ class BookAppointment
         );
 
         if ($message['type'] !== 'interactive') {
-            \Log::info('message type is not interactive');
-
             $conversation->update([
                 'state' => ConversationState::AI,
             ]);
