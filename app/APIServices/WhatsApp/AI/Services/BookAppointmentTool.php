@@ -19,8 +19,8 @@ class BookAppointmentTool
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'book_appointment',
-                'description' => 'Book an appointment for a patient with a doctor',
+                'name' => 'start_booking_flow', // Changed name from book_appointment to avoid confusion
+                'description' => 'Transfer the user to the interactive appointment booking system when they explicitly ask to book, schedule, or reserve an appointment.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
