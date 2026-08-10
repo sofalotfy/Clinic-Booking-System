@@ -22,7 +22,7 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-        GetAssistantsContacts::execute(Doctor::find(1));
+        return GetAssistantsContacts::execute(Doctor::find(1));
     }
 
     public function makePlan(Request $request)

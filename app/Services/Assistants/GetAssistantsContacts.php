@@ -16,6 +16,8 @@ class GetAssistantsContacts
             'success' => true,
             'assistant_id' => $assistant->id,
             'user_id' => $assistant->user_id,
+            'assistant' => $assistant,
+            'user' => $assistant->user,
         ]);
             $contacts[] = [
                 'name' => $assistant->user->name,
