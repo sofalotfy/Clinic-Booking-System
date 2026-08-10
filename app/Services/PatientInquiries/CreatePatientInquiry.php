@@ -9,7 +9,7 @@ class CreatePatientInquiry
     public static function execute(
         int $doctorId,
         int $patientId,
-        string $question,
+        $question,
     ): PatientInquiry {
         return PatientInquiry::Create(
             [
