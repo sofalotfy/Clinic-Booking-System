@@ -54,7 +54,6 @@ class ListAssistants
 
             return [
                 'status' => 'success',
-                'contacts' => $contacts,
             ];
 
         } catch (Throwable $e) {
