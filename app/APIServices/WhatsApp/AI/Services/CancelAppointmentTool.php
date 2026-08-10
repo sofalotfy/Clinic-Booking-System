@@ -11,9 +11,6 @@ use App\Services\Appointments\GetUpComingAppointment;
 
 class CancelAppointmentTool
 {
-    /**
-     * Define the schema so the AI model knows when and how to call this tool.
-     */
     public static function definition(): array
     {
         return [
@@ -28,6 +25,10 @@ class CancelAppointmentTool
                             'type' => 'integer',
                             'description' => 'The integer ID of the patient.',
                         ],
+                        'doctor_id' => [
+                            'type' => 'integer',
+                            'description' => 'The integer ID of the assigned doctor.',
+                        ],
                     ],
                     'required' => ['patient_id'],
                 ],
@@ -35,9 +36,6 @@ class CancelAppointmentTool
         ];
     }
 
-    /**
-     * Execute resetting the conversation state and routing to the cancellation flow.
-     */
     public static function handle(array $args): array
     {
         Log::info('CancelAppointmentTool Called', ['args' => $args]);
@@ -52,7 +50,6 @@ class CancelAppointmentTool
                 ];
             }
             
-            // 1. Fetch the active conversation for this patient
             $conversation = WhatsAppConversation::where('patient_id', $patientId)
                 ->latest('last_activity_at')
                 ->first();
@@ -73,13 +70,11 @@ class CancelAppointmentTool
                 ];
             }
 
-            // 2. Update conversation state to CANCEL_APPOINTMENT
             $conversation->update([
                 'state' => ConversationState::CANCEL_APPOINTMENT,
                 'step'  => null,
             ]);
 
-            // 3. Create a fake message payload mimicking an interactive cancellation trigger
             $fakeMessage = [
                 'phone_number_id' => $conversation->doctorWhatsAppAccount->phone_number_id ?? null,
                 'from'            => $conversation->phone_number,
@@ -88,8 +83,12 @@ class CancelAppointmentTool
                 'message_id'      => 'fake_ai_cancel_' . uniqid(),
             ];
 
-            // 4. Route execution back to the main router
-            return ExecutionRouter::execute($conversation, $fakeMessage);
+            ExecutionRouter::execute($conversation, $fakeMessage);
+
+            return [
+                'status'  => 'success',
+                'message' => 'User transferred to interactive cancellation flow.',
+            ];
 
         } catch (Throwable $e) {
             Log::error('CancelAppointmentTool Error: ' . $e->getMessage(), [

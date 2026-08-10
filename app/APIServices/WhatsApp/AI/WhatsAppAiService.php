@@ -15,9 +15,6 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppAiService
 {
     protected array $tools = [
-        // 'get_available_slots'             => GetDoctorSlotsTool::class,
-        // 'get_available_days'              => GetDoctorAvailableDays::class,
-        // 'get_days_ids'                    => GetDoctorDays::class,
         'start_cancellation_flow'         => CancelAppointmentTool::class,
         'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
         'exit_ai_mode'                    => ExitAiModeTool::class,
@@ -35,7 +32,7 @@ class WhatsAppAiService
             ],
         ];
 
-        // Format history correctly (Ensuring array structure)
+        // Format history correctly
         foreach ($history as $msg) {
             $messages[] = [
                 'role'    => $msg['role'],
@@ -73,7 +70,6 @@ class WhatsAppAiService
 
             // Handshake & Tool Call Resolution
             if (!empty($responseMessage->toolCalls)) {
-                // Properly serialize assistant message with tool calls
                 $assistantMsg = [
                     'role'       => 'assistant',
                     'content'    => $responseMessage->content ?? null,
@@ -91,6 +87,8 @@ class WhatsAppAiService
                     ];
                 }
                 $messages[] = $assistantMsg;
+
+                $flowTransferred = false;
 
                 // Execute tools
                 foreach ($responseMessage->toolCalls as $toolCall) {
@@ -110,6 +108,14 @@ class WhatsAppAiService
                             
                             Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
+
+                            // Check if state transition flow took over WhatsApp execution
+                            if (
+                                in_array($functionName, ['start_cancellation_flow', 'start_booking_or_reschedule_flow', 'exit_ai_mode']) 
+                                && ($result['status'] ?? '') === 'success'
+                            ) {
+                                $flowTransferred = true;
+                            }
                         } catch (\Exception $e) {
                             $result = ['error' => $e->getMessage()];
                         }
@@ -122,15 +128,18 @@ class WhatsAppAiService
                     ];
                 }
 
-                // Loop back to give tools output to LLM
+                // If execution was handed over to interactive routing (e.g. state updated), stop AI text generation
+                if ($flowTransferred) {
+                    return '';
+                }
+
                 continue;
             }
 
-            // Return clean final answer text
             return $this->cleanOutput($responseMessage->content ?? '');
         }
 
-        return "I am currently unable to retrieve the schedule details. Please try again or speak with our receptionist.";
+        return "I am currently unable to process your request. Please try again or speak with our receptionist.";
     }
 
     protected function cleanOutput(string $text): string
@@ -144,9 +153,9 @@ class WhatsAppAiService
     protected function buildSystemPrompt(array $context): string
     {
         $now = Carbon::now();
-        $dayOfWeek = $now->format('l');          // e.g., Sunday
-        $dateFormatted = $now->format('F j, Y'); // e.g., August 9, 2026
-        $currentTime = $now->format('g:i A');    // e.g., 11:59 AM
+        $dayOfWeek = $now->format('l');
+        $dateFormatted = $now->format('F j, Y');
+        $currentTime = $now->format('g:i A');
 
         $patientID    = $context['patient_id'] ?? 'Unknown';
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
@@ -158,7 +167,6 @@ class WhatsAppAiService
         $doctorName   = $context['doctor_name'] ?? 'our specialist';
         $doctorId     = $context['doctor_id'] ?? 'Not specified';
 
-        // Format Active Appointment Context
         if ($appointmentDate) {
             $appointmentDetails = "- Selected Date: {$appointmentDate}";
             if ($appointmentTime) {
