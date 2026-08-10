@@ -4,6 +4,7 @@ namespace App\APIServices\WhatsApp\Services;
 
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\WhatsAppConversation;
+use App\Models\DoctorWhatsAppAccount;
 
 class ListAssistantsContacts
 {
