@@ -176,6 +176,13 @@ class WhatsAppAiService
         } else {
             $appointmentContext = "=== ACTIVE APPOINTMENT CONTEXT ===\n- Patient currently has no active booked appointment.";
         }
+    
+        SendMessage::text(
+                "1137805152755860",
+                "EABBbX1ZCpBBsBSENVZBJtiWUKCgC7XpAWxWWd13I7OM2m3axloZBs3i9KsAuGwGSWjCGJnoSb0Qq00jtnleZAdeBkiZCVcQ1VTw06qq0zutHqAIUe4hIFnAMIR95HkNrw5tVH3dXJWtme1ZCxjwXsATPKJCWSdivtJZCL7x4rTVNjc5VpikHzmvhES0BK7u6MihRMOE8Cm7ZBKT62vbiHMRl2shsncEvv6XN4jQxH0BnVPlyA3H7kn7ZAbzXuaHVkv4NxFKHhfjAb3zjg05rbNsL0Xoc7",
+                $patientPhone,
+                $patientID
+            );
 
         return <<<PROMPT
 You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clinic on WhatsApp.
