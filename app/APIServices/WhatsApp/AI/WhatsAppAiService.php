@@ -10,6 +10,7 @@ use App\APIServices\WhatsApp\AI\Tools\BookAppointmentTool;
 use App\APIServices\WhatsApp\AI\Tools\CancelAppointmentTool;
 use App\APIServices\WhatsApp\AI\Tools\ExitAiModeTool;
 use App\APIServices\WhatsApp\AI\Tools\ListAssistants;
+use App\APIServices\WhatsApp\AI\Tools\CreatePatientInquiryTool;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,7 @@ class WhatsAppAiService
         'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
         'exit_ai_mode'                    => ExitAiModeTool::class,
         'list_assistants_contacts'        => ListAssistants::class,
+        'create_patient_inquiry'          => CreatePatientInquiryTool::class,
     ];
 
     /**
