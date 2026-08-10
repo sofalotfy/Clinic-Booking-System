@@ -42,7 +42,11 @@ class ListAssistants
      */
     public static function handle(array $args): array
     {
+        \Log::info([
+                'text' => "tool called: list assistants",
+            ]);
         try {
+            
             $doctor = Doctor::find($args['doctor_id']);
             $list = GetAssistantsContacts::execute($doctor);
             ListAssistantsContacts::execute($args['conversation'],$args['message'],$list);
