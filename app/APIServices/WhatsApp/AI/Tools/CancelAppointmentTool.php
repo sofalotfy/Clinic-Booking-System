@@ -1,22 +1,23 @@
 <?php
 
-namespace App\APIServices\WhatsApp\AI\Services;
+namespace App\APIServices\WhatsApp\AI\Tools;
 
 use App\Models\WhatsAppConversation;
 use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Services\Appointments\GetUpComingAppointment;
 
-class BookAppointmentTool
+class CancelAppointmentTool
 {
     public static function definition(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'start_booking_or_reschedule_flow',
-                'description' => 'Transfer the user to the interactive appointment booking system when they explicitly ask to book, schedule, or reserve an appointment.',
+                'name' => 'start_cancellation_flow',
+                'description' => 'Transfer the user to the interactive appointment cancellation flow when they explicitly ask to cancel, revoke, or drop an appointment.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -42,7 +43,7 @@ class BookAppointmentTool
             $message = $args['message'];
 
             $conversation->update([
-                'state' => ConversationState::BOOK_APPOINTMENT,
+                'state' => ConversationState::CANCEL_APPOINTMENT,
                 'step'  => null,
             ]);
 
@@ -50,18 +51,18 @@ class BookAppointmentTool
 
             return [
                 'status'  => 'success',
-                'message' => 'User transferred to interactive booking flow.',
+                'message' => 'User transferred to interactive cancellation flow.',
             ];
 
         } catch (Throwable $e) {
-            Log::error('BookAppointmentTool Error: ' . $e->getMessage(), [
+            Log::error('CancelAppointmentTool Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'args'      => $args,
             ]);
 
             return [
                 'status'  => 'error',
-                'message' => 'Failed to initiate booking flow: ' . $e->getMessage(),
+                'message' => 'Failed to initiate appointment cancellation flow: ' . $e->getMessage(),
             ];
         }
     }

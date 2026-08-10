@@ -1,11 +1,13 @@
 <?php
 
-namespace App\APIServices\WhatsApp\AI\Services;
+namespace App\APIServices\WhatsApp\AI\Tools;
 
 use App\APIServices\Days\GetAvailableSlots;
 use App\Models\Day;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use App\Services\Assistants\GetAssistantsContacts;
+use App\APIServices\WhatsApp\Services\ListAssistantsContacts;
 
 class ListAssistants
 {
@@ -26,12 +28,8 @@ class ListAssistants
                             'type' => 'integer',
                             'description' => 'The integer ID of the doctor.',
                         ],
-                        'date' => [
-                            'type' => 'string',
-                            'description' => 'The target date in YYYY-MM-DD format (e.g., "2026-08-06").',
-                        ],
                     ],
-                    'required' => ['doctor_id', 'date'],
+                    'required' => ['doctor_id'],
                 ],
             ],
         ];
@@ -43,7 +41,14 @@ class ListAssistants
     public static function handle(array $args): array
     {
         try {
-            
+            $doctor = Doctor::find($args['doctor_id']);
+            $list = GetAssistantsContacts::execute($doctor);
+            ListAssistantsContacts::execute($list);
+
+            return [
+                'status' => 'success',
+                'contacts' => $contacts,
+            ];
 
         } catch (Throwable $e) {
             Log::error('GetDoctorSlotsTool Error: ' . $e->getMessage(), [

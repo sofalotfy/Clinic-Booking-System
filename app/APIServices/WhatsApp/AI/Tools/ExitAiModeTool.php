@@ -1,33 +1,31 @@
 <?php
 
-namespace App\APIServices\WhatsApp\AI\Services;
+namespace App\APIServices\WhatsApp\AI\Tools;
 
 use App\Models\WhatsAppConversation;
 use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-use App\Services\Appointments\GetUpComingAppointment;
 
-class CancelAppointmentTool
+class ExitAiModeTool
 {
+    /**
+     * Define the schema so the AI model knows when and how to call this tool.
+     */
     public static function definition(): array
     {
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'start_cancellation_flow',
-                'description' => 'Transfer the user to the interactive appointment cancellation flow when they explicitly ask to cancel, revoke, or drop an appointment.',
+                'name' => 'exit_ai_mode',
+                'description' => 'Exit AI chat mode and return the user to the interactive main menu.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'patient_id' => [
                             'type' => 'integer',
                             'description' => 'The integer ID of the patient.',
-                        ],
-                        'doctor_id' => [
-                            'type' => 'integer',
-                            'description' => 'The integer ID of the assigned doctor.',
                         ],
                     ],
                     'required' => ['patient_id'],
@@ -36,33 +34,38 @@ class CancelAppointmentTool
         ];
     }
 
+    /**
+     * Execute resetting the conversation state and routing to the main menu.
+     */
     public static function handle(array $args): array
     {
         try {
             $conversation = $args['conversation'];
             $message = $args['message'];
 
+            // 2. Update conversation state to MAIN_MENU
             $conversation->update([
-                'state' => ConversationState::CANCEL_APPOINTMENT,
+                'state' => ConversationState::MAIN_MENU,
                 'step'  => null,
             ]);
 
+            // 4. Route execution back to the main router
             ExecutionRouter::execute($conversation, $message);
 
             return [
                 'status'  => 'success',
-                'message' => 'User transferred to interactive cancellation flow.',
+                'message' => 'Successfully exited AI mode and returned to MAIN_MENU.',
             ];
 
         } catch (Throwable $e) {
-            Log::error('CancelAppointmentTool Error: ' . $e->getMessage(), [
+            Log::error('ExitAiModeTool Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'args'      => $args,
             ]);
 
             return [
                 'status'  => 'error',
-                'message' => 'Failed to initiate appointment cancellation flow: ' . $e->getMessage(),
+                'message' => 'Failed to exit AI mode: ' . $e->getMessage(),
             ];
         }
     }

@@ -3,13 +3,13 @@
 namespace App\APIServices\WhatsApp\AI;
 
 use App\APIServices\WhatsApp\SendMessage;
-use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
-use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
-use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
-use App\APIServices\WhatsApp\AI\Services\BookAppointmentTool;
-use App\APIServices\WhatsApp\AI\Services\CancelAppointmentTool;
-use App\APIServices\WhatsApp\AI\Services\ExitAiModeTool;
-use App\APIServices\WhatsApp\AI\Services\ListAssistants;
+use App\APIServices\WhatsApp\AI\Tools\GetDoctorSlotsTool;
+use App\APIServices\WhatsApp\AI\Tools\GetDoctorAvailableDays;
+use App\APIServices\WhatsApp\AI\Tools\GetDoctorDays;
+use App\APIServices\WhatsApp\AI\Tools\BookAppointmentTool;
+use App\APIServices\WhatsApp\AI\Tools\CancelAppointmentTool;
+use App\APIServices\WhatsApp\AI\Tools\ExitAiModeTool;
+use App\APIServices\WhatsApp\AI\Tools\ListAssistants;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +21,7 @@ class WhatsAppAiService
         'start_cancellation_flow'         => CancelAppointmentTool::class,
         'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
         'exit_ai_mode'                    => ExitAiModeTool::class,
-        // 'list_assistants_contacts'        => ListAssistants::class,
+        'list_assistants_contacts'        => ListAssistants::class,
     ];
 
     /**
@@ -116,7 +116,7 @@ class WhatsAppAiService
 
                             // Check if state transition flow took over WhatsApp execution
                             if (
-                                in_array($functionName, ['start_cancellation_flow', 'start_booking_or_reschedule_flow', 'exit_ai_mode']) 
+                                in_array($functionName, ['list_assistants_contacts','start_cancellation_flow', 'start_booking_or_reschedule_flow', 'exit_ai_mode']) 
                                 && ($result['status'] ?? '') === 'success'
                             ) {
                                 $flowTransferred = true;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\APIServices\WhatsApp\AI\Services;
+namespace App\APIServices\WhatsApp\AI\Tools;
 
 use App\APIServices\Days\GetDays;
 use App\Models\Doctor;
