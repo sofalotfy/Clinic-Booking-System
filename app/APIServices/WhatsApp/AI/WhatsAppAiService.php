@@ -9,9 +9,11 @@ use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
 use App\APIServices\WhatsApp\AI\Services\BookAppointmentTool;
 use App\APIServices\WhatsApp\AI\Services\CancelAppointmentTool;
 use App\APIServices\WhatsApp\AI\Services\ExitAiModeTool;
+use App\APIServices\WhatsApp\AI\Services\ListAssistants;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Models\WhatsAppConversation;
 
 class WhatsAppAiService
 {
@@ -19,12 +21,13 @@ class WhatsAppAiService
         'start_cancellation_flow'         => CancelAppointmentTool::class,
         'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
         'exit_ai_mode'                    => ExitAiModeTool::class,
+        // 'list_assistants_contacts'        => ListAssistants::class,
     ];
 
     /**
      * Send user message and chat history to LLM and handle tool calls.
      */
-    public function ask(string $userMessage, array $history = [], array $context = []): string
+    public function ask(WhatsAppConversation $conversation, array $message, string $userMessage, array $history = [], array $context = []): string
     {
         $messages = [
             [
@@ -106,7 +109,8 @@ class WhatsAppAiService
                             if (!isset($arguments['patient_id']) && isset($context['patient_id'])) {
                                 $arguments['patient_id'] = $context['patient_id'];
                             }
-                            
+                            $arguments['conversation'] = $conversation;
+                            $arguments['message'] = $message;
                             Log::info("Executing WhatsApp AI Tool: {$functionName}", $arguments);
                             $result = $this->tools[$functionName]::handle($arguments);
 
@@ -154,6 +158,7 @@ class WhatsAppAiService
     protected function buildSystemPrompt(array $context): string
     {
         $now = Carbon::now();
+
         $dayOfWeek = $now->format('l');
         $dateFormatted = $now->format('F j, Y');
         $currentTime = $now->format('g:i A');

@@ -39,29 +39,9 @@ class ExitAiModeTool
      */
     public static function handle(array $args): array
     {
-        Log::info('ExitAiModeTool Called', ['args' => $args]);
-
         try {
-            $patientId = $args['patient_id'] ?? null;
-
-            if (!$patientId) {
-                return [
-                    'status' => 'error',
-                    'message' => 'patient_id is required.',
-                ];
-            }
-
-            // 1. Fetch the active conversation for this patient
-            $conversation = WhatsAppConversation::where('patient_id', $patientId)
-                ->latest('last_activity_at')
-                ->first();
-
-            if (!$conversation) {
-                return [
-                    'status' => 'error',
-                    'message' => "No active conversation found for patient ID {$patientId}.",
-                ];
-            }
+            $conversation = $args['conversation'];
+            $message = $args['message'];
 
             // 2. Update conversation state to MAIN_MENU
             $conversation->update([
@@ -69,17 +49,8 @@ class ExitAiModeTool
                 'step'  => null,
             ]);
 
-            // 3. Create a fake message payload mimicking an interactive reset
-            $fakeMessage = [
-                'phone_number_id' => $conversation->doctorWhatsAppAccount->phone_number_id ?? null,
-                'from'            => $conversation->phone_number,
-                'type'            => 'text',
-                'value'           => 'main_menu',
-                'message_id'      => 'fake_ai_exit_' . uniqid(),
-            ];
-
             // 4. Route execution back to the main router
-            ExecutionRouter::execute($conversation, $fakeMessage);
+            ExecutionRouter::execute($conversation, $message);
 
             return [
                 'status'  => 'success',

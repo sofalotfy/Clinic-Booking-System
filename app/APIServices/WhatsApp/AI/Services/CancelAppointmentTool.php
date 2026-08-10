@@ -38,52 +38,16 @@ class CancelAppointmentTool
 
     public static function handle(array $args): array
     {
-        Log::info('CancelAppointmentTool Called', ['args' => $args]);
-
         try {
-            $patientId = $args['patient_id'] ?? null;
-
-            if (!$patientId) {
-                return [
-                    'status' => 'error',
-                    'message' => 'patient_id is required.',
-                ];
-            }
-            
-            $conversation = WhatsAppConversation::where('patient_id', $patientId)
-                ->latest('last_activity_at')
-                ->first();
-
-            if (!$conversation) {
-                return [
-                    'status' => 'error',
-                    'message' => "No active conversation found for patient ID {$patientId}.",
-                ];
-            }
-
-            $appointment = GetUpComingAppointment::execute($patientId, $conversation->doctor_id);
-
-            if (!$appointment) {
-                return [
-                    'status' => 'error',
-                    'message' => "You don't have an active appointment to cancel.",
-                ];
-            }
+            $conversation = $args['conversation'];
+            $message = $args['message'];
 
             $conversation->update([
                 'state' => ConversationState::CANCEL_APPOINTMENT,
                 'step'  => null,
             ]);
 
-            $fakeMessage = [
-                'phone_number_id' => $conversation->doctorWhatsAppAccount->phone_number_id ?? null,
-                'from'            => $conversation->phone_number,
-                'type'            => 'text',
-                'value'           => 'CANCEL_APPOINTMENT',
-                'message_id'      => 'fake_ai_cancel_' . uniqid(),
-            ];
-
-            ExecutionRouter::execute($conversation, $fakeMessage);
+            ExecutionRouter::execute($conversation, $message);
 
             return [
                 'status'  => 'success',

@@ -64,7 +64,7 @@ class AI
 
             // 4. Execute AI pipeline
             $aiService = app(WhatsAppAiService::class);
-            $replyText = $aiService->ask($userText, $history, $context);
+            $replyText = $aiService->ask($conversation, $message, $userText, $history, $context);
 
             // 5. Save assistant reply to history
             $conversation->messages()->create([
