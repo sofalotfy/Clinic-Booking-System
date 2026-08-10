@@ -47,14 +47,14 @@ class CreatePatientInquiryTool
             Log::info(
                 [
                     'patient_id' => $conversation->patient_id,
-                    'doctor_id' => $conversation->doctor_id,
+                    'doctor_id' => $args['doctor_id'],
                     'inquiry' => $args['inquiry'],
                 ]
             );
 
             CreatePatientInquiry::execute(
                 patientId: $conversation->patient_id,
-                doctorId: $conversation->doctor_id,
+                doctorId: $args['doctor_id'],
                 question: $args['inquiry'],
             );
 
