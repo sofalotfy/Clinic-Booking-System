@@ -27,8 +27,12 @@ class CreatePatientInquiryTool
                             'type' => 'integer',
                             'description' => 'The integer ID of the assigned doctor.',
                         ],
+                        'inquiry' => [
+                            'type' => 'string',
+                            'description' => 'the question the user wants to ask.',
+                        ],
                     ],
-                    'required' => ['patient_id'],
+                    'required' => ['inquiry'],
                 ],
             ],
         ];
