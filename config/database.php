@@ -113,19 +113,6 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
-
-        'ai_readonly' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'clinics'),
-            'username' => env('DB_AI_USERNAME', 'ai_readonly'),
-            'password' => env('DB_AI_PASSWORD', 'StrongPass_AI_2026!'),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-        ],
     ],
 
     /*
