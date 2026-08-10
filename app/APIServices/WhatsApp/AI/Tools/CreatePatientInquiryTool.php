@@ -47,7 +47,7 @@ class CreatePatientInquiryTool
             CreatePatientInquiry::execute(
                 patientId: $conversation->patient_id,
                 doctorId: $conversation->doctor_id,
-                question: $message->content,
+                question: $args['inquiry'],
             );
 
             return [
