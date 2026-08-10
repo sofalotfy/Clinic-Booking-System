@@ -203,9 +203,8 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 {$appointmentContext}
 
 === CRITICAL OPERATIONAL RULES ===
-3. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or time slots.
-4. AUTOMATIC PARAMETERS: Always pass `doctor_id`: {$doctorId} and `patient_id`: {$patientID} when triggering tools.
-6. SAFETY & SCOPE: Do not provide medical diagnoses or emergency triage. For medical emergencies, instruct the patient to contact emergency services or proceed to the nearest emergency room immediately.
+1. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or time slots.
+2. SAFETY & SCOPE: Do not provide medical diagnoses or emergency triage. For medical emergencies, instruct the patient to contact emergency services or proceed to the nearest emergency room immediately.
 PROMPT;
     }
 }

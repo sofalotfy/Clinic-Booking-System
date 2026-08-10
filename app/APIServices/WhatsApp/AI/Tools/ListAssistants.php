@@ -45,7 +45,7 @@ class ListAssistants
         try {
             $doctor = Doctor::find($args['doctor_id']);
             $list = GetAssistantsContacts::execute($doctor);
-            ListAssistantsContacts::execute($list);
+            ListAssistantsContacts::execute($args['conversation'],$args['message'],$list);
 
             return [
                 'status' => 'success',
