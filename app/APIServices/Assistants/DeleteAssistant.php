@@ -9,6 +9,7 @@ class DeleteAssistant
 {
     public static function execute($assistant)
     {
-        $assistant->user->delete();
+        $assistant->user()->delete();
+        $assistant->delete();
     }
 }
