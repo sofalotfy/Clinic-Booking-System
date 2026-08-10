@@ -2,6 +2,7 @@
 
 namespace App\APIServices\WhatsApp\AI;
 
+use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorSlotsTool;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorAvailableDays;
 use App\APIServices\WhatsApp\AI\Services\GetDoctorDays;
