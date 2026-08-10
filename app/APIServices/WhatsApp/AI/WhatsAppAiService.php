@@ -169,6 +169,12 @@ class WhatsAppAiService
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
 
+        Log::info(
+            [
+                'patientName' => $patientName,
+            ]
+        );
+
         $appointmentDate = $context['appointment_date'] ?? null;
         $appointmentTime = $context['appointment_time'] ?? null;
         
