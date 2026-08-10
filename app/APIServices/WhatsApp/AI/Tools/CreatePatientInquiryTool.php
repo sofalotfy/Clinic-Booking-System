@@ -18,7 +18,17 @@ class CreatePatientInquiryTool
                 'description' => 'Create a new inquiry for a patient when they ask a question that cannot be answered by the AI assistant.',
                 'parameters' => [
                     'type' => 'object',
-                    'properties' => [],
+                    'properties' => [
+                        'patient_id' => [
+                            'type' => 'integer',
+                            'description' => 'The integer ID of the patient.',
+                        ],
+                        'doctor_id' => [
+                            'type' => 'integer',
+                            'description' => 'The integer ID of the assigned doctor.',
+                        ],
+                    ],
+                    'required' => ['patient_id'],
                 ],
             ],
         ];
