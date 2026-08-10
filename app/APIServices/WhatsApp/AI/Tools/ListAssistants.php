@@ -17,22 +17,24 @@ class ListAssistants
     public static function definition(): array
     {
         return [
-            'type' => 'function',
-            'function' => [
-                'name' => 'get_available_slots',
-                'description' => 'Retrieve available booking time slots for a doctor on a specific date.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'doctor_id' => [
-                            'type' => 'integer',
-                            'description' => 'The integer ID of the doctor.',
-                        ],
+        'type' => 'function',
+        'function' => [
+            'name' => 'list_assistants_contacts',
+            'description' => 'Retrieve the list of assistants and their contact information for a specific doctor.',
+            'parameters' => [
+                'type' => 'object',
+                'properties' => [
+                    'doctor_id' => [
+                        'type' => 'integer',
+                        'description' => 'The integer ID of the doctor whose assistants should be listed.',
                     ],
-                    'required' => ['doctor_id'],
                 ],
+                'required' => ['doctor_id'],
+                'additionalProperties' => false,
             ],
-        ];
+        ],
+    ];
+
     }
 
     /**
