@@ -4,7 +4,7 @@ namespace App\APIServices\WhatsApp\AI\Tools;
 
 use App\Models\WhatsAppConversation;
 use Illuminate\Support\Facades\Log;
-use App\Services\PatientInquiry\CreatePatientInquiry;
+use App\Services\PatientInquiries\CreatePatientInquiry;
 use Throwable;
 
 class CreatePatientInquiryTool

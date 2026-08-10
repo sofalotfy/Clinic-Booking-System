@@ -17,12 +17,17 @@ use App\Services\Notifications\Doctor\PatientRename;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Services\Assistants\GetAssistantsContacts;
+use App\Services\PatientInquiries\CreatePatientInquiry;
 
 class TestController extends Controller
 {
     public function test(Request $request)
     {
-        return GetAssistantsContacts::execute(Doctor::find(1));
+        return CreatePatientInquiry::execute(
+                patientId: 15,
+                doctorId: 1,
+                question: "Hello Doctor, I have a question about my appointment.",
+            );
     }
 
     public function makePlan(Request $request)
