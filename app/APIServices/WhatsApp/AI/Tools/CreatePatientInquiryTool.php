@@ -14,7 +14,7 @@ class CreatePatientInquiryTool
         return [
             'type' => 'function',
             'function' => [
-                'name' => 'create_patient_inquiry',
+                'name' => 'ask_doctor',
                 'description' => 'Create a new inquiry for a patient when they ask a question that cannot be answered by the AI assistant.',
                 'parameters' => [
                     'type' => 'object',

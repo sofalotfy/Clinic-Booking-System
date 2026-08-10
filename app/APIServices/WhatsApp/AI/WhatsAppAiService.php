@@ -23,7 +23,7 @@ class WhatsAppAiService
         'start_booking_or_reschedule_flow' => BookAppointmentTool::class,
         'exit_ai_mode'                    => ExitAiModeTool::class,
         'list_assistants_contacts'        => ListAssistants::class,
-        'create_patient_inquiry'          => CreatePatientInquiryTool::class,
+        'ask_doctor'                      => CreatePatientInquiryTool::class,
     ];
 
     /**
@@ -206,7 +206,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 
 === CRITICAL OPERATIONAL RULES ===
 1. REAL-TIME DATA ONLY: NEVER invent, hallucinate, or estimate schedules, available days, or time slots.
-2. SAFETY & SCOPE: Do not provide medical diagnoses or emergency triage instead use CreatePatientInquiryTool to forward the question to the doctor. For medical emergencies, instruct the patient to contact emergency services or proceed to the nearest emergency room immediately.
+2. SAFETY & SCOPE: Do not provide medical diagnoses or emergency triage instead use ask_doctor to forward the question to the doctor. For medical emergencies, instruct the patient to contact emergency services or proceed to the nearest emergency room immediately.
 PROMPT;
     }
 }
