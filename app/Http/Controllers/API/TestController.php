@@ -15,12 +15,14 @@ use App\Models\Day;
 use App\Services\Appointments\BulkUpdateAppointment;
 use App\Services\Notifications\Doctor\PatientRename;
 use App\Models\Patient;
+use App\Models\Doctor;
+use App\Services\Assistants\GetAssistantsContacts;
 
 class TestController extends Controller
 {
     public function test(Request $request)
     {
-        PatientRename::execute(Patient::find(1),"sofa","sofa1");
+        GetAssistantsContacts::execute(Doctor::find(1));
     }
 
     public function makePlan(Request $request)
