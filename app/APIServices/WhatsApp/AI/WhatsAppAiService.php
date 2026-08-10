@@ -56,7 +56,7 @@ class WhatsAppAiService
             $turns++;
 
             $payload = [
-                'model'    => 'claude-haiku-4-5-20251001',
+                'model'    => 'openai/gpt-oss-120b',
                 'messages' => $messages,
             ];
 
