@@ -13,8 +13,8 @@ class GetAssistantsContacts
         $contacts = [];
         foreach ($assistants as $assistant) {
             $contacts[] = [
-                'name' => $assistant->user->name,
-                'phone' => $assistant->user->phone,
+                'name' => $assistant->user()->name,
+                'phone' => $assistant->user()->phone,
             ];
         }
 
