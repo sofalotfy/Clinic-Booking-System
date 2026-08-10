@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Services\Assistants\GetAssistantsContacts;
 use App\APIServices\WhatsApp\Services\ListAssistantsContacts;
+use App\Models\Doctor;
 
 class ListAssistants
 {
