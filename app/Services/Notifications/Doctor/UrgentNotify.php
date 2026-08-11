@@ -15,7 +15,7 @@ class UrgentNotify
         SendMessage::text(
             $account->phone_number_id,
             $account->access_token,
-            $doctor->user->phone,
+            '201013292553',// $doctor->user->phone,
             $title,
             $text
         );
