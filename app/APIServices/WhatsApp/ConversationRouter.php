@@ -14,7 +14,7 @@ use App\APIServices\WhatsApp\States\BookSlot;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
 use App\APIServices\WhatsApp\States\CancelAppointment;
 use App\APIServices\WhatsApp\States\ConfirmReshedule;
-use App\APIServices\WhatsApp\States\EmergencyCase;
+use App\APIServices\WhatsApp\States\FileEmergencyCase;
 use App\APIServices\WhatsApp\States\AI;
 
 class ConversationRouter
@@ -50,7 +50,7 @@ class ConversationRouter
                 ConfirmReshedule::handleResponse($conversation, $message),
 
             ConversationState::EMERGENCY_CASE =>
-                EmergencyCase::handleResponse($conversation, $message),
+                FileEmergencyCase::handleResponse($conversation, $message),
 
             ConversationState::AI =>
                 AI::handleResponse($conversation, $message),
