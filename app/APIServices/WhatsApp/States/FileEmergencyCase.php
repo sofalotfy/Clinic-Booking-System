@@ -162,7 +162,7 @@ class FileEmergencyCase
                 }
 
                 $location = $message['value'];
-
+                \Log::info($location);
                 UpdateEmergencyCase::execute(
                     doctorId: $account->doctor_id,
                     patientId: $conversation->patient_id,
