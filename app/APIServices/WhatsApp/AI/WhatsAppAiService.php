@@ -120,7 +120,7 @@ class WhatsAppAiService
 
                             // Check if state transition flow took over WhatsApp execution
                             if (
-                                in_array($functionName, ['list_assistants_contacts','start_cancellation_flow', 'start_booking_or_reschedule_flow', 'exit_ai_mode']) 
+                                in_array($functionName, ['ask_doctor', 'file_emergency_case','list_assistants_contacts','start_cancellation_flow', 'start_booking_or_reschedule_flow', 'exit_ai_mode']) 
                                 && ($result['status'] ?? '') === 'success'
                             ) {
                                 $flowTransferred = true;
@@ -224,12 +224,11 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
     - other
 
 2. if the user input is appointment related use the suitable appointment related tool, the tools are: 
-    - list_assistants_contacts
+    - start_cancellation_flow
     - start_booking_or_reschedule_flow
     
-3. if the user input is medical advice, use the ask_doctor tool
-4. if the user input is emergency, notify the user that his case is emergency
-    -ask the user if he is in home or hospital, if in home ask for location else ask for hospital name
+3. if the user input is medical advice, use the ask_doctor tool and list_assistants_contacts tool
+4. if the user input is emergency,use the file_emergency_case tool
 5. if the user input is other, use the exit_ai_mode tool
 
 

@@ -1,0 +1,241 @@
+<?php
+
+namespace App\APIServices\WhatsApp\States;
+
+use App\APIServices\WhatsApp\SendMessage;
+use App\Enums\ConversationState;
+use App\Models\DoctorWhatsAppAccount;
+use App\Models\WhatsAppConversation;
+use App\Services\EmergencyCases\CreateEmergencyCase;
+use App\Services\EmergencyCases\UpdateEmergencyCase;
+
+class FileEmergencyCase
+{
+    private const STEP_SYMPTOMS = 'symptoms';
+    private const STEP_LOCATION_TYPE = 'location_type';
+    private const STEP_LOCATION = 'location';
+    private const STEP_HOSPITAL_NAME = 'hospital_name';
+
+    private const HOME = 'home';
+    private const HOSPITAL = 'hospital';
+
+    public static function execute(
+        WhatsAppConversation $conversation,
+        array $message
+    ) {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        $step = $conversation->step ?? self::STEP_SYMPTOMS;
+
+        if (!$conversation->step) {
+            $conversation->update([
+                'step' => self::STEP_SYMPTOMS,
+            ]);
+        }
+
+        return match ($step) {
+            self::STEP_SYMPTOMS => SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please describe your symptoms.',
+            ),
+
+            self::STEP_LOCATION_TYPE => SendMessage::buttons(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Are you currently at home or in a hospital?',
+                [
+                    [
+                        'id' => self::HOME,
+                        'title' => 'Home',
+                    ],
+                    [
+                        'id' => self::HOSPITAL,
+                        'title' => 'Hospital',
+                    ],
+                ]
+            ),
+
+            self::STEP_LOCATION => SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please send your current location using WhatsApp.',
+            ),
+
+            self::STEP_HOSPITAL_NAME => SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Please enter the name of the hospital.',
+            ),
+        };
+    }
+
+    public static function handleResponse(
+        WhatsAppConversation $conversation,
+        array $message
+    ) {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        switch ($conversation->step) {
+
+            case self::STEP_SYMPTOMS:
+
+                if (
+                    $message['type'] !== 'text' ||
+                    empty(trim($message['value']))
+                ) {
+                    return SendMessage::text(
+                        $account->phone_number_id,
+                        $account->access_token,
+                        $message['from'],
+                        'Please describe your symptoms.',
+                    );
+                }
+
+                CreateEmergencyCase::execute(
+                    patientId: $conversation->patient_id,
+                    doctorId: $account->doctor_id,
+                    symptoms: trim($message['value']),
+                );
+
+                $conversation->update([
+                    'step' => self::STEP_LOCATION_TYPE,
+                ]);
+
+                return self::execute($conversation, $message);
+
+
+            case self::STEP_LOCATION_TYPE:
+
+                if (
+                    $message['type'] !== 'interactive' ||
+                    empty($message['value'])
+                ) {
+                    return self::execute($conversation, $message);
+                }
+
+                $locationType = strtolower(trim($message['value']));
+
+                if (!in_array($locationType, [
+                    self::HOME,
+                    self::HOSPITAL,
+                ])) {
+                    return self::execute($conversation, $message);
+                }
+
+                $inHospital = $locationType === self::HOSPITAL;
+
+                UpdateEmergencyCase::execute(
+                    doctorId: $account->doctor_id,
+                    patientId: $conversation->patient_id,
+                    data: [
+                        'in_hospital' => $inHospital,
+                    ],
+                );
+
+                $conversation->update([
+                    'step' => $inHospital
+                        ? self::STEP_HOSPITAL_NAME
+                        : self::STEP_LOCATION,
+                ]);
+
+                return self::execute($conversation, $message);
+
+
+            case self::STEP_LOCATION:
+
+                if ($message['type'] !== 'location') {
+                    return SendMessage::text(
+                        $account->phone_number_id,
+                        $account->access_token,
+                        $message['from'],
+                        'Please send your current location using WhatsApp.',
+                    );
+                }
+
+                $location = $message['value'];
+
+                UpdateEmergencyCase::execute(
+                    doctorId: $account->doctor_id,
+                    patientId: $conversation->patient_id,
+                    data: [
+                        'latitude' => $location['latitude'] ?? null,
+                        'longitude' => $location['longitude'] ?? null,
+                        'place' => $location['name'] ?? null,
+                        'address' => $location['address'] ?? null,
+                    ],
+                );
+
+                return self::finish(
+                    $conversation,
+                    $message
+                );
+
+
+            case self::STEP_HOSPITAL_NAME:
+
+                if (
+                    $message['type'] !== 'text' ||
+                    empty(trim($message['value']))
+                ) {
+                    return SendMessage::text(
+                        $account->phone_number_id,
+                        $account->access_token,
+                        $message['from'],
+                        'Please enter the name of the hospital.',
+                    );
+                }
+
+                UpdateEmergencyCase::execute(
+                    doctorId: $account->doctor_id,
+                    patientId: $conversation->patient_id,
+                    data: [
+                        'hospital_name' => trim($message['value']),
+                    ],
+                );
+
+                return self::finish(
+                    $conversation,
+                    $message
+                );
+
+
+            default:
+
+                $conversation->update([
+                    'step' => self::STEP_SYMPTOMS,
+                ]);
+
+                return self::execute($conversation, $message);
+        }
+    }
+
+    private static function finish(
+        WhatsAppConversation $conversation,
+        array $message
+    ) {
+        $conversation->update([
+            'step' => null,
+            'state' => ConversationState::AI,
+        ]);
+
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        return SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'Your emergency case has been recorded. Please seek immediate medical assistance or contact emergency services if needed.',
+        );
+    }
+}

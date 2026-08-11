@@ -43,16 +43,24 @@ class CreatePatientInquiryTool
         try {
             $conversation = $args['conversation'];
             $message = $args['message'];
-
+            $account = DoctorWhatsAppAccount::findOrFail(
+                        $conversation->doctor_whatsapp_account_id
+                    );
             CreatePatientInquiry::execute(
                 patientId: $conversation->patient_id,
                 doctorId: $args['doctor_id'],
                 question: $args['inquiry'],
             );
 
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'Your inquiry has been successfully received and forwarded to the appropriate department for review.',
+            );
+
             return [
                 'status'  => 'success',
-                'message' => 'Your inquiry has been successfully received and forwarded to the appropriate department for review.',
             ];
 
         } catch (Throwable $e) {

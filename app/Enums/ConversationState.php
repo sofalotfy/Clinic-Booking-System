@@ -14,5 +14,8 @@ enum ConversationState: string
     case BOOK_SLOT = 'book_slot';
     case CONFIRM_BOOKING = 'confirm_booking';
     case CONFIRM_RESHEDULE = 'confirm_reshedule';
+    case EMERGENCY_CASE = 'emergency_case';
+    case EMERGENCY_CASE_IN_HOME = 'emergency_case_in_home';
+    case EMERGENCY_CASE_IN_HOSPITAL = 'emergency_case_in_hospital';
     case AI    =   'AI';
 }
