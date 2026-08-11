@@ -6,6 +6,7 @@ use App\Models\WhatsAppConversation;
 use Illuminate\Support\Facades\Log;
 use App\Services\PatientInquiries\CreatePatientInquiry;
 use Throwable;
+use App\Models\DoctorWhatsAppAccount;
 
 class CreatePatientInquiryTool
 {
