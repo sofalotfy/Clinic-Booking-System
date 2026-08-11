@@ -61,6 +61,11 @@ class CreatePatientInquiryTool
                 'Your inquiry has been successfully received and forwarded to the appropriate department for review.',
             );
 
+            ListAssistants::handle([
+                'doctor_id' => $args['doctor_id'],
+                'conversation' => $args['conversation'],
+                'message' => $args['message'],
+            ]);
             return [
                 'status'  => 'success',
             ];
