@@ -40,6 +40,9 @@ class CreatePatientInquiryTool
 
     public static function handle(array $args): array
     {
+        \Log::info(
+            "tool called: ask doctor"
+        );
         try {
             $conversation = $args['conversation'];
             $message = $args['message'];
