@@ -40,10 +40,12 @@ class FileEmergencyCaseTool
             $conversation = $args['conversation'];
             $message = $args['message'];
 
-            $conversation->update([
-                'state' => ConversationState::EMERGENCY_CASE,
-                'step' => null,
-            ]);
+            if ($conversation->state !== ConversationState::EMERGENCY_CASE) {
+                $conversation->update([
+                    'state' => ConversationState::EMERGENCY_CASE,
+                    'step' => null,
+                ]);
+            }
 
             ExecutionRouter::execute(
                 $conversation,

@@ -52,7 +52,8 @@ class AI
             ]);
 
             $appointment = GetUpComingAppointment::execute($patient->id, $doctorAccount->doctor_id);
-            $oldPatient = IsOldPatient::execute($doctorAccount->doctor_id, $patient->id);;
+            $oldPatient = IsOldPatient::execute($doctorAccount->doctor_id, $patient->id);
+            $hasEmergencyCase = HasEmergencyCase::execute($patient->id, $doctorAccount->doctor_id);
             // 3. Build dynamic context payload
             $context = [
                 'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
@@ -61,7 +62,8 @@ class AI
                 'patient_name'  => $patient->user->name ?? 'Patient',
                 'patient_phone' => $message['from'],
                 'appointment_date' => $appointment->date ?? null,
-                'old_patient'  => $oldPatient
+                'old_patient'  => $oldPatient,
+                'has_emergency_case' => $hasEmergencyCase,
             ];
 
             // 4. Execute AI pipeline

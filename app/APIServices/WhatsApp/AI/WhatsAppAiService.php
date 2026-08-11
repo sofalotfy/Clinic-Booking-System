@@ -175,6 +175,7 @@ class WhatsAppAiService
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
         $oldPatientValue = $context['old_patient'] ? 'true' : 'false';
+        $hasEmergencyCaseValue = $context['has_emergency_case'] ? 'true' : 'false';
 
         $appointmentDate = $context['appointment_date'] ?? null;
         $appointmentTime = $context['appointment_time'] ?? null;
@@ -205,6 +206,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 - Patient Phone: {$patientPhone}
 - Patient ID: {$patientID}
 - old patient: {$oldPatientValue}
+- has emergency case: {$hasEmergencyCaseValue}
 
 === ASSIGNED DOCTOR CONTEXT ===
 - Doctor Name: Dr. {$doctorName}
@@ -232,7 +234,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
     - start_cancellation_flow only if user already have an appointment
     - start_booking_or_reschedule_flow
 
-4. if the user input is emergency,use the file_emergency_case tool
+4. if the user input is emergency,use the file_emergency_case tool if the patient has no emergency case
 5. if the user input is other, use the exit_ai_mode tool
 
 
