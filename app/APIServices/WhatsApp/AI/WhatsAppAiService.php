@@ -11,6 +11,7 @@ use App\APIServices\WhatsApp\AI\Tools\CancelAppointmentTool;
 use App\APIServices\WhatsApp\AI\Tools\ExitAiModeTool;
 use App\APIServices\WhatsApp\AI\Tools\ListAssistants;
 use App\APIServices\WhatsApp\AI\Tools\CreatePatientInquiryTool;
+use App\APIServices\WhatsApp\AI\Tools\FileEmergencyCaseTool;
 use OpenAI\Laravel\Facades\OpenAI;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +25,7 @@ class WhatsAppAiService
         'exit_ai_mode'                    => ExitAiModeTool::class,
         'list_assistants_contacts'        => ListAssistants::class,
         'ask_doctor'                      => CreatePatientInquiryTool::class,
+        'file_emergency_case'              => FileEmergencyCaseTool::class,
     ];
 
     /**
@@ -227,6 +229,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
     
 3. if the user input is medical advice, use the ask_doctor tool
 4. if the user input is emergency, notify the user that his case is emergency
+    -ask the user if he is in home or hospital, if in home ask for location else ask for hospital name
 5. if the user input is other, use the exit_ai_mode tool
 
 

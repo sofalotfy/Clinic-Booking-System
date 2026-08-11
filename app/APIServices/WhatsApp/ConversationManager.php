@@ -150,6 +150,12 @@ class ConversationManager
 
                 'button' => $message['button']['payload'] ?? null,
 
+                'location' => [
+                    'latitude'  => $message['location']['latitude'] ?? null,
+                    'longitude' => $message['location']['longitude'] ?? null,
+                    'name'      => $message['location']['name'] ?? null,
+                    'address'   => $message['location']['address'] ?? null,
+                ],
                 default => null,
             },
 
