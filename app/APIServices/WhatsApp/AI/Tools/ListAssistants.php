@@ -21,7 +21,7 @@ class ListAssistants
         'type' => 'function',
         'function' => [
             'name' => 'list_assistants_contacts',
-            'description' => 'give assistants contact information to the user.',
+            'description' => 'Provide the contact information of the doctor or clinic assistants. Use this tool whenever the patient asks for contact information, phone numbers, how to contact the doctor, or how to reach the clinic..',
             'parameters' => [
                 'type' => 'object',
                 'properties' => [
