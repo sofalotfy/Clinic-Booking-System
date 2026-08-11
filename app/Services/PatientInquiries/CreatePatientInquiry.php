@@ -4,7 +4,7 @@ namespace App\Services\PatientInquiries;
 
 use App\Models\PatientInquiry;
 use App\Models\Doctor;
-use App\Services\Notifications\Notify;
+use App\Services\Notifications\Doctor\Notify;
 use App\Enums\NotificationsType;
 
 class CreatePatientInquiry

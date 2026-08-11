@@ -3,6 +3,7 @@
 namespace App\Services\EmergencyCases;
 
 use App\Models\EmergencyCase;
+use App\Services\EmergencyCases\CreateEmergencyCase;
 
 class UpdateEmergencyCase
 {
