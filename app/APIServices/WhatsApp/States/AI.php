@@ -11,6 +11,7 @@ use Throwable;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\GetUpComingAppointment;
 use App\Services\Patients\IsOldPatient;
+use App\Services\Patients\HasEmergencyCase;
 
 class AI
 {
