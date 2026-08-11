@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\GetUpComingAppointment;
+use App\Services\Patients\IsOldPatient;
 
 class AI
 {
@@ -51,7 +52,7 @@ class AI
             ]);
 
             $appointment = GetUpComingAppointment::execute($patient->id, $doctorAccount->doctor_id);
-
+            $oldPatient = IsOldPatient::execute($doctorAccount->doctor_id, $patient->id);;
             // 3. Build dynamic context payload
             $context = [
                 'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
@@ -60,6 +61,7 @@ class AI
                 'patient_name'  => $patient->user->name ?? 'Patient',
                 'patient_phone' => $message['from'],
                 'appointment_date' => $appointment->date ?? null,
+                'old patient'  => $oldPatient
             ];
 
             // 4. Execute AI pipeline

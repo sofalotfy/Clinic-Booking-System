@@ -170,6 +170,7 @@ class WhatsAppAiService
         $patientID    = $context['patient_id'] ?? 'Unknown';
         $patientName  = $context['patient_name'] ?? 'Valued Patient';
         $patientPhone = $context['patient_phone'] ?? 'Unknown';
+        $oldPatientValue = $context['old_patient'] ? 'true' : 'false';
 
         Log::info(
             [
@@ -205,6 +206,7 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
 - Patient Name: {$patientName}
 - Patient Phone: {$patientPhone}
 - Patient ID: {$patientID}
+- old patient: {$oldPatientValue}
 
 === ASSIGNED DOCTOR CONTEXT ===
 - Doctor Name: Dr. {$doctorName}
@@ -227,7 +229,10 @@ You are a helpful, warm customer support assistant for Dr. {$doctorName}'s clini
     - start_cancellation_flow
     - start_booking_or_reschedule_flow
     
-3. if the user input is medical advice, use the ask_doctor tool and list_assistants_contacts tool
+3. if the user input is medical advice,
+    - check if the user is an old patient
+    - if no use start_booking_or_reschedule_flow tool
+    - if yes use the ask_doctor tool and list_assistants_contacts tool
 4. if the user input is emergency,use the file_emergency_case tool
 5. if the user input is other, use the exit_ai_mode tool
 
