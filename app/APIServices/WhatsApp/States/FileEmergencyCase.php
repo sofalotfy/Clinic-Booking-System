@@ -16,7 +16,7 @@ class FileEmergencyCase
     private const STEP_LOCATION = 'location';
     private const STEP_HOSPITAL_NAME = 'hospital_name';
 
-    private const HOME = 'home';
+    private const ELSE = 'else';
     private const HOSPITAL = 'hospital';
 
     public static function execute(
@@ -47,15 +47,15 @@ class FileEmergencyCase
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Are you currently at home or in a hospital?',
+                'Are you currently at a hospital?',
                 [
                     [
-                        'id' => self::HOME,
-                        'title' => 'Home',
+                        'id' => self::HOSPITAL,
+                        'title' => 'Yes',
                     ],
                     [
-                        'id' => self::HOSPITAL,
-                        'title' => 'Hospital',
+                        'id' => self::ELSE,
+                        'title' => 'No',
                     ],
                 ]
             ),
@@ -125,7 +125,7 @@ class FileEmergencyCase
                 $locationType = strtolower(trim($message['value']));
 
                 if (!in_array($locationType, [
-                    self::HOME,
+                    self::ELSE,
                     self::HOSPITAL,
                 ])) {
                     return self::execute($conversation, $message);
