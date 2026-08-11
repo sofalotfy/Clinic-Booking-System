@@ -16,8 +16,7 @@ class UrgentNotify
             $account->phone_number_id,
             $account->access_token,
             '201013292553',// $doctor->user->phone,
-            $title,
-            $text
+            $title . "\n\n" . $text
         );
 
         return Notification::create([
