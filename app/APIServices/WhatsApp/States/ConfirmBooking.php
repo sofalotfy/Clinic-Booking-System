@@ -10,6 +10,7 @@ use App\Models\Day;
 use App\APIServices\Days\CheckAvailability;
 use App\Enums\AppointmentStatus;
 use Carbon\Carbon;
+use App\APIServices\WhatsApp\ExecutionRouter;
 
 class ConfirmBooking
 {
