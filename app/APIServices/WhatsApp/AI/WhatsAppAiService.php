@@ -99,6 +99,7 @@ class WhatsAppAiService
                 $flowTransferred = false;
 
                 // Execute tools
+                \Log::info('tools to be called: ' . $responseMessage->toolCalls);
                 foreach ($responseMessage->toolCalls as $toolCall) {
                     $functionName = $toolCall->function->name;
                     $arguments = json_decode($toolCall->function->arguments, true) ?? [];
