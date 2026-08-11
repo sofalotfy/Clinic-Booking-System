@@ -18,7 +18,16 @@ class FileEmergencyCaseTool
                 'description' => 'Transfer the patient to the emergency case filing workflow when they report a medical emergency. The workflow will collect the symptoms, whether the patient is at home or in a hospital, and their location or hospital name.',
                 'parameters' => [
                     'type' => 'object',
-                    'properties' => [],
+                    'properties' => [
+                        'patient_id' => [
+                            'type' => 'integer',
+                            'description' => 'The integer ID of the patient.',
+                        ],
+                        'doctor_id' => [
+                            'type' => 'integer',
+                            'description' => 'The integer ID of the assigned doctor.',
+                        ],
+                    ],
                     'required' => [],
                 ],
             ],
