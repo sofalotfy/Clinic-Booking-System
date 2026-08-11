@@ -21,7 +21,7 @@ class ListAssistants
         'type' => 'function',
         'function' => [
             'name' => 'list_assistants_contacts',
-            'description' => 'Retrieve the list of assistants and their contact information for a specific doctor.',
+            'description' => 'give assistants contact information to the user.',
             'parameters' => [
                 'type' => 'object',
                 'properties' => [
