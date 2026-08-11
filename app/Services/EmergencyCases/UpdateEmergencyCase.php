@@ -15,18 +15,24 @@ class UpdateEmergencyCase
             ->where('patient_id', $patientId)
             ->first();
 
-        if (!$emergencyCase && empty($emergencyCase->symptoms)) {
-            throw new \RuntimeException('Emergency case not found.');
+        if (!$emergencyCase) {
+            if (empty($data['symptoms'])) {
+                throw new \RuntimeException(
+                    'Cannot create an emergency case without symptoms.'
+                );
+            }
+
+            $emergencyCase = CreateEmergencyCase::execute(
+                patientId: $patientId,
+                doctorId: $doctorId,
+                symptoms: $data['symptoms'],
+            );
         }
 
-        $emergencyCase = EmergencyCase::updateOrCreate(
-            [
-                'doctor_id' => $doctorId,
-                'patient_id' => $patientId,
-            ],
+        $emergencyCase->update(
             array_filter(
                 $data,
-                fn($value) => $value !== null
+                fn ($value) => $value !== null
             )
         );
 

@@ -15,4 +15,6 @@ enum NotificationsType: string
     case STAFF = 'staff';
     case SYSTEM = 'system';
     case SECURITY = 'security';
+    case EMERGENCY = 'emergency';
+    case INQUIRY = 'inquiry';
 }
