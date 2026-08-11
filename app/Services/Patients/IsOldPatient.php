@@ -2,7 +2,7 @@
 
 namespace App\Services\Patients;
 
-use App\Models\Appointments;
+use App\Models\Appointment;
 
 class IsOldPatient
 {
@@ -10,7 +10,7 @@ class IsOldPatient
         int $doctorId,
         int $patientId,
     ) {
-        return Appointments::where([
+        return Appointment::where([
             'doctor_id' => $doctorId,
             'patient_id' => $patientId,
         ])->exists();
