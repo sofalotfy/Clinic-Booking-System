@@ -68,6 +68,7 @@ class AI
             $aiService = app(WhatsAppAiService::class);
             $replyText = $aiService->ask($conversation, $message, $userText, $history, $context);
 
+            if(!$replyText){return;}
             // 5. Save assistant reply to history
             $conversation->messages()->create([
                 'role'    => 'assistant',
