@@ -17,7 +17,7 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
     {
-        \Log::info('Meta verification hit', $request->alls());
+        \Log::info('Meta verification hit', $request->all());
 
         if (
             $request->get('hub_mode') === 'subscribe' &&
