@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DemoPatientsSeeder::class,
             DoctorWhatsAppAccountSeeder::class,
+            PermissionTableSeeder::class,
         ]);
 
     }
