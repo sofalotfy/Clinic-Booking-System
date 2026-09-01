@@ -25,10 +25,10 @@ class ConfirmBooking
         
         if(CheckAvailability::execute($day->id)){
             $state = AppointmentStatus::ACTIVE;
-            $text = "Confirm your booking at {$day->date} at {$conversation->data['selected_slot']}";
+            $text = "هل انت متاكد من حجز الموعد في يوم {$day->date} في تمام الوقت {$conversation->data['selected_slot']}";
         }else{
             $state = AppointmentStatus::QUEUED;
-            $text = "Confirm your booking at {$day->date} in Waitint List";
+            $text = "هل انت متاكد من حجز الموعد في يوم {$day->date} في قائمة الانتظار";
         }
 
         $conversation->update([
@@ -48,11 +48,11 @@ class ConfirmBooking
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'Confirm',
+                    'title' => 'تاكيد',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء',
                 ],
             ]
         );
@@ -95,7 +95,7 @@ class ConfirmBooking
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'Your appointment has been booked.',
+                    'تم تاكيد حجز الموعد.',
                 );
 
                 $conversation->update([

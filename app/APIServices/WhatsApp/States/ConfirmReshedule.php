@@ -30,17 +30,17 @@ class ConfirmReshedule
         $newDate = $conversation->data['new_date'] ?? $appointment->date;
 
         if ($rescheduleType == AppointmentUpdateNotificationTypes::TRUNCATE->value) {
-            $text = "We are sorry, but our clinic schedule has changed, and we no longer work on this day. Your appointment has been Cancelled. Would you like to book another appointment?";
+            $text = "عذرا، لقد تغير جدول مواعيد العيادة، ولم نعد نعمل في هذا اليوم، وتم الغاء موعدك. هل ترغب في حجز موعد جديد؟";
         } elseif ($rescheduleType == AppointmentUpdateNotificationTypes::OVERFLOW->value) {
-            $text = "Due to a schedule update, all slots for this day are full. Your appointment has been moved to the waiting list. Would you like to confirm?";
+            $text = "عذرا، لقد تغير جدول مواعيد العيادة، وتم نقل موعدك إلى قائمة الانتظار، هل ترغب في تاكيد ذلك؟";
         } elseif ($rescheduleType == AppointmentUpdateNotificationTypes::CANCEL->value) {
-            $text = "We’re sorry, but your appointment has been cancelled by the doctor. Would you like to book a new appointment at a different time?";
+            $text = "عذرا، لقد تم الغاء موعدك من قبل الدكتور، هل ترغب في حجز موعد جديد؟";
         } elseif ($rescheduleType == AppointmentUpdateNotificationTypes::COLIDE->value) {
-            $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
+            $text = "تم نقل موعدك ليوم {$newDate}. هل ترغب في تاكيد ذلك؟";
         } elseif ($rescheduleType == AppointmentUpdateNotificationTypes::QUEUED->value) {
-            $text = "Your appointment has been added to waiting list. Would you like to confirm?";
+            $text = "تم إضافة موعدك إلى قائمة الانتظار. هل ترغب في تاكيد ذلك؟";
         } else {
-            $text = "Your appointment has been rescheduled to {$newDate}. Would you like to confirm?";
+            $text = "تم نقل موعدك ليوم {$newDate}. هل ترغب في تاكيد ذلك؟";
         }
             
         return SendMessage::buttons(
@@ -51,11 +51,11 @@ class ConfirmReshedule
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'Confirm',
+                    'title' => 'تاكيد',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء',
                 ],
             ]
         );
@@ -86,7 +86,7 @@ class ConfirmReshedule
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'Your appointment has been confirmed.'
+                    'تم تاكيد حجز الموعد'
                 );
 
                 $conversation->update([

@@ -43,8 +43,8 @@ class BookAppointment
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Please choose an appointment day.',
-            'Select Day',
+            'من فضلك اختر يوم',
+            'اختر يوم',
             collect($days)->map(function ($day) {
                 return [
                     'id' => $day['id'],
@@ -52,8 +52,8 @@ class BookAppointment
                     'description' => $day['note'],
                 ];
             })->toArray(),
-            'Available Days',
-            'Next 7 Days'
+            'ايام متاحه',
+            'اخر 7 ايام'
         );
     }
 

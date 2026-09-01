@@ -40,22 +40,22 @@ class FileEmergencyCase
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please describe your symptoms.',
+                'من فضلك صف الاعراض التي تشعر بها.',
             ),
 
             self::STEP_LOCATION_TYPE => SendMessage::buttons(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Are you currently at a hospital?',
+                'هل انت حاليا في مستشفي؟',
                 [
                     [
                         'id' => self::HOSPITAL,
-                        'title' => 'Yes',
+                        'title' => 'نعم',
                     ],
                     [
                         'id' => self::ELSE,
-                        'title' => 'No',
+                        'title' => 'لا',
                     ],
                 ]
             ),
@@ -64,14 +64,14 @@ class FileEmergencyCase
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please send your current location using WhatsApp.',
+                'من فضلك ارسل موقعك الحالي.',
             ),
 
             self::STEP_HOSPITAL_NAME => SendMessage::text(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please enter the name of the hospital.',
+                'من فضلك ادخل اسم المستشفي.',
             ),
         };
     }
@@ -96,7 +96,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'Please describe your symptoms.',
+                        'من فضلك صف الاعراض التي تشعر بها.',
                     );
                 }
 
@@ -157,7 +157,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'Please send your current location using WhatsApp.',
+                        'من فضلك ارسل موقعك الحالي.',
                     );
                 }
 
@@ -190,7 +190,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'Please enter the name of the hospital.',
+                        'من فضلك ادخل اسم المستشفي.',
                     );
                 }
 
@@ -235,7 +235,7 @@ class FileEmergencyCase
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Your emergency case has been recorded. Please seek immediate medical assistance or contact emergency services if needed.',
+            'تم تسجيل حالتك الطارئة. يرجى طلب المساعدة الطبية الفورية أو الاتصال بخدمات الطوارئ إذا لزم الأمر.',
         );
     }
 }

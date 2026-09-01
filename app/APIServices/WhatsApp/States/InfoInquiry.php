@@ -32,21 +32,21 @@ class InfoInquiry
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please enter your name.',
+                'من فضلك ادخل اسمك.',
             ),
 
             self::STEP_AGE => SendMessage::text(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please enter your age.',
+                'من فضلك ادخل عمرك.',
             ),
 
             self::STEP_ADDRESS => SendMessage::text(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Please enter your address.',
+                'من فضلك ادخل عنوانك.',
             ),
         };
     }
@@ -83,7 +83,7 @@ class InfoInquiry
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'Please enter a valid age.',
+                        'من فضلك ادخل عمرك.',
                     );
                 }
 

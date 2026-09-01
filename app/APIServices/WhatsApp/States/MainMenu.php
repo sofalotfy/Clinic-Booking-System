@@ -94,19 +94,19 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "You don't have any upcoming appointments.\n\nPlease choose an option:",
+            $greeting . "انت لا تملك اي مواعيد قادمه.\n\nمن فضلك اختر خيار:",
             [
                 [
                     'id' => 'book_appointment',
-                    'title' => 'Book Appointment',
+                    'title' => 'حجز موعد',
                 ],
                 [
                     'id' => 'update_profile',
-                    'title' => 'Update Profile',
+                    'title' => 'تحديث البيانات الشخصية',
                 ],
                 [
                     'id' => 'end_conversation',
-                    'title' => 'End Conversation',
+                    'title' => 'انهاء المحادثة',
                 ],
             ]
         );
@@ -174,7 +174,7 @@ class MainMenu
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'Thank you for using our services.',
+                    'شكرا لاستخدام خدماتنا',
                 );
 
                 return;

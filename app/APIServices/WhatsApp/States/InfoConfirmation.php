@@ -22,18 +22,18 @@ class InfoConfirmation
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "Confirm your information: 
-            Name: {$conversation->data['name']}
-            Age: {$conversation->data['age']}
-            Address: {$conversation->data['address']}",
+            "تاكيد المعلومات: 
+            الاسم: {$conversation->data['name']}
+            العمر: {$conversation->data['age']}
+            العنوان: {$conversation->data['address']}",
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'Confirm',
+                    'title' => 'تاكيد',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء',
                 ],
             ]
         );
@@ -75,7 +75,7 @@ class InfoConfirmation
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'Your profile has been updated.',
+                    'تم تحديث معلوماتك بنجاح.',
                 );
 
 

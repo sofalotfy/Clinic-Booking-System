@@ -29,7 +29,7 @@ class BookSlot
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'Sorry, there are no available time slots for this day anymore. Please choose another day.'
+                'عذرا، لا يوجد مواعيد متاحه لهذا اليوم، من فضلك اختر يوم اخر'
             );
 
             $conversation->update([
@@ -75,11 +75,11 @@ class BookSlot
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'Please choose your preferred appointment time.',
-            'Select Time',
+            'من فضلك اختر الوقت المفضل لديك',
+            'اختر الوقت',
             $rows->toArray(),
-            'Available Times',
-            'Time Slots'
+            'الوقت المتاح',
+            'الوقت'
         );
     }
 
@@ -129,7 +129,7 @@ class BookSlot
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'That time slot is no longer available. Please choose another one.'
+                'الوقت غير متاح الان. من فضلك اختر وقت اخر.'
             );
 
             return self::execute($conversation, $message);
