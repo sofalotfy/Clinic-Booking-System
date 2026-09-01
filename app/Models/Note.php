@@ -8,7 +8,7 @@ use App\Models\Patient;
 
 class Note extends Model
 {
-    protected $fillable = ['doctor_id', 'patient_id', 'text'];
+    protected $guarded = [];
 
     /**
      * Get the doctor that wrote the note.

@@ -4,28 +4,30 @@ namespace App\APIServices\Appointments;
 
 use App\Models\Appointment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
-use App\Enums\AppointmentStatus;
 
 class BulkUpdateAppointments
 {
     public static function execute(Request $request)
     {
+        //DECODE SCHEMA
         $appointmentContainers = $request->updates;
+
+        //INITIATE ARRAY
+        $appointments = [];
 
         foreach ($appointmentContainers as $appointmentContainer) {
             if (is_array($appointmentContainer) && isset($appointmentContainer['id'])) {
-
+                //FETCH APPOINTMENT
                 $appointment = Appointment::findOrFail($appointmentContainer['id']);
 
+                //GET CORRESPONDING CHANGES
                 $changes = $appointmentContainer['changes'] ?? $appointmentContainer;
 
-                UpdateAppointment::execute($appointment, $changes);
+                //CALL CENTRALIZED SERVICE
+                $appointments[] = UpdateAppointment::execute($request->user(), $appointment, $changes);
             }
         }
 
-        return $appointmentContainers;
+        return $appointments;
     }
 }

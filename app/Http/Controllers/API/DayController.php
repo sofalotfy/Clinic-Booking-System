@@ -2,59 +2,73 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use App\Enums\AssistantPermissionsEnum;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\APIServices\Days\GetDays;
+use App\APIServices\Days\ListDays;
+use App\APIServices\Days\ShowDay;
+use App\APIServices\Days\UpdateDay;
 use App\APIServices\Days\GetDayAppointments;
 use App\APIServices\Days\MapAppointments;
-use App\Services\DaysInstances\UpdateDay;
+use Illuminate\Http\Request;
 use App\Models\Day;
 
-class DayController extends Controller
+class DayController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array 
+    {
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value,
+                only: ['index']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PLAN->value . ',day',
+                only: ['update']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
+                only: ['dayAppointments']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
+                only: ['mapAppointments']
+            ),
+        ];
+    }
+
     public function index(Request $request)
     {
-        $days = GetDays::execute([
-            "status" => $request->status,
-            'date_from'  =>  $request->date_from,
-            'date_to'  =>  $request->date_to,
-        ]);
-        
         return response()->json([
             'success' => true,
-            'days' => $days,
+            'days' => ListDays::execute($request),
         ]);
     }
 
     public function update(Day $day, Request $request)
     {
-        UpdateDay::execute($day, $request->day);
-
         return response()->json([
             'success' => true,
             'message' => 'Day updated successfully',
+            'day'     => UpdateDay::execute($day, $request),
         ]);
     }
 
     public function dayAppointments(Request $request)
     {
-        
-        $appointments = GetDayAppointments::execute($request->date);
-        
         return response()->json([
-            'success' => true,
-            'appointments' => $appointments,
-            'day'  => Day::where('date',$request->date)->where('doctor_id',auth()->user()->doctor->id)->first(),
+            'success'      => true,
+            'appointments' => GetDayAppointments::execute($request),
+            'day'          => ShowDay::execute($request, Day::where('date',$request->date)->where('doctor_id',$request->user()->clinicDoctorId())->first()),
         ]);
     }
 
     public function mapAppointments(Request $request)
     {
-        $days = MapAppointments::execute();
-
         return response()->json([
             "success"  => true,
-            "days"     => $days,
+            "days"     => MapAppointments::execute($request),
         ]);
     }
 }

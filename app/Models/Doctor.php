@@ -15,7 +15,7 @@ use App\Models\TemplatePlan;
 
 class Doctor extends Model
 {
-    protected $fillable = ['user_id'];
+    protected $guarded = [];
 
     /**
      * The "booted" method of the model.
@@ -101,4 +101,5 @@ class Doctor extends Model
     {
         return $this->hasMany(PatientBlock::class);
     }
+
 }

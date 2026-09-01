@@ -6,14 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PatientBlock extends Model
 {
-    protected $fillable = [
-        'doctor_id',
-        'patient_id',
-        'blocked_by',
-        'reason',
-        'blocked_at',
-        'expires_at',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'blocked_at' => 'datetime',
@@ -39,5 +32,15 @@ class PatientBlock extends Model
     {
         return $this->expires_at !== null &&
             $this->expires_at->isPast();
+    }
+    
+    public function scopeActive($query)
+    {
+        return $query
+            ->whereNull('unblocked_at')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 }

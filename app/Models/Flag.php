@@ -8,7 +8,7 @@ use App\Models\Patient;
 
 class Flag extends Model
 {
-    protected $fillable = ['doctor_id', 'name', 'color', 'description'];
+    protected $guarded = [];
 
     /**
      * Get the doctor that created the flag.

@@ -2,41 +2,44 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use App\Enums\AssistantPermissionsEnum;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\APIServices\Notes\NotePatient;
-use App\APIServices\Notes\EditNote;
+use App\APIServices\Notes\UpdateNote;
 use App\APIServices\Notes\DeleteNote;
+use Illuminate\Http\Request;
+use App\Models\Note;
 
-class NoteController extends Controller
+class NoteController extends Controller implements HasMiddleware
 {
-    public function notePatient(Request $request)
+    public static function middleware(): array
     {
-        $note = NotePatient::execute($request->patient_id, $request->note);
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_NOTE->value . ',note',
+                only: ['update']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::DELETE_NOTE->value . ',note',
+                only: ['destroy']
+            ),
+        ];
+    }
 
+    public function update(Request $request, Note $note)
+    {
         return response()->json([
             'success' => true,
-            'note' => $note,
+            'note' => UpdateNote::execute($request, $note),
         ]);
     }
 
-    public function editNote(Request $request, $noteId)
+    public function destroy(Request $request, Note $note)
     {
-        $note = EditNote::execute($noteId, $request->note);
-
         return response()->json([
             'success' => true,
-            'note' => $note,
-        ]);
-    }
-
-    public function deleteNote(Request $request, $noteId)
-    {
-        $note = DeleteNote::execute($noteId);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Note deleted successfully',
+            'message' => DeleteNote::execute($note),
         ]);
     }
 }

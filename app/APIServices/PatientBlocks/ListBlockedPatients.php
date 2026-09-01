@@ -2,60 +2,31 @@
 
 namespace App\APIServices\PatientBlocks;
 
-use App\Models\User;
-use App\Models\PatientBlock;
-use App\Enums\UserType;
-use Illuminate\Support\Facades\DB;
+use App\Services\PatientBlocks\ListBlockedPatients as ListService;
 
 class ListBlockedPatients
 {
-    public static function execute()
+    public static function execute($request)
     {
-        $user = auth()->user();
-
-        if ($user->type !== UserType::DOCTOR) {
-            return null;
-        }
-
-        $query = PatientBlock::query()
-            ->join('patients', 'patient_blocks.patient_id', '=', 'patients.id')
-            ->join('users', 'patients.user_id', '=', 'users.id')
-            ->where('patient_blocks.doctor_id', $user->doctor->id)
-            ->whereNull('patient_blocks.unblocked_at')
-            ->where(function ($query) {
-                $query->whereNull('patient_blocks.expires_at')
-                    ->orWhere('patient_blocks.expires_at', '>', now());
-            });
-
-
-        // if ($search) {
-        //     $query->where(function ($query) use ($search) {
-        //         $query->where('users.name', 'like', "%{$search}%")
-        //             ->orWhere('users.phone', 'like', "%{$search}%")
-        //             ->orWhere('users.area', 'like', "%{$search}%");
-        //     });
-        // }
-
-
-        return $query
+        return ListService::execute($request->user())
             ->select(self::getSelects())
-            ->get();
+            ->get();   
     }
-
 
     private static function getSelects(): array
     {
         return [
             'patients.id as patient_id',
 
-            'users.name',
-            'users.phone',
-            'users.email',
-            'users.image as avatar',
-            'users.age',
-            'users.area',
+            'users.name as patient_name',
+            'users.phone as patient_phone',
+            'users.email as patient_email',
+            'users.image as patient_avatar',
+            'users.age as patient_age',
+            'users.area as patient_area',
 
             'patient_blocks.id as block_id',
+            'patient_blocks.blocked_by',
             'patient_blocks.reason',
             'patient_blocks.blocked_at',
             'patient_blocks.expires_at',

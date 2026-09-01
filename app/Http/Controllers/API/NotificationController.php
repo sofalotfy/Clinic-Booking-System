@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Notification;
 use App\APIServices\Notifications\ListNewNotifications;
 use App\APIServices\Notifications\ListHistoricalNotifications;
 use App\APIServices\Notifications\ViewNotification;
@@ -14,41 +14,33 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = ListNewNotifications::execute($request);
-
         return response()->json([
             'success' => true,
-            'notifications' => $notifications,
+            'notifications' => ListNewNotifications::execute($request),
         ]);
     }
 
     public function historical(Request $request)
     {
-        $notifications = ListHistoricalNotifications::execute($request);
-
         return response()->json([
             'success' => true,
-            'notifications' => $notifications,
+            'notifications' => ListHistoricalNotifications::execute($request),
         ]);
     }
 
     public function view(Request $request,Notification $notification)
     {
-        $notification = ViewNotification::execute($request, $notification);
-        
         return response()->json([
             'success' => true,
-            'notification' => $notification,
+            'notification' => ViewNotification::execute($request, $notification),
         ]);
     }   
 
     public function viewBulk(Request $request)
     {
-        $notifications = ViewBulkNotification::execute($request);
-        
         return response()->json([
             'success' => true,
-            'notifications' => $notifications,
+            'notifications' => ViewBulkNotification::execute($request),
         ]);
     }   
 }

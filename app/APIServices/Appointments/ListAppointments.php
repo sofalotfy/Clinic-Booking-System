@@ -2,30 +2,23 @@
 
 namespace App\APIServices\Appointments;
 
-use App\Models\Appointment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use App\Services\Appointments\Retrievals\ListAppointments as ListService;
 use Illuminate\Support\Facades\DB;
 
 class ListAppointments
 {
-    public static function execute()
+    public static function execute($request)
     {
-        $appointments =  Appointment::leftJoin('patients', 'appointments.patient_id', '=', 'patients.id')
-                                    ->leftJoin('users', 'patients.user_id', '=', 'users.id');
-
-        $appointments = $appointments->select(self::getSelects())->get();
-
-        $appointments->transform(function ($appointment){
+       return ListService::execute($request->user())
+        ->select(self::getSelects())
+        ->get()
+        ->transform(function ($appointment){
             $appointment->avatar = $appointment->avatar
                 ? asset('storage/' . $appointment->avatar)
                 : null;
 
             return $appointment;
         });
-
-        return $appointments;
     }
 
     private static function getSelects()

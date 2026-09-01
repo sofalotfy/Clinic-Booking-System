@@ -13,6 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 use App\Enums\Gender;
 use App\Enums\UserType;
 use Laravel\Sanctum\HasApiTokens;
+use App\Services\Clinics\GetClinicDoctor;
 
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -52,6 +53,15 @@ class User extends Authenticatable
         return $this->hasOne(Patient::class);
     }
 
+    public function profile()
+    {
+        return match ($this->type) {
+            UserType::ASSISTANT => $this->hasOne(Assistant::class),
+            UserType::DOCTOR    => $this->hasOne(Doctor::class),
+            UserType::PATIENT   => $this->hasOne(Patient::class),
+        };
+    }
+
     public function assistant()
     {
         return $this->hasOne(Assistant::class);
@@ -79,5 +89,15 @@ class User extends Authenticatable
     public function getProfileAttribute()
     {
         return $this->doctor ?? $this->patient;
+    }
+
+    public function clinicDoctor()
+    {
+        return GetClinicDoctor::execute($this);
+    }
+
+    public function clinicDoctorId()
+    {
+        return $this->clinicDoctor()?->id;
     }
 }

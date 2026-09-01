@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Services\Authentications\CheckClinicPermission;
+use App\Services\Authentications\CheckDoctorPermission;
 
 class ClinicPermission
 {
@@ -16,13 +16,10 @@ class ClinicPermission
             $model = $request->route($routeModel);
         }
 
-        abort_if(
-            ! CheckClinicPermission::execute(
-                $request->user(),
-                $permission,
-                $model
-            ),
-            403
+        abort_unless(
+            CheckDoctorPermission::execute($request->user(), $permission, $model),
+            403,
+            'You do not have permission to perform this action.'
         );
 
         return $next($request);

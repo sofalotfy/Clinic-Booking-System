@@ -3,53 +3,53 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use App\Enums\AssistantPermissionsEnum;
 use App\Models\Patient;
-use App\Services\PatientBlocks\BlockPatient;
-use App\Services\PatientBlocks\UnblockPatient;
 use App\APIServices\PatientBlocks\ListBlockedPatients;
+use App\APIServices\PatientBlocks\BlockPatient;
+use App\APIServices\PatientBlocks\UnblockPatient;
 use Illuminate\Http\Request;
 
-class PatientBlockController extends Controller
+class PatientBlockController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_BLOCKED_PATIENTS->value,
+                only: ['index']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::CREATE_BLOCKED_PATIENT->value,
+                only: ['store']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::DELETE_BLOCKED_PATIENT->value,
+                only: ['destroy']
+            ),
+        ];
+    }
+
     public function index(Request $request)
     {
-        $patients = ListBlockedPatients::execute();
-
-        return response()->json(["blocked patients" => $patients]);
+        return response()->json([
+            "blocked_patients" => ListBlockedPatients::execute($request)
+        ]);
     }
 
     public function store(Request $request, Patient $patient)
     {
-        $validated = $request->validate([
-            'reason' => ['nullable', 'string', 'max:1000'],
-            'expires_at' => ['nullable', 'date', 'after:now'],
-        ]);
-
-        BlockPatient::execute(
-            doctorId: $request->user()->doctor->id,
-            patientId: $patient->id,
-            blockedBy: $request->user()->id,
-            reason: $validated['reason'] ?? null,
-            expiresAt: $validated['expires_at'] ?? null,
-        );
-
         return response()->json([
-            'success' => true,
-            'message' => 'Patient blocked successfully.',
+            'block' => BlockPatient::execute($request, $patient),
         ]);
     }
 
     public function destroy(Request $request, Patient $patient)
     {
-        UnblockPatient::execute(
-            doctorId: $request->user()->doctor->id,
-            patientId: $patient->id,
-            unblockedBy: $request->user()->id,
-        );
-
         return response()->json([
-            'success' => true,
-            'message' => 'Patient unblocked successfully.',
+            'block' => UnblockPatient::execute($request, $patient),
         ]);
     }
 }

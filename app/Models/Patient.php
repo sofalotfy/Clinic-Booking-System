@@ -10,7 +10,7 @@ use App\Models\User;
 
 class Patient extends Model
 {
-    protected $fillable = ['user_id'];
+    protected $guarded = [];
 
     /**
      * The "booted" method of the model.
@@ -63,5 +63,25 @@ class Patient extends Model
         return $this->belongsToMany(Flag::class, 'flag_patient')
                     ->withPivot('doctor_id')
                     ->withTimestamps();
+    }
+
+    /**
+     * Check If Blocked.
+     */
+    public function isBlocked(Doctor $doctor): bool
+    {
+        return $this->blocks()
+            ->where('doctor_id', $doctor->id)
+            ->active()
+            ->exists();
+    }
+
+    public function activeBlock(Doctor $doctor)
+    {
+        return $this->blocks()
+            ->where('doctor_id', $doctor->id)
+            ->active()
+            ->latest()
+            ->first();
     }
 }

@@ -6,11 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WhatsappMessages extends Model
 {
-    protected $fillable = [
-        'whats_app_conversation_id',
-        'role',
-        'content',
-    ];
+    protected $guarded = [];
 
     public function conversation()
     {

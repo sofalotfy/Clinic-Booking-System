@@ -10,16 +10,7 @@ use App\Models\Patient;
 
 class WhatsAppConversation extends Model
 {
-    protected $fillable = [
-        'doctor_whatsapp_account_id',
-        'patient_id',
-        'phone_number',
-        'state',
-        'step',
-        'data',
-        'last_activity_at',
-        'expires_at',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'state' => ConversationState::class,

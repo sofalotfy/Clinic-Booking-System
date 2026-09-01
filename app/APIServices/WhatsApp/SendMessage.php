@@ -11,7 +11,7 @@ class SendMessage
         string $accessToken,
         string $to,
         string $message
-    ): array
+    )
     {
         \Log::info('SEND MESSAGE ' . $accessToken);
         $response = Http::withToken($accessToken)
@@ -25,6 +25,8 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
+            \Log::info('SEND MESSAGE ' . $response->body());
+            return;
             throw new \Exception($response->body());
         }
 
@@ -38,7 +40,7 @@ class SendMessage
         string $to,
         string $text,
         array $buttons
-    ): array {
+    ) {
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
                 'messaging_product' => 'whatsapp',
@@ -64,6 +66,8 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
+            \Log::info('SEND MESSAGE ' . $response->body());
+            return;
             throw new \Exception($response->body());
         }
 
@@ -79,7 +83,7 @@ class SendMessage
         array $rows,
         string $title = 'Select an option',
         string $sectionTitle = 'Options'
-    ): array {
+    ) {
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
                 'messaging_product' => 'whatsapp',
@@ -113,6 +117,8 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
+            \Log::info('SEND MESSAGE ' . $response->body());
+            return;
             throw new \Exception($response->body());
         }
 

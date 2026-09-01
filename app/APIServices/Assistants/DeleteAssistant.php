@@ -2,14 +2,12 @@
 
 namespace App\APIServices\Assistants;
 
-use App\Models\Assistant;
-use App\Enums\UserType;
+use App\Services\Assistants\DeleteAssistant as DeleteService;
 
 class DeleteAssistant
 {
     public static function execute($assistant)
     {
-        $assistant->user()->delete();
-        $assistant->delete();
+        return DeleteService::execute($assistant);
     }
 }

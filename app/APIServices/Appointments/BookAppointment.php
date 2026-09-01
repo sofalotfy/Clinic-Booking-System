@@ -2,46 +2,40 @@
 
 namespace App\APIServices\Appointments;
 
-use App\Models\Appointment;
+use App\Models\Day;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
-use App\Enums\AppointmentStatus;
+use App\Enums\UserType;
+use App\Services\Appointments\Creation\BookAppointment as BookService;
 
 class BookAppointment
 {
-    public static function execute(Request $request): Appointment
+    public static function execute(Request $request)
     {
-        if(!$request->user()->patient){
-            throw ValidationException::withMessages([
-                'date' => 'the User is not a Patient.',
-            ]);
-        }
-        $appointment = Appointment::where('doctor_id', $request->doctor_id)
-                ->where('patient_id', $request->user()->patient->id)
-                ->where('date', '<=', Carbon::now()->format('Y-m-d H:i:s'))
-                ->whereNotIn('status', [AppointmentStatus::ACTIVE, AppointmentStatus::QUEUED])
-                ->first();
-
-        if($appointment){
-            throw ValidationException::withMessages([
-                'date' => 'You have an appointment with this doctor already.',
-            ]);
-        }
-        
+        //VALIDATE
         $validated = Validator::make($request->all(), [
             'doctor_id' => ['required', 'exists:doctors,id'],
-            'date'       => ['required', 'date'],
-            'duration'   => ['required', 'integer'],
+            'patient_id' => ['required', 'exists:patients,id'],
+            'date'      => ['required', 'date'],
         ])->validate();
 
-        return Appointment::create([
-            'doctor_id' => $validated['doctor_id'],
-            'patient_id' => $request->user()->patient->id,
-            'date' => $validated['date'],
-            'duration' => $validated['duration'],
-            // status defaults to pending
-        ]);
+        //FORMAT DATE WITH CURRENT TIME
+        $dateTime = Carbon::parse($validated['date']);
+
+        //GET BOOKING DAY INSTANCE
+        $day = Day::where('doctor_id', $validated['doctor_id'])
+            ->whereDate('date', $dateTime->toDateString())
+            ->first();
+
+        //USE CENTRALIZED SERVICE
+        return BookService::execute(
+            $request->user(),
+            Patient::find($validated['patient_id']),
+            $day,
+            $dateTime->format('H:i'),
+        );
     }
 }

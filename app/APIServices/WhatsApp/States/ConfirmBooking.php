@@ -5,7 +5,7 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\APIServices\Appointments\SmartBookAppointment;
+use App\Services\Appointments\SmartBookAppointment;
 use App\Models\Day;
 use App\APIServices\Days\CheckAvailability;
 use App\Enums\AppointmentStatus;

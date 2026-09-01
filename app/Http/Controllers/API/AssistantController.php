@@ -2,16 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
-use Spatie\Permission\Models\Role;
-use App\Models\User;
-use App\Models\Assistant;
-use Illuminate\Http\Request;
-use App\Enums\UserType;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use App\Enums\AssistantPermissionsEnum;
-use App\Services\Authentications\CheckClinicPermission;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use App\APIServices\Assistants\ListAssistants;
@@ -21,6 +13,9 @@ use App\APIServices\Assistants\UpdateAssistant;
 use App\APIServices\Assistants\DeleteAssistant;
 use App\APIServices\Assistants\AddRole;
 use App\APIServices\Assistants\RemoveRole;
+use Spatie\Permission\Models\Role;
+use App\Models\Assistant;
+use Illuminate\Http\Request;
 
 class AssistantController extends Controller implements HasMiddleware
 {
@@ -56,40 +51,31 @@ class AssistantController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $assistants = ListAssistants::execute($request->user());
-
         return response()->json([
-            'assistants' => $assistants,
+            'assistants' => ListAssistants::execute($request->user()),
         ]);
     }
 
     public function show(Request $request, Assistant $assistant)
     {
-
-        $assistant = ShowAssistant::execute($assistant);
-
         return response()->json([
-            'assistant' => $assistant,
+            'assistant' => ShowAssistant::execute($assistant),
         ]);
     }
 
     public function store(Request $request)
     {
-        $assistant = StoreAssistant::execute($request);
-
         return response()->json([
             'message' => 'Assistant created successfully.',
-            'assistant' => $assistant,
+            'assistant' => StoreAssistant::execute($request),
         ], 201);
     }
 
     public function update(Request $request, Assistant $assistant)
     {
-        $assistant = UpdateAssistant::execute($assistant, $request);
-
         return response()->json([
             'message' => 'Assistant updated successfully.',
-            'assistant' => $assistant->load('user.roles'),
+            'assistant' => UpdateAssistant::execute($assistant, $request),
         ]);
     }
 
@@ -104,21 +90,17 @@ class AssistantController extends Controller implements HasMiddleware
     
     public function assignRole(Request $request, Assistant $assistant, Role $role)
     {
-        $assistant = AddRole::execute($assistant, $role);
-        
         return response()->json([
             'message' => 'Role assigned successfully.',
-            'assistant' => $assistant,
+            'assistant' => AddRole::execute($assistant, $role),
         ]);
     }
 
     public function removeRole(Request $request, Assistant $assistant, Role $role)
     {
-        $assistant = RemoveRole::execute($assistant, $role);
-
         return response()->json([
             'message' => 'Role removed successfully.',
-            'assistant' => $assistant,
+            'assistant' => RemoveRole::execute($assistant, $role),
         ]);
     }
 }

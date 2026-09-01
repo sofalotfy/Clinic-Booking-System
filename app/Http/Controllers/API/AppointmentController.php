@@ -2,56 +2,71 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use App\Enums\AssistantPermissionsEnum;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\APIServices\Appointments\BookAppointment;
 use App\APIServices\Appointments\ListAppointments;
+use App\APIServices\Appointments\BookAppointment;
 use App\APIServices\Appointments\UpdateAppointment;
 use App\APIServices\Appointments\BulkUpdateAppointments;
+use Illuminate\Http\Request;
 use App\Models\Appointment;
 
-class AppointmentController extends Controller
+class AppointmentController extends Controller implements HasMiddleware
 {
 
-    public function index()
+    public static function middleware(): array
     {
-        // list all appointments for patient
-        $appointments = ListAppointments::execute();
-        
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
+                only: ['index']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::CREATE_APPOINTMENT->value,
+                only: ['store']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_APPOINTMENT->value . ',appointment',
+                only: ['update']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_APPOINTMENT->value,
+                only: ['bulkUpdate']
+            ),
+        ];
+    }
+
+    public function index(Request $request)
+    {
         return response()->json([
             'success' => true,
-            'appointments' => $appointments,
+            'appointments' => ListAppointments::execute($request),
         ]);
     }
 
     public function store(Request $request)
     {
-        
-        $appointment = BookAppointment::execute($request);
-        
         return response()->json([
             'success' => true,
-            'appointment' => $appointment,
+            'appointment' => BookAppointment::execute($request),
         ]);
     }
 
     public function update(Request $request, Appointment $appointment)
     {
-        $appointment = UpdateAppointment::execute($appointment,$request->all());
-        
         return response()->json([
             'success' => true,
-            'appointment' => $appointment,
+            'appointment' => UpdateAppointment::execute($request->user(), $appointment, $request->all()),
         ]);
     }
 
     public function bulkUpdate(Request $request)
     {
-        $appointments = BulkUpdateAppointments::execute($request);
-        
         return response()->json([
             'success' => true,
-            'appointments' => $appointments,
+            'appointments' => BulkUpdateAppointments::execute($request),
         ]);
     }
 

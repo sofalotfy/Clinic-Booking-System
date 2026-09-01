@@ -11,7 +11,7 @@ use App\Models\Patient;
 
 class Appointment extends Model
 {
-    protected $fillable = ['doctor_id', 'patient_id', 'status', 'date', 'delay', 'duration', 'grade'];
+    protected $guarded = [];
 
     /**
      * Get the attributes that should be cast.

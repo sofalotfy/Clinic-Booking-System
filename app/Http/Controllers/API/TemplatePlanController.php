@@ -2,93 +2,88 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\TemplatePlans\CreteaTemplate;
-use App\Services\TemplatePlans\UpdatePlan;
-use App\Services\TemplatePlans\DeletePlan;
+use App\Http\Controllers\Controller;
 use App\Models\TemplatePlan;
-use App\Enums\TemplatePlanStatus;
-use App\Services\TemplatePlans\ActivatePlan;
-use App\Services\TemplatePlans\CountColidingAppoinments;
-use App\Services\TemplatePlans\CountTruncatedAppointments;
-use App\Services\TemplatePlans\CountOverflowedAppointments;
-use Carbon\Carbon;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use App\Enums\AssistantPermissionsEnum;
+use App\APIServices\TemplatePlans\ListPlans;
+use App\APIServices\TemplatePlans\ShowPlan;
+use App\APIServices\TemplatePlans\StorePlan;
+use App\APIServices\TemplatePlans\UpdatePlan;
+use App\APIServices\TemplatePlans\DeletePlan;
+use App\APIServices\TemplatePlans\CheckRePlan;
+use App\APIServices\TemplatePlans\ActivatePlan;
 
-class TemplatePlanController extends Controller
-{
+class TemplatePlanController extends Controller implements HasMiddleware
+{ 
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value,
+                only: ['index']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_SINGLE_PLAN->value . ',templatePlan',
+                only: ['show']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::CREATE_PLAN->value,
+                only: ['store']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PLAN->value . ',templatePlan',
+                only: ['update']    
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::DELETE_PLAN->value . ',templatePlan',
+                only: ['destroy']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PLAN->value . ',templatePlan',
+                only: ['checkRePlan']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PLAN->value . ',templatePlan',
+                only: ['activate']
+            ),
+        ];
+    }
+
+    public function index(Request $request)
+    {
+        return ListPlans::execute($request);
+    }
+
+    public function show(Request $request, TemplatePlan $templatePlan)
+    {
+        return ShowPlan::execute($request, $templatePlan);
+    }
+
     public function store(Request $request)
     {
-        $plan = CreteaTemplate::execute($request->name, $request->description, $request->days);
-        return response()->json([
-            'plan' => $plan,
-        ]);
+        return StorePlan::execute($request);
     }
 
-    public function index()
+    public function update(Request $request, TemplatePlan $templatePlan)
     {
-        $plans = TemplatePlan::with('templateDays')->where('doctor_id', auth()->user()->doctor->id)->get();
-        return response()->json([
-            'plans' => $plans,
-        ]);
+        return UpdatePlan::execute($request, $templatePlan);
     }
 
-    public function show($id)
+    public function destroy(Request $request, TemplatePlan $templatePlan)
     {
-        $plan = TemplatePlan::with('templateDays')->where('doctor_id', auth()->user()->doctor->id)->find($id);
-        return response()->json([
-            'plan' => $plan,
-        ]);
+        return DeletePlan::execute($request, $templatePlan);
     }
 
-    public function update($id, Request $request)
+    public function checkRePlan(Request $request, TemplatePlan $templatePlan)
     {
-        $plan = UpdatePlan::execute(
-            $request->input('name', null),
-            $request->input('description', null),
-            $request->input('days', null),
-            $id
-        );
-
-        return response()->json([
-            'plan' => $plan,
-        ]);
+        return CheckRePlan::execute($request, $templatePlan);
     }
 
-    public function destroy($id)
+    public function activate(Request $request, TemplatePlan $templatePlan)
     {
-        $plan = DeletePlan::execute($id);
-
-        return response()->json([
-            'message' => 'Plan deleted successfully',
-        ]);
-    }
-
-    public function check(Request $request, $id)
-    {
-        $template = TemplatePlan::with('templateDays')
-            ->where('doctor_id', auth()->user()->doctor->id)
-            ->findOrFail($id);
-
-        $start_date = $request->input('start_date', Carbon::now()->addDays(1)->toDateString());
-
-        $colidingAppointments = count(CountColidingAppoinments::execute($template, $start_date));
-        $truncatedAppointments = count(CountTruncatedAppointments::execute($template, $start_date));
-        $overflowedAppointments = count(CountOverflowedAppointments::execute($template, $start_date));
-
-        return response()->json([
-            'colliding_appointments' => $colidingAppointments,
-            'truncated_appointments' => $truncatedAppointments,
-            'overflowed_appointments' => $overflowedAppointments,
-        ]);
-    }
-
-    public function activate($id,Request $request)
-    {
-        $plan = ActivatePlan::execute($id,$request->start_date);
-
-        return response()->json([
-            'message' => 'Plan activated successfully',
-        ]);
+        return ActivatePlan::execute($request, $templatePlan);
     }
 }

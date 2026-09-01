@@ -3,17 +3,12 @@
 namespace App\APIServices\Notes;
 
 use App\Models\Note;
+use App\Services\Notes\DeleteNote as DeleteService;
 
 class DeleteNote
 {
-    public static function execute($noteId)
+    public static function execute($note)
     {
-        $note = Note::find($noteId);
-
-        if ($note->doctor_id != auth()->user()->doctor->id) {
-            throw new \Exception('You are not authorized to delete this note');
-        }
-
-        return $note->delete();
+        return DeleteService::execute($note);
     }
 }

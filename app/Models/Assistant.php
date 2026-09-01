@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Assistant extends Model
 {
-    protected $fillable = ['user_id','doctor_id'];
+    protected $guarded = [];
 
     /**
      * The "booted" method of the model.

@@ -3,48 +3,46 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Enums\AssistantPermissionsEnum;
-use Spatie\Permission\Models\Permission;
-use App\Enums\PermissionsTypeEnum;
-use App\Enums\UserType;
+use Illuminate\Http\Request;
+use App\APIServices\Permissions\ListPermissions;
+use App\APIServices\Permissions\ListAssistantPermissions;
+use App\APIServices\Permissions\GetUserPermissions;
 
-
-class PermissionController extends Controller
+class PermissionController extends Controller implements HasMiddleware
 {
-    // public function __construct()
-    // {
-    // }
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PERMISSIONS->value,
+                only: ['index']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PERMISSIONS->value,
+                only: ['listAssistantPermissions']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PERMISSIONS->value,
+                only: ['getUserPermissions']
+            ),
+        ];
+    }
 
     public function index(Request $request)
     {
-        //check permission
-        return;
-        return response()->json([
-            'permissions' => Permission::select('id', 'name', 'type')->get(),
-        ]);
+        return ListPermissions::execute($request);
     }
 
     public function listAssistantPermissions(Request $request)
     {
-        if ($request->user()->type != UserType::DOCTOR) {
-            throw new \Symfony\Component\HttpKernel\Exception\HttpException(
-                403,
-                'Only doctors can perform this action.'
-            );
-        }
-
-        return response()->json([
-            'permissions' => Permission::select('id', 'name')->where('type', PermissionsTypeEnum::ASSISTANT)->get(),
-        ]);
+        return ListAssistantPermissions::execute($request);
     }
 
     public function GetUserPermissions(Request $request)
     {
-        $user = $request->user();
-        $userPermissions = $user->getAllPermissions()->pluck('name','id')->toArray();
-        return response()->json([
-            'user_permissions' => $userPermissions,
-        ]);
+        return GetUserPermissions::execute($request);
     }
 }

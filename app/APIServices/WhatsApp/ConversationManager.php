@@ -23,7 +23,9 @@ class ConversationManager
             // Ignore sent/delivered/read webhooks
             return;
         }
-
+        \Log::info([
+            'payload' => $message,
+        ]);
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
 
@@ -137,7 +139,9 @@ class ConversationManager
 
         return [
             'phone_number_id' => $value['metadata']['phone_number_id'],
-            'from'            => $message['from'],
+            'from' => isset($message['from'])
+                ? $message['from']
+                : ($message['from_user_id'] ?? null),
             'type'            => $message['type'],
             'value'           => match ($message['type']) {
                 'text' => $message['text']['body'] ?? null,

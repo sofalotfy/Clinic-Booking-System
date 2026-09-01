@@ -2,14 +2,14 @@
 
 namespace App\APIServices\Flags;
 
-use App\Models\Flag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use App\Services\Flags\UpdateFlag as UpdateService;
+use App\Models\Flag;
 
 class UpdateFlag
 {
-    public static function execute(Request $request, $flag): Flag
+    public static function execute(Request $request, Flag $flag)
     {
         $validated = Validator::make($request->all(), [
             'name' => ['nullable', 'string', 'max:191'],
@@ -17,12 +17,7 @@ class UpdateFlag
             'description' => ['nullable', 'string'],
         ])->validate();
 
-        $flag->update([
-            'name' => $validated['name'] ?? $flag->name,
-            'color' => $validated['color'] ?? $flag->color,
-            'description' => $request->has('description') ? $request->description : $flag->description,
-        ]);
-
-        return $flag->refresh();
+        UpdateService::execute($flag, $validated);
+        return $flag->fresh();
     }
 }

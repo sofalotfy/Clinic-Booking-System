@@ -9,11 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PatientInquiry extends Model
 {
-    protected $fillable = [
-        'doctor_id',
-        'patient_id',
-        'question',        
-    ];
+    protected $guarded = [];
 
     public function doctor(): BelongsTo
     {

@@ -9,14 +9,7 @@ class Notification extends Model
 {
     protected $table = 'notifications';
 
-    protected $fillable = [
-        'title',
-        'text',
-        'route',
-        'type',
-        'user_id',
-        'viewed',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'type' => NotificationsType::class,

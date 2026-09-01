@@ -2,88 +2,51 @@
 
 namespace App\APIServices\Patients;
 
-use App\Models\Patient;
-use App\Models\User;
-use App\Models\Appointment;
-use App\Enums\UserType;
 use Illuminate\Support\Facades\DB;
-
+use App\Services\Patients\Retrievals\ListDoctorPatients;
 
 class ListPatients
 {
-    public static function execute(int $userId, int $perPage = 50,string $search = null, array $filters = null)
+    public static function execute($request)
     {
-        $user = User::findOrFail($userId);
-        
-        $appointments = self::getAuthData($userId);
+        $filters = [
+            'age_from' => $request->input('age_from'),
+            'age_to' => $request->input('age_to'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'has_upcoming_appointment' => $request->input('has_upcoming_appointment'),
+            'search' => $request->input('search'),
+        ];
+        $user = $request->user();
+        $doctor = $user->clinicDoctor();
 
-        if(is_null($appointments)){
-            return null;
-        }
+        $patients = ListDoctorPatients::execute($user, $filters)
+            ->select(self::getSelects())
+            ->paginate($request->input('per_page', 15));
 
-        if ($filters) {
+        $patients->getCollection()->load([
+            'flags' => function ($query) use ($doctor) {
+                $query->wherePivot('doctor_id', $doctor->id);
+            },
 
-            if (!is_null($filters['age_from'] ?? null)) {
-                $appointments->where('users.age', '>=', $filters['age_from']);
-            }
+            'blocks' => function ($query) use ($doctor) {
+                $query
+                    ->where('doctor_id', $doctor->id)
+                    ->active();
+            },
+        ]);
 
-            if (!is_null($filters['age_to'] ?? null)) {
-                $appointments->where('users.age', '<=', $filters['age_to']);
-            }
-
-            if (!is_null($filters['date_from'] ?? null)) {
-                $appointments->whereDate(
-                    'appointments.date',
-                    '>=',
-                    $filters['date_from']
-                );
-            }
-
-            if (!is_null($filters['date_to'] ?? null)) {
-                $appointments->whereDate(
-                    'appointments.date',
-                    '<=',
-                    $filters['date_to']
-                );
-            }
-
-            if (!is_null($filters['has_upcoming_appointment'] ?? null)) {
-
-                if ($filters['has_upcoming_appointment']) {
-                    // Only patients with an upcoming appointment
-                    $appointments->whereNotNull('appointment_summary.upcoming_appointment');
-                }
-            }
-        }
-        if ($search) {
-            $appointments->where(function ($query) use ($search) {
-                $query->where('users.name', 'like', "%{$search}%")
-                    ->orWhere('users.phone', 'like', "%{$search}%")
-                    ->orWhere('users.area', 'like', "%{$search}%");
-            });
-        }
-    
-        $patients = $appointments->select(self::getSelects())
-                        ->groupBy('patients.id')
-                        ->paginate($perPage);
-
-        $flags = self::getFlagsData($patients, $user->doctor->id);
-        $blocks = self::getBlockData($patients, $user->doctor->id);
-        
-
-        $patients->transform(function ($patient) use ($flags, $blocks) {
+        $patients->getCollection()->transform(function ($patient) {
             $patient->avatar = $patient->avatar
                 ? asset('storage/' . $patient->avatar)
                 : null;
 
-            $patient->flags = $flags->get($patient->id, collect())->values();
-            
-            $block = $blocks->get($patient->id);
+            $patient->flags = $patient->flags->values();
 
-            $patient->is_blocked = !is_null($block);
+            $patient->block = $patient->blocks->first();
+            $patient->is_blocked = $patient->block !== null;
 
-            $patient->block = $block;
-
+            unset($patient->blocks);
 
             return $patient;
         });
@@ -101,80 +64,22 @@ class ListPatients
             'users.image as avatar',
             'users.age as age',
             'users.area as area',
-            DB::raw('DATE(appointment_summary.last_appointment) as last_appointment_date'),
-            DB::raw('TIME(appointment_summary.last_appointment) as last_appointment_time'),
-            DB::raw('DATE(appointment_summary.upcoming_appointment) as upcoming_appointment_date'),
-            DB::raw('TIME(appointment_summary.upcoming_appointment) as upcoming_appointment_time'),
+
+            DB::raw(
+                'DATE(MAX(CASE WHEN appointments.date < NOW() THEN appointments.date END)) as last_appointment_date'
+            ),
+
+            DB::raw(
+                'TIME(MAX(CASE WHEN appointments.date < NOW() THEN appointments.date END)) as last_appointment_time'
+            ),
+
+            DB::raw(
+                'DATE(MIN(CASE WHEN appointments.date >= NOW() THEN appointments.date END)) as upcoming_appointment_date'
+            ),
+
+            DB::raw(
+                'TIME(MIN(CASE WHEN appointments.date >= NOW() THEN appointments.date END)) as upcoming_appointment_time'
+            ),
         ];
-    }
-
-    private static function getAuthData(int $userId)
-    {
-        $user = User::where('id', $userId)->first();
-
-        if($user->type == UserType::DOCTOR){
-            $appointmentSummary = self::getAppintmentSummaryData($user->doctor->id);
-
-            return Patient::leftJoin('appointments', 'patients.id', '=', 'appointments.patient_id')
-                        ->leftJoin('users', 'patients.user_id', '=', 'users.id')
-                        ->leftJoinSub($appointmentSummary, 'appointment_summary', function ($join) {
-                            $join->on('patients.id', '=', 'appointment_summary.patient_id');
-                        })
-                        ->where('appointments.doctor_id', $user->doctor->id);
-        }
-        else{
-            return null;
-        }
-    }
-
-
-    private static function getAppintmentSummaryData(int $doctorId)
-    {
-        $appointmentSummary = Appointment::select(
-            'patient_id',
-            DB::raw('MAX(CASE WHEN date < NOW() THEN date END) as last_appointment'),
-            DB::raw('MIN(CASE WHEN date >= NOW() THEN date END) as upcoming_appointment')
-        )
-        ->where('doctor_id', $doctorId)
-        ->groupBy('patient_id');
-
-        return $appointmentSummary;
-    }
-
-    private static function getFlagsData($patients,$doctorId)
-    {
-        return DB::table('flag_patient')
-            ->join('flags', 'flags.id', '=', 'flag_patient.flag_id')
-            ->where('flag_patient.doctor_id', $doctorId)
-            ->whereIn('flag_patient.patient_id', $patients->pluck('id'))
-            ->select(
-                'flag_patient.patient_id',
-                'flags.id',
-                'flags.name',
-                'flags.color',
-                'flags.description'
-            )
-            ->get()
-            ->groupBy('patient_id');
-    }
-
-    private static function getBlockData($patients, int $doctorId)
-    {
-        return DB::table('patient_blocks')
-            ->where('doctor_id', $doctorId)
-            ->whereNull('unblocked_at')
-            ->where(function ($query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->whereIn('patient_id', $patients->pluck('id'))
-            ->select(
-                'patient_id',
-                'reason',
-                'blocked_at',
-                'expires_at'
-            )
-            ->get()
-            ->keyBy('patient_id');
     }
 }

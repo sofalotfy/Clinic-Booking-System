@@ -87,7 +87,9 @@ class MainMenu
         $greeting = $conversation->patient->user->name
             ? "Hi {$conversation->patient->user->name},\n\n"
             : "";
-
+        \Log::info([
+            'success' => "hello",
+        ]);
         SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,

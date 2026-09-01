@@ -8,7 +8,7 @@ use App\Enums\TemplatePlanStatus;
 
 class TemplatePlan extends Model
 {
-    protected $fillable = ['doctor_id', 'status','name', 'description'];
+    protected $guarded = [];
 
     /**
      * Get the attributes that should be cast.

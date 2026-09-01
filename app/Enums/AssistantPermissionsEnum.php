@@ -27,6 +27,8 @@ enum AssistantPermissionsEnum: string {
     case UPDATE_ASSISTANT = 'update assistant';
     case DELETE_ASSISTANT = 'delete assistant';
 
+    case VIEW_ALL_PERMISSIONS = 'view all permissions';
+    
     case VIEW_ALL_ROLES = 'view all roles';
     case VIEW_SINGLE_ROLE = 'view single role';
     case CREATE_ROLE = 'create role';
@@ -40,9 +42,15 @@ enum AssistantPermissionsEnum: string {
     case UPDATE_FLAG = 'update flag';
     case DELETE_FLAG = 'delete flag';
 
-    case VIEW_ALL_COMMENTS = 'view all comments';
-    case VIEW_SINGLE_COMMENT = 'view single comment';
-    case CREATE_COMMENT = 'create comment';
-    case UPDATE_COMMENT = 'update comment';
-    case DELETE_COMMENT = 'delete comment';
+    case VIEW_ALL_NOTES = 'view all notes';
+    case VIEW_SINGLE_NOTE = 'view single note';
+    case CREATE_NOTE = 'create note';
+    case UPDATE_NOTE = 'update note';
+    case DELETE_NOTE = 'delete note';
+
+    case VIEW_ALL_BLOCKED_PATIENTS = 'view all blocked patients';
+    case VIEW_SINGLE_BLOCKED_PATIENT = 'view single blocked patient';
+    case CREATE_BLOCKED_PATIENT = 'create blocked patient';
+    case UPDATE_BLOCKED_PATIENT = 'update blocked patient';
+    case DELETE_BLOCKED_PATIENT = 'delete blocked patient';
 }
