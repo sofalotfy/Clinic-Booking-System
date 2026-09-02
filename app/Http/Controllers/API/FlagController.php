@@ -13,7 +13,7 @@ use App\APIServices\Flags\DeleteFlag;
 use Illuminate\Http\Request;
 use App\Models\Flag;
 
-class FLagController extends Controller implements HasMiddleware
+class FlagController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
