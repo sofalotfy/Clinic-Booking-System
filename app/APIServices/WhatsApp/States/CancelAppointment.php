@@ -23,15 +23,15 @@ class CancelAppointment
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "Are u sure you want to cancel your appointment?:",
+            "هل انت متاكد من الغاء الموعد؟:",
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'Confirm',
+                    'title' => 'تاكيد',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء',
                 ],                
             ]
         );
