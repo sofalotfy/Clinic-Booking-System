@@ -129,6 +129,10 @@ enum NotificationEnum
     public function state(): ?ConversationState
     {
         return match ($this) {
+            self::DOCTOR_APPOINTMENT_BOOKED =>
+                ConversationState::DOCTOR_APPOINTMENT_BOOKED,
+            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
+                ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE,
             default => null,
         };
     }
