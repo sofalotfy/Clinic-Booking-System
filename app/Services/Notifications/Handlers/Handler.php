@@ -16,7 +16,10 @@ class Handler
 
     protected static function dispatch(User $sender, int $clinicId, $notification, Collection $receivers, string $title, string $body)
     {
+        \Log::info("in handler receivers " . $receivers->toJson());
         foreach ($receivers as $receiver) {
+            \Log::info("in handler iteration for {$receiver->name}");
+            
             PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
 
             static::sendWhatsApp($sender, $receiver, $clinicId, $notification);
