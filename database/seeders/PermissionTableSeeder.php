@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Enums\AssistantPermissionsEnum;
 use App\Enums\AdminPermissionsEnum;
 use App\Enums\PermissionsTypeEnum;
+use App\Enums\NotificationEnum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -18,22 +19,41 @@ class PermissionTableSeeder extends Seeder
      */
     public function run()
     {
-        $permissions = AssistantPermissionsEnum::cases();
-        foreach ($permissions as $permission) {
+        $assistantPermissions = AssistantPermissionsEnum::cases();
+        foreach ($assistantPermissions as $permission) {
             Permission::firstOrCreate(
                 ['name' => $permission],
                 ['guard_name' => 'web',
                 'type'  => PermissionsTypeEnum::ASSISTANT]
             );
         }
-        $permissions = AdminPermissionsEnum::cases();
-        foreach ($permissions as $permission) {
+        $adminPermissions = AdminPermissionsEnum::cases();
+        foreach ($adminPermissions as $permission) {
             Permission::firstOrCreate(
                 ['name' => $permission],
                 ['guard_name' => 'web',
                 'type'  => PermissionsTypeEnum::ADMIN]
             );
         }
+
+        $notificationPermissions = array_map(
+            fn(NotificationEnum $case) => $case->permission(),
+            NotificationEnum::cases()
+        );
+
+        // if you want to drop the nulls (cases with no permission mapped):
+        $notificationPermissions = array_filter(
+            array_map(fn(NotificationEnum $case) => $case->permission(), NotificationEnum::cases())
+        );
+        
+        foreach ($notificationPermissions as $permission) {
+            Permission::firstOrCreate(
+                ['name' => $permission],
+                ['guard_name' => 'web',
+                'type'  => PermissionsTypeEnum::NOTIFICATION]
+            );
+        }
+
         $role = Role::firstOrCreate([
             'name' => 'Super Admin'
         ]);
