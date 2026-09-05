@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Appointments;
+namespace App\Services\Appointments\Creation;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\NotificationEnum;
