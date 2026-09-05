@@ -8,6 +8,7 @@ use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\WhatsAppConversation;
 use App\Services\Appointments\Modifications\ConfirmAppointment;
+use App\Models\Appointment;
 
 class DoctorAppointmentBooking
 {
