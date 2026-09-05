@@ -5,7 +5,7 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\Retrieval\GetUpComingAppointment;
+use App\Services\Appointments\Retrievals\GetUpComingAppointment;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\ExecutionRouter;
 
