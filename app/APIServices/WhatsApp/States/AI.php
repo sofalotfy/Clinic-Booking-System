@@ -9,7 +9,7 @@ use App\APIServices\WhatsApp\AI\WhatsAppAiService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\Retrieval\GetUpComingAppointment;
+use App\Services\Appointments\Retrievals\GetUpComingAppointment;
 use App\Services\Patients\Checks\IsOldPatient;
 use App\Services\Patients\Checks\HasEmergencyCase;
 
