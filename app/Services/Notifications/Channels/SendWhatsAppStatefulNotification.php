@@ -11,6 +11,8 @@ class SendWhatsAppStatefulNotification
 {
     public static function execute(User $sender, User $receiver, int $clinicId, $type, array $data = [])
     {
+        \Log::info("Creating whatsapp stateful notification for user {$receiver->name}");
+        
         $account = DoctorWhatsAppAccount::where('doctor_id', $clinicId)
             ->where('is_active', true)
             ->first();
