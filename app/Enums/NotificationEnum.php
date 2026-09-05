@@ -66,7 +66,7 @@ enum NotificationEnum
     public function link(array $data = []): ?string
     {
         return match ($this) {
-            default => null,
+            default => '/',
         };
     }
 
