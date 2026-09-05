@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Notifications\Handlers\PatientAppointmentBooked;
 use App\Services\Notifications\Handlers\PatientAppointmentRescheduled;
+use App\Services\Notifications\Handlers\PatientAppointmentCancel;
 
 class NotificationRouter
 {
@@ -17,6 +18,7 @@ class NotificationRouter
         $handler = match ($notification->type()) {
             NotificationEnum::PATIENT_APPOINTMENT_BOOKED => PatientAppointmentBooked::class,
             NotificationEnum::PATIENT_APPOINTMENT_RESCHEDULED => PatientAppointmentRescheduled::class,
+            NotificationEnum::PATIENT_APPOINTMENT_CANCEL => PatientAppointmentCancel::class,
             default => Handler::class,
         };
 

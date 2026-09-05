@@ -22,6 +22,6 @@ class SendWhatsAppStatelessNotification
 
         $message = "*{$title}*\n\n{$body}";
 
-        return SendMessage::text($account->phone_number_id, $account->access_token, $receiver->phone, $message);
+        return SendMessage::text($account->phone_number_id, $account->access_token, $sender->phone, $message);
     }
 }
