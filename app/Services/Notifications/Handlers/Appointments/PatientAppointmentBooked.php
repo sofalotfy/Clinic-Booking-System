@@ -11,12 +11,12 @@ use App\Services\Notifications\Handlers\Handler;
 
 class PatientAppointmentBooked extends Handler
 {
-    public static function execute(User $sender, int $clinicId, $notification, $model, Collection $receivers, Model $model)
+    public static function execute(User $sender, int $clinicId, $notification, Collection $receivers, Model $model)
     {
         $title = static::buildTitle($model, $notification);
         $body = static::buildBody($model, $notification);
 
-        static::dispatch($sender, $clinicId, $notification, $receivers, $title, $body);
+        static::dispatch($sender, $clinicId, $notification, $model, $receivers, $title, $body);
     }
 
     private static function buildTitle(Model $model, $notification): string
