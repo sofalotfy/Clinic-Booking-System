@@ -3,15 +3,13 @@
 namespace App\APIServices\WhatsApp\States;
 
 use App\APIServices\WhatsApp\SendMessage;
-use App\Enums\ConversationState;
-use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\GetUpComingAppointment;
-use App\APIServices\Doctors\GetAvailableDays;
-use App\APIServices\WhatsApp\States\BookSlot;
-use App\Models\Day;
-use App\APIServices\Days\CheckAvailability;
 use App\APIServices\WhatsApp\ExecutionRouter;
-
+use App\APIServices\WhatsApp\States\BookSlot;
+use App\Enums\ConversationState;
+use App\Models\Day;
+use App\Models\DoctorWhatsAppAccount;
+use App\Services\Doctors\Retrievals\GetAvailableDays;
+use App\Services\TemplatePlans\Checks\CheckAvailability;
 
 class BookAppointment
 {
@@ -78,7 +76,7 @@ class BookAppointment
 
         if (!$day) {return;}
 
-        if(CheckAvailability::execute($day->id)){
+        if(CheckAvailability::execute($day)){
             $conversation->update([
                 'state' => ConversationState::BOOK_SLOT,
                 'data' => array_merge(

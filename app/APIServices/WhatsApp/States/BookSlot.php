@@ -2,11 +2,11 @@
 
 namespace App\APIServices\WhatsApp\States;
 
-use App\APIServices\Days\GetAvailableSlots;
 use App\APIServices\WhatsApp\SendMessage;
+use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\APIServices\WhatsApp\ExecutionRouter;
+use App\Services\DaysInstances\Retrievals\GetAvailableSlots;
 
 class BookSlot
 {

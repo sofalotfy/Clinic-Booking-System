@@ -2,14 +2,14 @@
 
 namespace App\APIServices\WhatsApp\States;
 
-use App\Enums\ConversationState;
-use App\Models\WhatsAppConversation;
-use App\APIServices\WhatsApp\SendMessage;
-use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ExecutionRouter;
-use App\Models\Appointment;
-use App\Services\Appointments\CancelAppointment as CancelService;
+use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\AppointmentUpdateNotificationTypes;
+use App\Enums\ConversationState;
+use App\Models\DoctorWhatsAppAccount;
+use App\Models\WhatsAppConversation;
+use App\Models\Appointment;
+use App\Services\Appointments\Modifications\CancelAppointment as CancelService;
 
 class CancelAppointment
 {
@@ -57,7 +57,7 @@ class CancelAppointment
             case 'confirm':
                 
                 $appointment = Appointment::find($conversation->data['appointment_id']);
-                CancelService::execute($conversation->patient(), $appointment, AppointmentUpdateNotificationTypes::CANCEL);
+                CancelService::execute($conversation->user, $appointment, AppointmentUpdateNotificationTypes::CANCEL);
 
                 
                 $conversation->update([
