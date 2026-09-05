@@ -22,11 +22,11 @@ class Handler
             
             PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
 
-            static::sendWhatsApp($sender, $receiver, $clinicId, $notification);
+            static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $title, $body);
         }
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, string $title, string $body)
     {
         //
     }
