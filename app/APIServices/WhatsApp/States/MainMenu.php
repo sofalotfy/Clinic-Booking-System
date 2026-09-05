@@ -56,27 +56,27 @@ class MainMenu
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
 
         $greeting = $conversation->user->name
-            ? "Hi {$conversation->user->name},\n\n"
+            ? "مرحبا {$conversation->user->name},\n\n"
             : '';
 
-
+        
         SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "You have an appointment on {$appointment->date} at {$appointment->start_time}.\n\nPlease choose an option:",
+            $greeting . "لديك موعد قادم في يوم {$appointment->date} في تمام الوقت {$appointment->start_time}.\n\nمن فضلك اختر خيار:",
             [
                 [
                     'id' => 'reschedule_appointment',
-                    'title' => 'Reschedule',
+                    'title' => 'تعديل الموعد',
                 ],
                 [
                     'id' => 'cancel_appointment',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء الموعد',
                 ],
                 [
                     'id' => 'update_profile',
-                    'title' => 'Update Profile',
+                    'title' => 'تعديل البيانات',
                 ],
             ]
         );
@@ -102,7 +102,7 @@ class MainMenu
                 ],
                 [
                     'id' => 'update_profile',
-                    'title' => 'تحديث البيانات الشخصية',
+                    'title' => 'تعديل البيانات',
                 ],
                 [
                     'id' => 'end_conversation',
