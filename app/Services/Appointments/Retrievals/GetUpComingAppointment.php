@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Appointments\Retrieval;
+namespace App\Services\Appointments\Retrievals;
 
 use App\Models\Appointment;
 use Carbon\Carbon;

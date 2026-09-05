@@ -1,6 +1,6 @@
 <?php
 
-namespace App\APIServices\WhatsApp\States;
+namespace App\APIServices\WhatsApp\States\Notifications\Appointments;
 
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\APIServices\WhatsApp\SendMessage;
@@ -8,22 +8,25 @@ use App\Enums\AppointmentUpdateNotificationTypes;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\WhatsAppConversation;
+use App\Services\Appointments\Modifications\ConfirmAppointment;
+use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
 use App\Models\Appointment;
-use App\Services\Appointments\Modifications\CancelAppointment as CancelService;
 
-class CancelAppointment
+class DoctorAppointmentReschedule
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-
+ 
+        $newDate = $conversation->data['new_date'] ?? null;
+ 
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "هل انت متاكد من الغاء الموعد؟:",
+            "تم تغيير موعدك الى {$newDate}، هل توافق؟",
             [
                 [
                     'id' => 'confirm',
@@ -35,12 +38,11 @@ class CancelAppointment
                 ],                
             ]
         );
-
     }
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-
+        $appointment = Appointment::find($conversation->data['appointment_id']);
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
@@ -52,14 +54,19 @@ class CancelAppointment
 
             return ExecutionRouter::execute($conversation, $message);
         }
+        
         switch ($message['value']) {
 
             case 'confirm':
-                
-                $appointment = Appointment::find($conversation->data['appointment_id']);
-                CancelService::execute($conversation->user, $appointment, AppointmentUpdateNotificationTypes::CANCEL);
+                ConfirmAppointment::execute($conversation->user, $appointment);
 
-                
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'تم تاكيد حجز الموعد'
+                );
+
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);
@@ -69,6 +76,15 @@ class CancelAppointment
                 break;
 
             case 'cancel':
+                DenyAppointmentConfirmation::execute($conversation->user, $appointment);
+
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'تم رفض الموعد'
+                );
+                
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);
@@ -76,10 +92,6 @@ class CancelAppointment
                 return Start::execute($conversation, $message);
         }
 
-        // Unknown button -> show the menu again
-        return self::execute($conversation, [
-            'type' => 'text',
-            'from' => $message['from'],
-        ]);
+        return self::execute($conversation, $message);
     }
 }

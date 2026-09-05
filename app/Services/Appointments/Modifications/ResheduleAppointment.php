@@ -4,7 +4,9 @@ namespace App\Services\Appointments\Modifications;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentUpdateNotificationTypes;
-use App\Services\Appointments\General\NotifyPatientOfReschedule;
+use App\Services\Notifications\NotificationManager;
+use App\Enums\NotificationEnum;
+use App\Services\Appointments\Modifications\UnConfirmAppointment;
 
 class ResheduleAppointment
 {
@@ -19,10 +21,14 @@ class ResheduleAppointment
             ]
         );
 
-        if($user->isPatient())
-            return $appointment;
+        if ($user->isPatient()) {
+            $notification = NotificationEnum::PATIENT_APPOINTMENT_RESCHEDULED;
+        }else{
+            $notification = NotificationEnum::DOCTOR_APPOINTMENT_RESCHEDULED;
+            UnConfirmAppointment::execute($user, $appointment);
+        }
 
-        NotifyPatientOfReschedule::execute($user, $appointment, $new_date, $cause);
+        NotificationManager::execute($user, $appointment->doctor_id, $notification, $appointment);
 
         return $appointment;
     }

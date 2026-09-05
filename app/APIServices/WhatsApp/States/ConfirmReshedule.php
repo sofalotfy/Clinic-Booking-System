@@ -9,8 +9,6 @@ use App\Enums\AppointmentUpdateNotificationTypes;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Day;
 use App\Models\Appointment;
-use App\APIServices\Days\CheckAvailability;
-use App\APIServices\Appointments\SmartBookAppointment;
 use Carbon\Carbon;
 use App\APIServices\WhatsApp\ExecutionRouter;
 

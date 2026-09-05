@@ -5,7 +5,7 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\GetUpComingAppointment;
+use App\Services\Appointments\Retrievals\GetUpComingAppointment;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\ExecutionRouter;
 
@@ -18,7 +18,7 @@ class MainMenu
         );
 
         $appointment = GetUpComingAppointment::execute(
-            $conversation->patient_id,
+            $conversation->patient()?->id,
             $account->doctor_id
         );
 
@@ -55,28 +55,28 @@ class MainMenu
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
 
-        $greeting = $conversation->patient->user->name
-            ? "Hi {$conversation->patient->user->name},\n\n"
+        $greeting = $conversation->user->name
+            ? "مرحبا {$conversation->user->name},\n\n"
             : '';
 
-
+        
         SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "You have an appointment on {$appointment->date} at {$appointment->start_time}.\n\nPlease choose an option:",
+            $greeting . "لديك موعد قادم في يوم {$appointment->date} في تمام الوقت {$appointment->start_time}.\n\nمن فضلك اختر خيار:",
             [
                 [
                     'id' => 'reschedule_appointment',
-                    'title' => 'Reschedule',
+                    'title' => 'تعديل الموعد',
                 ],
                 [
                     'id' => 'cancel_appointment',
-                    'title' => 'Cancel',
+                    'title' => 'الغاء الموعد',
                 ],
                 [
                     'id' => 'update_profile',
-                    'title' => 'Update Profile',
+                    'title' => 'تعديل البيانات',
                 ],
             ]
         );
@@ -84,8 +84,8 @@ class MainMenu
 
     private static function sendBookingMenu($account, $conversation, $message)
     {
-        $greeting = $conversation->patient->user->name
-            ? "Hi {$conversation->patient->user->name},\n\n"
+        $greeting = $conversation->user->name
+            ? "Hi {$conversation->user->name},\n\n"
             : "";
         \Log::info([
             'success' => "hello",
@@ -102,7 +102,7 @@ class MainMenu
                 ],
                 [
                     'id' => 'update_profile',
-                    'title' => 'تحديث البيانات الشخصية',
+                    'title' => 'تعديل البيانات',
                 ],
                 [
                     'id' => 'end_conversation',

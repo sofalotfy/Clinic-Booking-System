@@ -3,14 +3,14 @@
 namespace App\APIServices\WhatsApp\States;
 
 use App\APIServices\WhatsApp\SendMessage;
+use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\SmartBookAppointment;
+use App\Services\Appointments\Creation\SmartBookAppointment;
 use App\Models\Day;
-use App\APIServices\Days\CheckAvailability;
+use App\Services\TemplatePlans\Checks\CheckAvailability;
 use App\Enums\AppointmentStatus;
 use Carbon\Carbon;
-use App\APIServices\WhatsApp\ExecutionRouter;
 
 class ConfirmBooking
 {
@@ -23,7 +23,7 @@ class ConfirmBooking
 
         $day = Day::find($conversation->data['selected_day']);
         
-        if(CheckAvailability::execute($day->id)){
+        if(CheckAvailability::execute($day)){
             $state = AppointmentStatus::ACTIVE;
             $text = "هل انت متاكد من حجز الموعد في يوم {$day->date} في تمام الوقت {$conversation->data['selected_slot']}";
         }else{
@@ -79,11 +79,11 @@ class ConfirmBooking
 
                 $day = Day::find($conversation->data['selected_day']);
                 $date = $day->date;
-                $time = CheckAvailability::execute($day->id)?$conversation->data['selected_slot']:"00:00";
+                $time = CheckAvailability::execute($day)?$conversation->data['selected_slot']:"00:00";
                 $dateTime = Carbon::parse($date . ' ' . $time);
                 
                 SmartBookAppointment::execute(
-                    $conversation->patient,
+                    $conversation->patient(),
                     $account->doctor,
                     $dateTime,
                     $day->appointment_duration,

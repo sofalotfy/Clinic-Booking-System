@@ -7,7 +7,6 @@ use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-use App\Services\Appointments\GetUpComingAppointment;
 
 class CancelAppointmentTool
 {

@@ -100,4 +100,15 @@ class User extends Authenticatable
     {
         return $this->clinicDoctor()?->id;
     }
+
+    public function receivedNotifications()
+    {
+        if ($this->isPatient()) {
+            return Notification::whereRaw('0 = 1');
+        }
+
+        return $this->hasMany(Notification::class, 'receiver_id')
+            ->where('viewed', false)
+            ->latest();
+    }
 }

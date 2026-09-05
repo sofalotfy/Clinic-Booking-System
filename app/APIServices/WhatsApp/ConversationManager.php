@@ -11,6 +11,7 @@ use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\WhatsappMessages;
 use App\APIServices\WhatsApp\AI\WhatsAppAiService;
+use App\Services\Patients\Creations\StorePatient;
 
 class ConversationManager
 {
@@ -24,7 +25,7 @@ class ConversationManager
             return;
         }
         \Log::info([
-            'payload' => $message,
+            'payload' => $payload,
         ]);
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
@@ -41,20 +42,10 @@ class ConversationManager
         )->firstOrFail();
 
         // 3. Find the patient by the sender's phone number
-        $patient = Patient::whereHas('user', function ($query) use ($message) {
-            $query->where('users.phone', $message['from']);
-        })->first();
+        $user = User::where('phone', $message['from'])->first();
 
-        if (! $patient) {
-            $user = User::create([
-                'phone' => $message['from'],
-                'type' => UserType::PATIENT,
-                // Leave other fields null for now
-            ]);
-
-            $patient = Patient::create([
-                'user_id' => $user->id,
-            ]);
+        if (!$user) {
+            $user = StorePatient::execute($message['from'])->user;
         }
 
         // 4. Find or create the conversation
@@ -64,9 +55,9 @@ class ConversationManager
                 'phone_number' => $message['from'],
             ],
             [
-                'patient_id' => $patient->id,
+                'user_id' => $user->id,
                 'step' => null,
-                'data' => ['name' =>  $patient->user->name],
+                'data' => ['name' =>  $user->name],
             ]
         );
 
@@ -75,55 +66,6 @@ class ConversationManager
             'last_activity_at' => now(),
             'expires_at' => now()->addMinutes(10),
         ]);
-
-        // In ConversationManager::execute()
-
-        // if ($message['type'] === 'text' && !empty($message['value'])) {
-        //     try {
-        //         $userText = $message['value'];
-
-        //         // 1. Retrieve recent history BEFORE saving current message (e.g., last 10 messages)
-        //         $history = WhatsappMessages::getHistory($conversation->id, 5);
-
-        //         // 2. Save incoming user message
-        //         $conversation->messages()->create([
-        //             'role'    => 'user',
-        //             'content' => $userText,
-        //         ]);
-
-        //         // 3. Context Payload
-        //         $context = [
-        //             'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
-        //             'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
-        //             'patient_id'    => $patient->id ?? null,
-        //             'patient_name'  => $patient->user->name ?? 'Patient',
-        //             'patient_phone' => $message['from'],
-        //         ];
-
-        //         // 4. Request AI Completion
-        //         $aiService = app(WhatsAppAiService::class);
-        //         $replyText = $aiService->ask($userText, $history, $context);
-
-        //         // 5. Save AI's response
-        //         $conversation->messages()->create([
-        //             'role'    => 'assistant',
-        //             'content' => $replyText,
-        //         ]);
-
-        //         // 6. Send message via WhatsApp API
-        //         SendMessage::text(
-        //             $doctorAccount->phone_number_id,
-        //             $doctorAccount->access_token,
-        //             $message['from'],
-        //             $replyText
-        //         );
-
-        //     } catch (\Exception $e) {
-        //         \Log::error('WhatsApp AI Processing Error: ' . $e->getMessage(), [
-        //             'exception' => $e
-        //         ]);
-        //     }
-        // }
 
         // 6. Hand off to the router
         ConversationRouter::execute(

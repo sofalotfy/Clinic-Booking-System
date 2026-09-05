@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Services\Appointments;
+namespace App\Services\Appointments\Creation;
 
 use App\Enums\AppointmentStatus;
+use App\Enums\NotificationEnum;
 use App\Models\Appointment;
+use App\Services\Notifications\NotificationManager;
 
 class SmartBookAppointment
 {
@@ -28,6 +30,8 @@ class SmartBookAppointment
                 'duration' => $duration,
                 'status' => $status,
             ]);
+
+            $notificationType = NotificationEnum::PATIENT_APPOINTMENT_RESCHEDULED;
         } else {
             //BOOK
             $appointment = Appointment::create([
@@ -37,8 +41,14 @@ class SmartBookAppointment
                 'duration' => $duration,
                 'status' => $status,
             ]);
+
+            $notificationType = NotificationEnum::PATIENT_APPOINTMENT_BOOKED;
         }
 
-        return $appointment->fresh();
+        $appointment = $appointment->fresh();
+
+        NotificationManager::execute($patient->user, $doctor->id, $notificationType, $appointment);
+
+        return $appointment;
     }
 }
