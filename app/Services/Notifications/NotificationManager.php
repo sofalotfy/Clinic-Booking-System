@@ -12,7 +12,7 @@ class NotificationManager
     {
         $receivers = GetNotificationReceivers::execute($sender, $clinicId, $notification, $model);
 
-        NotificationRouter::execute($sender, $clinicId, $notification, $receivers);
+        NotificationRouter::execute($sender, $clinicId, $notification, $receivers, $model);
 
         return true;
     }
