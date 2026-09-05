@@ -8,6 +8,7 @@ use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\WhatsAppConversation;
 use App\Services\Appointments\Modifications\ConfirmAppointment;
+use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
 use App\Models\Appointment;
 
 class DoctorAppointmentBooking
@@ -74,7 +75,8 @@ class DoctorAppointmentBooking
                 break;
 
             case 'cancel':
-                $appointment->delete();
+                DenyAppointmentConfirmation::execute($conversation->user, $appointment);
+                
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);
