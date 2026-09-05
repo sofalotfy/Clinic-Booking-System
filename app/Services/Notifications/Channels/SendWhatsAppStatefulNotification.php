@@ -22,7 +22,7 @@ class SendWhatsAppStatefulNotification
         }
 
         //$conversation = WhatsAppConversation::where('user_id', $receiver->id)->first();
-        $conversation = WhatsAppConversation::where('user_id', $sender->id)->first();
+        $conversation = WhatsAppConversation::where('user_id', $receiver->id)->first();
 
         if (! $conversation) {
             $conversation = WhatsAppConversation::create([
