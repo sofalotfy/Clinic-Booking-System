@@ -25,12 +25,19 @@ return new class extends Migration
         ');
 
         // 3. Drop the old patient_id FK/column
-        Schema::table('whats_app_conversations', function (Blueprint $table) {
-            if (Schema::hasColumn('whats_app_conversations', 'patient_id')) {
-                $table->dropForeign(['patient_id']);
-                $table->dropColumn('patient_id');
+        if (Schema::hasColumn('whats_app_conversations', 'patient_id')) {
+            $foreignKeys = collect(Schema::getForeignKeys('whats_app_conversations'))->pluck('name');
+
+            if ($foreignKeys->contains('whats_app_conversations_patient_id_foreign')) {
+                Schema::table('whats_app_conversations', function (Blueprint $table) {
+                    $table->dropForeign(['patient_id']);
+                });
             }
-        });
+
+            Schema::table('whats_app_conversations', function (Blueprint $table) {
+                $table->dropColumn('patient_id');
+            });
+        }
 
         // 4. Tighten user_id to NOT NULL now that it's backfilled
         Schema::table('whats_app_conversations', function (Blueprint $table) {
