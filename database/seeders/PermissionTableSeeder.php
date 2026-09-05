@@ -36,12 +36,6 @@ class PermissionTableSeeder extends Seeder
             );
         }
 
-        $notificationPermissions = array_map(
-            fn(NotificationEnum $case) => $case->permission(),
-            NotificationEnum::cases()
-        );
-
-        // if you want to drop the nulls (cases with no permission mapped):
         $notificationPermissions = array_filter(
             array_map(fn(NotificationEnum $case) => $case->permission(), NotificationEnum::cases())
         );
