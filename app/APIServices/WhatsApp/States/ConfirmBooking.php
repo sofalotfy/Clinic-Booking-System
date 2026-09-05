@@ -6,7 +6,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\SmartBookAppointment;
+use App\Services\Appointments\Creation\SmartBookAppointment;
 use App\Models\Day;
 use App\Services\TemplatePlans\Checks\CheckAvailability;
 use App\Enums\AppointmentStatus;
