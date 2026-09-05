@@ -21,6 +21,6 @@ enum ConversationState: string
     case IDLE = 'idle';
 
     //Notification Status
-    case DOCTOR_APPOINTMENT_BOOKED = 'doctor_appointment_booked';
+    case DOCTOR_APPOINTMENT_BOOKING = 'doctor_appointment_booking';
     case DOCTOR_APPOINTMENT_RESCHEDULE = 'doctor_appointment_reschedule';
 }
