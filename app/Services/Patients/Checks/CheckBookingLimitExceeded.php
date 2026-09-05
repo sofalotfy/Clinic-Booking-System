@@ -15,7 +15,7 @@ class CheckBookingLimitExceeded
             'doctor_id' => $doctorId,
             'patient_id' => $patientId,
         ])
-        ->whereNotIn('status', AppointmentStatus::working())
+        ->whereIn('status', AppointmentStatus::working())
         ->count() >= 1;
     }
 }
