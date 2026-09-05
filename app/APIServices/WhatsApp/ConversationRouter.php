@@ -16,6 +16,7 @@ use App\APIServices\WhatsApp\States\CancelAppointment;
 use App\APIServices\WhatsApp\States\ConfirmReshedule;
 use App\APIServices\WhatsApp\States\FileEmergencyCase;
 use App\APIServices\WhatsApp\States\AI;
+use App\APIServices\WhatsApp\States\IdleState;
 
 class ConversationRouter
 {
@@ -24,6 +25,9 @@ class ConversationRouter
         return match ($conversation->state) {
 
             null => Start::execute($conversation, $message),
+
+            ConversationState::IDLE =>
+                IdleState::handleResponse($conversation, $message),
 
             ConversationState::MAIN_MENU =>
                 MainMenu::handleResponse($conversation, $message),

@@ -10,15 +10,4 @@ class Notification extends Model
     protected $table = 'notifications';
 
     protected $guarded = [];
-
-    protected $casts = [
-        'type' => NotificationsType::class,
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public $timestamps = true;
 }

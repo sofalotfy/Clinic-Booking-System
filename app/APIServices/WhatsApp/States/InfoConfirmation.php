@@ -57,17 +57,17 @@ class InfoConfirmation
         switch ($message['value']) {
 
             case 'confirm':
-                $oldName = $conversation->patient->user->name;
+                $oldName = $conversation->user->name;
                 $newName = $conversation->data['name'];
                 
-                $conversation->patient->user->update([
+                $conversation->user->update([
                     'name' => $newName,
                     'age' => $conversation->data['age'],
                     'area' => $conversation->data['address'],
                 ]);
 
                 if ($oldName !== $newName) {
-                    $patient = $conversation->patient;
+                    $patient = $conversation->patient();
                     PatientRename::execute($patient, $oldName, $newName);
                 }
                 

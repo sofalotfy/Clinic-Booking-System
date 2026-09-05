@@ -41,7 +41,7 @@ class AI
             $doctorAccount = DoctorWhatsAppAccount::findOrFail(
                 $conversation->doctor_whatsapp_account_id
             );
-            $patient = $conversation->patient;
+            $patient = $conversation->patient();
 
             // 1. Fetch history BEFORE appending current message
             $history = WhatsappMessages::getHistory($conversation->id, 5);
@@ -52,15 +52,15 @@ class AI
                 'content' => $userText,
             ]);
 
-            $appointment = GetUpComingAppointment::execute($patient->id, $doctorAccount->doctor_id);
-            $oldPatient = IsOldPatient::execute($doctorAccount->doctor_id, $patient->id);
-            $hasEmergencyCase = HasEmergencyCase::execute($patient->id, $doctorAccount->doctor_id);
+            $appointment = $patient ? GetUpComingAppointment::execute($patient->id, $doctorAccount->doctor_id) : null;
+            $oldPatient = $patient ? IsOldPatient::execute($doctorAccount->doctor_id, $patient->id) : false;
+            $hasEmergencyCase = $patient ? HasEmergencyCase::execute($patient->id, $doctorAccount->doctor_id) : false;
             // 3. Build dynamic context payload
             $context = [
                 'doctor_id'     => (int) ($doctorAccount->doctor_id ?? $doctorAccount->id),
                 'doctor_name'   => $doctorAccount->doctor->user->name ?? 'Specialist',
-                'patient_id'    => $patient->id ?? null,
-                'patient_name'  => $patient->user->name ?? 'Patient',
+                'patient_id'    => $patient?->id ?? null,
+                'patient_name'  => $patient?->user->name ?? $conversation->user->name ?? 'Patient',
                 'patient_phone' => $message['from'],
                 'appointment_date' => $appointment->date ?? null,
                 'old_patient'  => $oldPatient,

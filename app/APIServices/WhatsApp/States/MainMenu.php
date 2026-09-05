@@ -18,7 +18,7 @@ class MainMenu
         );
 
         $appointment = GetUpComingAppointment::execute(
-            $conversation->patient_id,
+            $conversation->patient()?->id,
             $account->doctor_id
         );
 
@@ -55,8 +55,8 @@ class MainMenu
 
     private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
 
-        $greeting = $conversation->patient->user->name
-            ? "Hi {$conversation->patient->user->name},\n\n"
+        $greeting = $conversation->user->name
+            ? "Hi {$conversation->user->name},\n\n"
             : '';
 
 
@@ -84,8 +84,8 @@ class MainMenu
 
     private static function sendBookingMenu($account, $conversation, $message)
     {
-        $greeting = $conversation->patient->user->name
-            ? "Hi {$conversation->patient->user->name},\n\n"
+        $greeting = $conversation->user->name
+            ? "Hi {$conversation->user->name},\n\n"
             : "";
         \Log::info([
             'success' => "hello",

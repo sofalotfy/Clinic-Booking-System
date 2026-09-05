@@ -49,7 +49,7 @@ class CreatePatientInquiryTool
                         $conversation->doctor_whatsapp_account_id
                     );
             CreatePatientInquiry::execute(
-                patientId: $conversation->patient_id,
+                patientId: $conversation->patient()?->id,
                 doctorId: $args['doctor_id'],
                 question: $args['inquiry'],
             );

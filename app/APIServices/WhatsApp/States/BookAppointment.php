@@ -21,7 +21,7 @@ class BookAppointment
             $conversation->doctor_whatsapp_account_id
         );
 
-        if(!$conversation->patient->user->name){
+        if(!$conversation->user->name){
             $conversation->update([
                 'state' => ConversationState::INFO_INQUIRY,
                 'data' => array_merge(

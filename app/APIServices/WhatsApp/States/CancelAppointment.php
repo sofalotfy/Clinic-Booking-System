@@ -57,7 +57,7 @@ class CancelAppointment
             case 'confirm':
                 
                 $appointment = Appointment::find($conversation->data['appointment_id']);
-                CancelService::execute(Patient::find($conversation->patient_id),$appointment, AppointmentUpdateNotificationTypes::CANCEL);
+                CancelService::execute($conversation->patient(), $appointment, AppointmentUpdateNotificationTypes::CANCEL);
 
                 
                 $conversation->update([

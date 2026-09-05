@@ -7,6 +7,7 @@ use App\Enums\ConversationState;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Patient;
+use App\Models\User;
 
 class WhatsAppConversation extends Model
 {
@@ -24,9 +25,14 @@ class WhatsAppConversation extends Model
         return $this->belongsTo(DoctorWhatsAppAccount::class);
     }
 
-    public function patient()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function patient(): ?Patient
+    {
+        return $this->user?->isPatient() ? $this->user->patient : null;
     }
 
     public function messages()

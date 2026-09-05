@@ -83,7 +83,7 @@ class ConfirmBooking
                 $dateTime = Carbon::parse($date . ' ' . $time);
                 
                 SmartBookAppointment::execute(
-                    $conversation->patient,
+                    $conversation->patient(),
                     $account->doctor,
                     $dateTime,
                     $day->appointment_duration,

@@ -101,7 +101,7 @@ class FileEmergencyCase
                 }
 
                 CreateEmergencyCase::execute(
-                    patientId: $conversation->patient_id,
+                    patientId: $conversation->patient()?->id,
                     doctorId: $account->doctor_id,
                     symptoms: trim($message['value']),
                 );
@@ -135,7 +135,7 @@ class FileEmergencyCase
 
                 UpdateEmergencyCase::execute(
                     doctorId: $account->doctor_id,
-                    patientId: $conversation->patient_id,
+                    patientId: $conversation->patient()?->id,
                     data: [
                         'in_hospital' => $inHospital,
                     ],
@@ -165,7 +165,7 @@ class FileEmergencyCase
                 \Log::info($location);
                 UpdateEmergencyCase::execute(
                     doctorId: $account->doctor_id,
-                    patientId: $conversation->patient_id,
+                    patientId: $conversation->patient()?->id,
                     data: [
                         'latitude' => $location['latitude'] ?? null,
                         'longitude' => $location['longitude'] ?? null,
@@ -196,7 +196,7 @@ class FileEmergencyCase
 
                 UpdateEmergencyCase::execute(
                     doctorId: $account->doctor_id,
-                    patientId: $conversation->patient_id,
+                    patientId: $conversation->patient()?->id,
                     data: [
                         'hospital_name' => trim($message['value']),
                     ],
