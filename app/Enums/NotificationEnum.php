@@ -130,7 +130,7 @@ enum NotificationEnum
     {
         return match ($this) {
             self::DOCTOR_APPOINTMENT_BOOKED =>
-                ConversationState::DOCTOR_APPOINTMENT_BOOKED,
+                ConversationState::DOCTOR_APPOINTMENT_BOOKING,
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
                 ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE,
             default => null,
