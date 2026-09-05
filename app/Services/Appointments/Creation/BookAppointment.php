@@ -9,7 +9,10 @@ use App\Services\TemplatePlans\Checks\CheckSlotAvailability;
 use App\Services\TemplatePlans\Checks\CheckSlotExistance;
 use App\Services\TemplatePlans\Checks\CheckAvailability;
 use App\Services\Patients\Checks\CheckBookingLimitExceeded;
+use App\Services\Appointments\Modifications\UnConfirmAppointment;
 use Illuminate\Validation\ValidationException;
+use App\Services\Notifications\NotificationManager;
+use App\Enums\NotificationEnum;
 
 class BookAppointment
 {
@@ -55,6 +58,15 @@ class BookAppointment
             'status' => $status,
         ]);
 
+        if ($user->isPatient()) {
+            $notification = NotificationEnum::PATIENT_APPOINTMENT_BOOKED;
+        }else{
+            $notification = NotificationEnum::DOCTOR_APPOINTMENT_BOOKED;
+            UnConfirmAppointment::execute($user, $appointment);
+        }
+
+        NotificationManager::execute($user, $appointment->doctor_id, $notification, $appointment);
+        
         return $appointment;
     }
 }

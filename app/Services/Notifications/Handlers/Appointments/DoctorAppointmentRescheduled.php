@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Services\Notifications\Handlers;
+namespace App\Services\Notifications\Handlers\Appointments;
 
 use App\Models\User;
-use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
+use App\Services\Notifications\Channels\SendWhatsAppStatefulNotification;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use App\Services\Notifications\Handlers\Handler;
 
-class PatientAppointmentCancel extends Handler
+class DoctorAppointmentRescheduled extends Handler
 {
     public static function execute(User $sender, int $clinicId, $notification, Collection $receivers, Model $model)
     {
@@ -28,13 +29,17 @@ class PatientAppointmentCancel extends Handler
         $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
 
         return $notification->body([
-            'patient_name' => $model->patient->user->name,
             'date' => $dateTime,
         ]);
     }
 
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, string $title, string $body)
     {
-        SendWhatsAppStatelessNotification::execute($sender, $receiver, $clinicId, $title, $body);
+        $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
+
+        SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification,[
+            'appointment_id' => $model->id,
+            'new_date' => $dateTime,
+        ]);
     }
 }

@@ -17,6 +17,8 @@ use App\APIServices\WhatsApp\States\ConfirmReshedule;
 use App\APIServices\WhatsApp\States\FileEmergencyCase;
 use App\APIServices\WhatsApp\States\AI;
 use App\APIServices\WhatsApp\States\IdleState;
+use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentReschedule;
+use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentBooking;
 
 class ExecutionRouter
 {
@@ -58,6 +60,13 @@ class ExecutionRouter
             
             ConversationState::AI =>
                 AI::execute($conversation, $message),
+
+            //Notifications
+            ConversationState::DOCTOR_APPOINTMENT_BOOKING =>
+                DoctorAppointmentBooking::execute($conversation, $message),
+                
+            ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE =>
+                DoctorAppointmentReschedule::execute($conversation, $message),
 
             default =>
                 Start::execute($conversation, $message),

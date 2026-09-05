@@ -17,6 +17,10 @@ enum ConversationState: string
     case EMERGENCY_CASE = 'emergency_case';
     case EMERGENCY_CASE_IN_HOME = 'emergency_case_in_home';
     case EMERGENCY_CASE_IN_HOSPITAL = 'emergency_case_in_hospital';
-    case AI    =   'AI';
-    case IDLE  =   'idle';
+    case AI = 'AI';
+    case IDLE = 'idle';
+
+    //Notification Status
+    case Doctor_Appointment_Reschedule = 'doctor_appointment_reschedule';
+    case Doctor_Appointment_Booking = 'doctor_appointment_booking';
 }
