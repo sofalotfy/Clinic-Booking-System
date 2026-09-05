@@ -5,6 +5,7 @@ namespace App\Services\Notifications;
 use App\Models\User;
 use App\Services\Notifications\Handlers\Handler;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class NotificationRouter
 {
