@@ -16,7 +16,7 @@ class DoctorAppointmentBooked extends Handler
         $title = static::buildTitle($model, $notification);
         $body = static::buildBody($model, $notification);
 
-        static::dispatch($sender, $clinicId, $notification, $receivers, $title, $body);
+        static::dispatch($sender, $clinicId, $notification, $receivers, $model, $title, $body);
     }
 
     private static function buildTitle(Model $model, $notification): string
@@ -33,7 +33,7 @@ class DoctorAppointmentBooked extends Handler
         ]);
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, string $title, string $body)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
         $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
 

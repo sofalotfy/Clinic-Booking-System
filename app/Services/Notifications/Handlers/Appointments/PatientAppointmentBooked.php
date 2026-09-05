@@ -11,7 +11,7 @@ use App\Services\Notifications\Handlers\Handler;
 
 class PatientAppointmentBooked extends Handler
 {
-    public static function execute(User $sender, int $clinicId, $notification, Collection $receivers, Model $model)
+    public static function execute(User $sender, int $clinicId, $notification, $model, Collection $receivers, Model $model)
     {
         $title = static::buildTitle($model, $notification);
         $body = static::buildBody($model, $notification);
@@ -34,7 +34,7 @@ class PatientAppointmentBooked extends Handler
         ]);
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, string $title, string $body)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
         SendWhatsAppStatelessNotification::execute($sender, $receiver, $clinicId, $title, $body);
     }

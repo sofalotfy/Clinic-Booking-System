@@ -14,7 +14,7 @@ class Handler
         static::dispatch($sender, $clinicId, $notification, $receivers, '', '');
     }
 
-    protected static function dispatch(User $sender, int $clinicId, $notification, Collection $receivers, string $title, string $body)
+    protected static function dispatch(User $sender, int $clinicId, $notification, Collection $receivers, $model, string $title, string $body)
     {
         \Log::info("in handler receivers " . $receivers->toJson());
         foreach ($receivers as $receiver) {
@@ -22,11 +22,11 @@ class Handler
             
             PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
 
-            static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $title, $body);
+            static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $model, $title, $body);
         }
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, string $title, string $body)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
         //
     }
