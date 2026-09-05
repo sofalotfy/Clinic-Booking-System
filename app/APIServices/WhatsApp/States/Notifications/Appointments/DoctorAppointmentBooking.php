@@ -76,6 +76,13 @@ class DoctorAppointmentBooking
 
             case 'cancel':
                 DenyAppointmentConfirmation::execute($conversation->user, $appointment);
+
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    'تم رفض الموعد'
+                );
                 
                 $conversation->update([
                     'state' => ConversationState::START,

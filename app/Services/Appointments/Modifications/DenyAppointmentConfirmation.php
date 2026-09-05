@@ -11,6 +11,7 @@ class DenyAppointmentConfirmation
         $appointment->update(
             [
                 'status'  =>  AppointmentStatus::CANCELLED,
+                'isConfirmed' => true,
             ]
         );
     }
