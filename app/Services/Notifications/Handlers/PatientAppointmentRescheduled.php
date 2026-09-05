@@ -6,6 +6,7 @@ use App\Models\Patient;
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class PatientAppointmentRescheduled extends Handler
