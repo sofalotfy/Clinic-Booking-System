@@ -40,6 +40,11 @@ class SendWhatsAppStatefulNotification
             'last_activity_at' => now(),
         ]);
 
-        ExecutionRouter::execute($conversation);
+        $message = [
+            'phone_number_id' => $account->phone_number_id,
+            'from' => $receiver->phone,
+            'type' => 'notification',
+        ];
+        ExecutionRouter::execute($conversation,$message);
     }
 }
