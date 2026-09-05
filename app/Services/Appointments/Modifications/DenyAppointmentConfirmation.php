@@ -10,7 +10,7 @@ class DenyAppointmentConfirmation
     {
         $appointment->update(
             [
-                'status'  =>  AppointmentStatus::CANCEL,
+                'status'  =>  AppointmentStatus::CANCELLED,
             ]
         );
     }
