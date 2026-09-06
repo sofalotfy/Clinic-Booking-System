@@ -29,6 +29,10 @@ class ListPatients
                 $query->wherePivot('doctor_id', $doctor->id);
             },
 
+            'notes' => function ($query) use ($doctor) {
+                $query->where('notes.doctor_id', $doctor->id);
+            },
+            
             'blocks' => function ($query) use ($doctor) {
                 $query
                     ->where('doctor_id', $doctor->id)
