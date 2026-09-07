@@ -20,12 +20,12 @@ class CreateEmergencyCase
             'symptoms' => $symptoms,
         ]);
 
-        UrgentNotify::execute(  
-            Doctor::find($doctorId),
-            NotificationsType::EMERGENCY,
-            'Emergency Case',
-            "Patient {$emergencyCase->patient->user->name} has reported an emergency. Please check on them as soon as possible.\nSymptoms: {$symptoms}",
-        );
+        // UrgentNotify::execute(  
+        //     Doctor::find($doctorId),
+        //     NotificationsType::EMERGENCY,
+        //     'Emergency Case',
+        //     "Patient {$emergencyCase->patient->user->name} has reported an emergency. Please check on them as soon as possible.\nSymptoms: {$symptoms}",
+        // );
 
         return $emergencyCase;
     }
