@@ -28,21 +28,21 @@ class ListRoles
         ];
     }
 
-    private static function format($plans)
-{
-    return $plans->groupBy('roles.id')->map(function ($plan) {
-        return [
-            'id' => $plan->first()->id,
-            'name' => $plan->first()->name,
-            'permissions' => $plan
-                ->whereNotNull('permission_id')
-                ->map(fn ($permission) => [
-                    'id' => $permission->permission_id,
-                    'name' => $permission->permission_name,
-                    'type' => $permission->permission_type,
-                ])
-                ->values(),
-        ];
-    })->values();
-}
+    private static function format($roles)
+    {
+        return $roles->groupBy('id')->map(function ($role) {
+            return [
+                'id' => $role->first()->id,
+                'name' => $role->first()->name,
+                'permissions' => $role
+                    ->filter(fn ($permission) => $permission->permission_id !== null)
+                    ->map(fn ($permission) => [
+                        'id' => $permission->permission_id,
+                        'name' => $permission->permission_name,
+                        'type' => $permission->permission_type,
+                    ])
+                    ->values(),
+            ];
+        })->values()->toArray();
+    }
 }

@@ -14,9 +14,25 @@ class ShowPatient
 {
     public static function execute($request, Patient $patient)
     {
+        $doctor = $request->user()->clinicDoctor();
         $patient = ShowService::execute($request->user(), $patient)
             ->select(self::getSelects())
-            ->get();
+            ->get()
+            ->load([
+                'flags' => function ($query) use ($doctor) {
+                    $query->wherePivot('doctor_id', $doctor->id);
+                },
+
+                'notes' => function ($query) use ($doctor) {
+                    $query->where('notes.doctor_id', $doctor->id);
+                },
+                
+                'blocks' => function ($query) use ($doctor) {
+                    $query
+                        ->where('doctor_id', $doctor->id)
+                        ->active();
+                },
+            ]);
 
         return response()->json([
             'patient' => $patient,
