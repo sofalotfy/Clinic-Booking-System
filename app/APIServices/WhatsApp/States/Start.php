@@ -11,27 +11,23 @@ class Start
     {
         // Route non-patient users to IdleState
         if (!$conversation->user || !$conversation->user->isPatient()) {
-            $conversation->update([
-                'state' => ConversationState::IDLE,
-                'step'  => null,
-                'data'  => ['name' => $conversation->user->name ?? ''],
+
+            $conversation->pushData([
+                'name' => $conversation->user->name ?? '',
             ]);
 
-            return IdleState::execute(
-                $conversation,
+            return $conversation->startFlow(
+                ConversationState::IDLE,
                 $message
             );
         }
 
-        // Reset the conversation
-        $conversation->update([
-            'state' => ConversationState::MAIN_MENU,
-            'step'  => null,
-            'data'  => ['name' => $conversation->user->name],
+        $conversation->pushData([
+            'name' => $conversation->user->name ?? '',
         ]);
 
-        return MainMenu::execute(
-            $conversation,
+        return $conversation->startFlow(
+            ConversationState::MAIN_MENU,
             $message
         );
     }

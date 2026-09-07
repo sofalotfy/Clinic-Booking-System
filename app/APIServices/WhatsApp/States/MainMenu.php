@@ -20,20 +20,10 @@ class MainMenu
             $account->doctor_id
         );
 
-        $conversation->update([
-            'state' => ConversationState::MAIN_MENU,
-        ]);
-
         if ($appointment) {
-
-            $conversation->update([
-                    'data' => array_merge(
-                        $conversation->data ?? [],
-                        [
-                            'appointment_id' => $appointment->id,
-                        ]
-                    ),
-                ]);
+            $conversation->pushData([
+                'appointment_id' => $appointment->id,
+            ]);
 
             return self::sendAppointmentMenu(
                 $account,
@@ -121,50 +111,35 @@ class MainMenu
 
             return ExecutionRouter::execute($conversation, $message);
         }
+
         switch ($message['value']) {
 
             case 'reschedule_appointment':
-                $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT,
-                ]);
-
-                return BookAppointment::execute($conversation, $message);
-                break;
+                return $conversation->startFlow(
+                    ConversationState::BOOK_APPOINTMENT,
+                    $message
+                );
 
             case 'cancel_appointment':
-                $conversation->update([
-                    'state' => ConversationState::CANCEL_APPOINTMENT,
-                ]);
-
-                return CancelAppointment::execute($conversation, $message);
-                break;
+                return $conversation->startFlow(
+                    ConversationState::CANCEL_APPOINTMENT,
+                    $message
+                );
 
             case 'book_appointment':
-                $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT,
-                ]);
-
-                return BookAppointment::execute($conversation, $message);
-                break;
+                return $conversation->startFlow(
+                    ConversationState::BOOK_APPOINTMENT,
+                    $message
+                );
 
             case 'update_profile':
-                $conversation->update([
-                    'state' => ConversationState::INFO_INQUIRY,
-                    'data' => array_merge(
-                        $conversation->data ?? [],
-                        ['callStack' => array_merge(
-                                [ConversationState::MAIN_MENU],
-                                $conversation->data->callStack ?? [],
-                            )
-                        ]
-                    ),
-                ]);
-
-                return InfoInquiry::execute($conversation, $message);
-                break;
+                return $conversation->startFlow(
+                    ConversationState::INFO_INQUIRY,
+                    $message
+                );
 
             case 'end_conversation':
-                $conversation->delete();
+                $conversation->end();
 
                 SendMessage::text(
                     $account->phone_number_id,

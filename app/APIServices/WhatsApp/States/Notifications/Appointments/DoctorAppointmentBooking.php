@@ -66,7 +66,7 @@ class DoctorAppointmentBooking
                     'state' => ConversationState::START,
                 ]);
 
-                return Start::execute($conversation, $message);
+                return ExecutionRouter::execute($conversation, $message);
 
                 break;
 
@@ -84,7 +84,7 @@ class DoctorAppointmentBooking
                     'state' => ConversationState::START,
                 ]);
 
-                return Start::execute($conversation, $message);
+                return ExecutionRouter::execute($conversation, $message);
         }
 
         return self::execute($conversation, $message);

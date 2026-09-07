@@ -93,7 +93,7 @@ class InfoConfirmation
                     'state' => ConversationState::START,
                 ]);
 
-                return Start::execute($conversation, $message);
+                return ExecutionRouter::execute($conversation, $message);
         }
 
         // Unknown button -> show the menu again

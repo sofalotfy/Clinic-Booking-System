@@ -102,7 +102,7 @@ class InfoInquiry
                     'state' => ConversationState::INFO_CONFIRMATION,
                 ]);
 
-                return InfoConfirmation::execute($conversation, $message);
+                return ExecutionRouter::execute($conversation, $message);
 
             default:
 

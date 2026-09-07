@@ -34,7 +34,7 @@ class BookSlot
                 'state' => ConversationState::BOOK_APPOINTMENT,
             ]);
 
-            return BookAppointment::execute($conversation, $message);
+            return ExecutionRouter::execute($conversation, $message);
         }
 
         $rows = collect($slots)
@@ -142,6 +142,6 @@ class BookSlot
             ),
         ]);
 
-        return ConfirmBooking::execute($conversation, $message);
+        return ExecutionRouter::execute($conversation, $message);
     }
 }
