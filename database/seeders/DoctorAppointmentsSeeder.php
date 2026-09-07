@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Doctor;
+use App\Models\Appointment;
+use App\Enums\AppointmentStatus;
 use App\Services\Patients\Retrievals\ListDoctorPatients;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class DoctorAppointmentsSeeder extends Seeder
@@ -31,34 +32,25 @@ class DoctorAppointmentsSeeder extends Seeder
                 continue;
             }
 
-            $rows = $patients->map(fn ($patient) => [
-                'doctor_id'  => $doctor->id,
-                'patient_id' => $patient->id,
-                'status' => AppointmentStatus::ACTIVE->value,
-                'date'       => $this->randomDate(),
-                'delay' => 0,
-                'duration' => 30,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ])->all();
-
-            Appointment::create([
-                'doctor_id' => $doctorId,
-                'patient_id' => $patient->id,
-                'status' => AppointmentStatus::ACTIVE->value,
-                'date' => Carbon::now()
-                    ->addDays($data['days_from_now'])
-                    ->setTime($data['hour'], $data['minute']),
-                'delay' => 0,
-                'duration' => 30,
-            ]);
-            DB::table('appointments')->insert($rows);
+            foreach ($patients as $patient) {
+                Appointment::create([
+                    'doctor_id'  => $doctor->id,
+                    'patient_id' => $patient->id,
+                    'status'     => AppointmentStatus::ACTIVE->value,
+                    'date'       => $this->randomDateWithinNextWeek(),
+                    'delay'      => 0,
+                    'duration'   => 30,
+                ]);
+            }
 
             $this->command->info("Seeded {$patients->count()} appointments for doctor #{$doctor->id}");
         }
     }
 
-    private function randomDate(): Carbon
+    private function randomDateWithinNextWeek(): Carbon
     {
-        return now()->addDays(rand(-60, 60))->setTime(rand(9, 17), 0);
+        return Carbon::now()
+            ->addDays(rand(0, 7))
+            ->setTime(rand(9, 17), collect([0, 30])->random());
     }
+}
