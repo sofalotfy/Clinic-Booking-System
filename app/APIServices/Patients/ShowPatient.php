@@ -19,6 +19,10 @@ class ShowPatient
             ->select(self::getSelects())
             ->get()
             ->load([
+                'appointments' => function ($query) use ($doctor) {
+                    $query->where('doctor_id', $doctor->id);
+                },
+
                 'flags' => function ($query) use ($doctor) {
                     $query->wherePivot('doctor_id', $doctor->id);
                 },
