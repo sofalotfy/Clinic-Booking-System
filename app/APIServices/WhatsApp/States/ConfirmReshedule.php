@@ -67,6 +67,8 @@ class ConfirmReshedule
         );
 
         if ($message['type'] !== 'interactive') {
+            return self::execute($conversation, $message);
+            
             $conversation->update([
                 'state' => ConversationState::AI,
             ]);

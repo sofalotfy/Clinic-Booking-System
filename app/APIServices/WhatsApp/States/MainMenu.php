@@ -119,6 +119,8 @@ class MainMenu
         );
 
         if ($message['type'] !== 'interactive') {
+            return self::execute($conversation, $message);
+            
             $conversation->update([
                 'state' => ConversationState::AI,
             ]);
