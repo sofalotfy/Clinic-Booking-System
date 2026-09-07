@@ -13,10 +13,6 @@ class IdleState
     {
         $account = $conversation->doctorWhatsAppAccount;
 
-        $conversation->update([
-            'state' => ConversationState::IDLE,
-        ]);
-
         $name = $conversation->user?->name ?? '';
         $greeting = $name ? "Hello {$name}" : "Hello";
 

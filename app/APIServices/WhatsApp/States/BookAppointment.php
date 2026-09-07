@@ -18,19 +18,7 @@ class BookAppointment
         $account = $conversation->doctorWhatsAppAccount;
 
         if(!$conversation->user->name){
-            $conversation->update([
-                'state' => ConversationState::INFO_INQUIRY,
-                'data' => array_merge(
-                    $conversation->data ?? [],
-                    ['callStack' => array_merge(
-                            [ConversationState::BOOK_APPOINTMENT],
-                            $conversation->data['callStack'] ?? []
-                        )
-                    ]
-                ),
-            ]);
-
-            return InfoInquiry::execute($conversation, $message);
+            return $conversation->startFlow(ConversationState::INFO_INQUIRY, $message);
         }
 
         $days = GetAvailableDays::execute($account->doctor_id);
@@ -56,16 +44,10 @@ class BookAppointment
 
     public static function handleResponse($conversation, $message)
     {
-        
-        
         $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
+            return $conversation->changeState(ConversationState::AI, $message);
         }
 
         $day = Day::where('doctor_id', $account->doctor_id)->find($message['value']);

@@ -105,11 +105,7 @@ class MainMenu
         $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
+            return $conversation->changeState(ConversationState::AI, $message);
         }
 
         switch ($message['value']) {
