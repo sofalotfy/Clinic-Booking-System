@@ -22,12 +22,12 @@ class CreatePatientInquiry
             ]
         );
         
-        Notify::execute(
-            Doctor::find($doctorId),
-            NotificationsType::INQUIRY,
-            'New Patient Inquiry',
-            "Patient {$inquiry->patient->user->name} has submitted a new inquiry: {$question}",
-        );
+        // Notify::execute(
+        //     Doctor::find($doctorId),
+        //     NotificationsType::INQUIRY,
+        //     'New Patient Inquiry',
+        //     "Patient {$inquiry->patient->user->name} has submitted a new inquiry: {$question}",
+        // );
 
         return $inquiry;
     }
