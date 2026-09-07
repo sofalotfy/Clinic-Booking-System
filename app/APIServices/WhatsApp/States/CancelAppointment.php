@@ -15,9 +15,7 @@ class CancelAppointment
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         return SendMessage::buttons(
             $account->phone_number_id,
@@ -41,9 +39,7 @@ class CancelAppointment
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
 
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([

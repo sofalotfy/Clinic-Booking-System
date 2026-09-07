@@ -13,9 +13,7 @@ class MainMenu
 {
     public static function execute($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $appointment = GetUpComingAppointment::execute(
             $conversation->patient()?->id,
@@ -114,9 +112,7 @@ class MainMenu
 
     public static function handleResponse($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([

@@ -17,9 +17,7 @@ class ConfirmReshedule
 
     public static function execute($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
 
 
@@ -62,9 +60,7 @@ class ConfirmReshedule
     public static function handleResponse($conversation, $message)
     {
         $appointment = Appointment::find($conversation->data['appointment_id']);
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([

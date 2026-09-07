@@ -15,9 +15,7 @@ class InfoInquiry
 
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $step = $conversation->step ?? self::STEP_NAME;
 
@@ -53,9 +51,7 @@ class InfoInquiry
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'text') {
             return self::execute($conversation, $message);

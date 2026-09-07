@@ -22,7 +22,10 @@ class WhatsAppConversation extends Model
 
     public function doctorWhatsAppAccount()
     {
-        return $this->belongsTo(DoctorWhatsAppAccount::class);
+        return $this->belongsTo(
+            DoctorWhatsAppAccount::class,
+            'doctor_whatsapp_account_id'
+        );
     }
 
     public function user(): BelongsTo

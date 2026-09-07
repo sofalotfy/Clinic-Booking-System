@@ -14,9 +14,7 @@ class BookSlot
 
     public static function execute($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $page = $conversation->data['slot_page'] ?? 0;
 
@@ -85,9 +83,7 @@ class BookSlot
 
     public static function handleResponse($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         // This state only accepts interactive list replies
         if ($message['type'] !== 'interactive') {

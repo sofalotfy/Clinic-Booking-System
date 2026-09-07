@@ -23,9 +23,7 @@ class FileEmergencyCase
         WhatsAppConversation $conversation,
         array $message
     ) {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $step = $conversation->step ?? self::STEP_SYMPTOMS;
 
@@ -80,9 +78,7 @@ class FileEmergencyCase
         WhatsAppConversation $conversation,
         array $message
     ) {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         switch ($conversation->step) {
 
@@ -227,9 +223,7 @@ class FileEmergencyCase
             'state' => ConversationState::AI,
         ]);
 
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         return SendMessage::text(
             $account->phone_number_id,

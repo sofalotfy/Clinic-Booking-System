@@ -11,9 +11,7 @@ class IdleState
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $conversation->update([
             'state' => ConversationState::IDLE,

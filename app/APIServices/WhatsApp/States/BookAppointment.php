@@ -15,9 +15,7 @@ class BookAppointment
 {
     public static function execute($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if(!$conversation->user->name){
             $conversation->update([
@@ -60,9 +58,7 @@ class BookAppointment
     {
         
         
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([

@@ -15,9 +15,7 @@ class DoctorAppointmentBooking
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
  
         $newDate = $conversation->data['new_date'] ?? null;
  
@@ -42,9 +40,7 @@ class DoctorAppointmentBooking
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
         $appointment = Appointment::find($conversation->data['appointment_id']);
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([

@@ -17,9 +17,7 @@ class ConfirmBooking
 
     public static function execute($conversation, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         $day = Day::find($conversation->data['selected_day']);
         
@@ -61,9 +59,7 @@ class ConfirmBooking
     public static function handleResponse($conversation, $message)
     {
         
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        $account = $conversation->doctorWhatsAppAccount;
 
         if ($message['type'] !== 'interactive') {
             $conversation->update([
