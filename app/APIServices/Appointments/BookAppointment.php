@@ -58,10 +58,13 @@ class BookAppointment
             ]);
         }
 
+        // GET PATIENT ACCOUNT
+        $patient = $user->patient;
+
         // USE CENTRALIZED SERVICE
         return BookService::execute(
             $request->user(),
-            $user,
+            $patient,
             $day,
             $dateTime->format('H:i'),
         );
