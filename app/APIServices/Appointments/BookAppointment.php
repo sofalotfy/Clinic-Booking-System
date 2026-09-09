@@ -40,13 +40,14 @@ class BookAppointment
                 'name' => $validated['name'],
                 'age'  => $validated['age'],
                 'area' => $validated['area'],
+                'type' => UserType::PATIENT,
             ]
         );
 
         if(!$user->isPatient())
         {
             throw ValidationException::withMessages([
-                'phone' => 'This phone number is not a patient.',
+                'phone' => 'This phone number is not registred as a patient.',
             ]);
         }
         $patient = $user->patient;
