@@ -28,7 +28,7 @@ class BookAppointment
         $dateTime = Carbon::parse($validated['date']);
 
         //GET BOOKING DAY INSTANCE
-        $day = Day::where('doctor_id', $validated['doctor_id'])
+        $day = Day::where('doctor_id', $request->user()->clinicDoctorId)
             ->whereDate('date', $dateTime->toDateString())
             ->first();
 

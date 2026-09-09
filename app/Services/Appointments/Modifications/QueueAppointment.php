@@ -9,7 +9,10 @@ use App\Services\Appointments\General\NotifyPatientOfReschedule;
 class QueueAppointment
 {
     public static function execute($user, $appointment, $duration = null, $type = AppointmentUpdateNotificationTypes::OVERFLOW)
-    {   
+    {
+        if($appointment->status == AppointmentStatus::QUEUED)
+            return $appointment;
+
         $appointment->update(
             [
                 'duration' => $duration ?? $appointment->duration,

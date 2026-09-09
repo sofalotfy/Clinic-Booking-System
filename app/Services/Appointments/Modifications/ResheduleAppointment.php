@@ -11,6 +11,9 @@ class ResheduleAppointment
 {
     public static function execute($user, $appointment, $new_date, $duration = null)
     {
+        if($appointment->date == $new_date && $appointment->duration == $duration)
+            return $appointment;
+            
         $old_date = $appointment->date;
 
         $appointment->update(

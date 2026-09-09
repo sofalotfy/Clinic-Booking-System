@@ -12,6 +12,9 @@ class CancelAppointment
 {
     public static function execute($user, $appointment, $type = AppointmentUpdateNotificationTypes::CANCEL)
     {
+        if ($appointment->status == AppointmentStatus::CANCELLED)
+            return $appointment;
+
         $appointment->update(
             [
                 'status'  =>  AppointmentStatus::CANCELLED,
