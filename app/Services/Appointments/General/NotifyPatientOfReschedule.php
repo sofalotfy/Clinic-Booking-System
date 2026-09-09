@@ -33,7 +33,7 @@ class NotifyPatientOfReschedule
                 'name' =>  $patient->user->name,
                 'appointment_id' => $appointment->id,
                 'reschedule_type' => $type,
-                'new_date' => $new_date,
+                'date' => $new_date,
             ],
             'last_activity_at' => now(),
         ]);
