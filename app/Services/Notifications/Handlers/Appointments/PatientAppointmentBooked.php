@@ -30,6 +30,7 @@ class PatientAppointmentBooked extends Handler
 
         return $notification->body([
             'patient_name' => $model->patient->user->name,
+            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $model->patient->user->phone),
             'date' => $dateTime,
         ]);
     }

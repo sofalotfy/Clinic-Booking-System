@@ -27,11 +27,20 @@ class PatientAppointmentRescheduled extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
-        $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
+        if($model->status == AppointmentStatus::QUEUED){
+            $fromDate = Carbon::parse("{$model->old_date}")->format('M j, Y');
+            $toDate = Carbon::parse("{$model->date}")->format('M j, Y');
+        }else{
+            $fromDate = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
+            $toDate = Carbon::parse("{$model->date}")->format('M j, Y g:i A');
+        }
+
 
         return $notification->body([
             'patient_name' => $model->patient->user->name,
-            'date' => $dateTime,
+            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $model->patient->user->phone),
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
         ]);
     }
 

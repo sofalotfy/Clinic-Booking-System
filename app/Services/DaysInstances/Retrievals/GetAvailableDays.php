@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Doctors\Retrievals;
+namespace App\Services\DaysInstances\Retrievals;
 
 use App\Models\Appointment;
 use App\Models\Day;
@@ -12,7 +12,7 @@ class GetAvailableDays
 {
     public static function execute(int $doctorId): array
     {
-        $start = now()->addDay()->startOfDay();
+        $start = now()->startOfDay();
         $end = now()->addMonth()->endOfDay();
 
         $days = Day::where('doctor_id', $doctorId)

@@ -68,7 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/days/{day}/update', [DayController::class, 'update'])->name('update');
     Route::get('/days', [DayController::class, 'index'])->name('days');
     Route::get('/days/appointments', [DayController::class, 'mapAppointments'])->name('daysAppointments');
-
+    Route::post('/days/{day}/transfer', [DayController::class, 'transfer'])->name('days.transfer');
+    Route::get('/days/available', [DayController::class, 'getAvailableDays'])->name('days.getAvailableDays');
+    Route::get('/days/empty', [DayController::class, 'getEmptyDays'])->name('days.getEmptyDays');
+    Route::get('/days/{day}/slots', [DayController::class, 'getAvailableSlots'])->name('days.getAvailableSlots');
 
     Route::get('/flags', [FlagController::class, 'index'])->name('get-flags');
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');

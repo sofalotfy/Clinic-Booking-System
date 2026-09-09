@@ -100,19 +100,19 @@ enum NotificationEnum
     {
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED =>
-                "{$data['patient_name']} booked an appointment on {$data['date']}.",
+                "{$data['patient_name']} ({$data['whatsapp']}) booked an appointment on {$data['date']}.",
 
             self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                "{$data['patient_name']} rescheduled their appointment to {$data['date']}.",
+                "{$data['patient_name']} ({$data['whatsapp']}) rescheduled their appointment from {$data['from_date']} to {$data['to_date']}.",
 
             self::PATIENT_APPOINTMENT_CANCEL =>
-                "{$data['patient_name']} cancelled their appointment on {$data['date']}.",
+                "{$data['patient_name']} ({$data['whatsapp']}) cancelled their appointment on {$data['date']}.",
 
             self::DOCTOR_APPOINTMENT_BOOKED =>
                 "Your appointment was booked for {$data['date']}.",
 
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                "Your appointment was rescheduled to {$data['date']}.",
+                "Your appointment was rescheduled from {$data['from_date']} to {$data['to_date']}.",
 
             self::DOCTOR_APPOINTMENT_CANCEL =>
                 "Your appointment on {$data['date']} was cancelled.",

@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use App\Services\Notifications\Handlers\Handler;
+use App\Enums\AppointmentStatus;
 
 class DoctorAppointmentRescheduled extends Handler
 {
@@ -26,20 +27,27 @@ class DoctorAppointmentRescheduled extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
-        $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
+        if($model->status == AppointmentStatus::QUEUED){
+            $from_date = Carbon::parse("{$model->old_date}")->format('M j, Y');
+            $to_date   = Carbon::parse("{$model->date}")->format('M j, Y');
+        }else{
+            $from_date = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
+            $to_date   = Carbon::parse("{$model->date}")->format('M j, Y g:i A');
+        }
 
         return $notification->body([
-            'date' => $dateTime,
+            'from_date' => $from_date,
+            'to_date'   => $to_date,
         ]);
     }
 
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
+        $oldDateTime = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
 
         SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification,[
             'appointment_id' => $model->id,
-            'new_date' => $dateTime,
+            'old_date' => $oldDateTime,
         ]);
     }
 }

@@ -23,8 +23,11 @@ class SmartBookAppointment
             ->whereIn('status', AppointmentStatus::working())
             ->first();
 
+        $old_date = null;
+
         if ($appointment) {
-            //RESCHEDULE
+            $old_date = $appointment->date;
+
             $appointment->update([
                 'date' => $date,
                 'duration' => $duration,
@@ -33,7 +36,6 @@ class SmartBookAppointment
 
             $notificationType = NotificationEnum::PATIENT_APPOINTMENT_RESCHEDULED;
         } else {
-            //BOOK
             $appointment = Appointment::create([
                 'doctor_id' => $doctor->id,
                 'patient_id' => $patient->id,
@@ -46,6 +48,10 @@ class SmartBookAppointment
         }
 
         $appointment = $appointment->fresh();
+
+        if ($old_date) {
+            $appointment->old_date = $old_date;
+        }
 
         NotificationManager::execute($patient->user, $doctor->id, $notificationType, $appointment);
 

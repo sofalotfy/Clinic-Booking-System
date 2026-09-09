@@ -19,14 +19,20 @@ class DoctorAppointmentReschedule
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
- 
-        $newDate = $conversation->data['new_date'] ?? null;
- 
+        $appointment = Appointment::find($conversation->data['appointment_id']);
+
+        $oldDate = $conversation->data['old_date'] ?? null;
+        $newDate = $appointment->date;
+
+        $messageText = $oldDate
+            ? "تم تغيير موعدك من {$oldDate} الى {$newDate}، هل توافق؟"
+            : "تم تغيير موعدك الى {$newDate}، هل توافق؟";
+
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "تم تغيير موعدك الى {$newDate}، هل توافق؟",
+            $messageText,
             [
                 [
                     'id' => 'confirm',

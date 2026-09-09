@@ -30,12 +30,10 @@ class UpdateAppointment
                 break;
 
             case AppointmentStatus::ACTIVE:
-
+                ActivateAppointment::execute($user, $appointment);
                 if ($time) { // RESCHEDULE APPOINTMENT
                     $newDate = self::formatDate($appointment->date, $time);
                     ResheduleAppointment::execute($user, $appointment, $newDate, $appointment->duration);
-                } else { //ACTIVATE APPOINTMENT
-                    ActivateAppointment::execute($user, $appointment);
                 }
                 break;
 

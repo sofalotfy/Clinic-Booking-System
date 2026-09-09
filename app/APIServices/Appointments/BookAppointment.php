@@ -17,8 +17,10 @@ class BookAppointment
     {
         //VALIDATE
         $validated = Validator::make($request->all(), [
-            'doctor_id' => ['required', 'exists:doctors,id'],
-            'patient_id' => ['required', 'exists:patients,id'],
+            'phone'     => ['required'],
+            'name'      => ['required'],
+            'age'       => ['required', 'numeric', 'min:1'],
+            'area'      => ['required'],
             'date'      => ['required', 'date'],
         ])->validate();
 
@@ -30,10 +32,20 @@ class BookAppointment
             ->whereDate('date', $dateTime->toDateString())
             ->first();
 
+        //FETCH OR CREATE PATIENT BY PHONE (WITHOUT OVERWRITING EXISTING)
+        $patient = Patient::firstOrCreate(
+            ['phone' => $validated['phone']],
+            [
+                'name' => $validated['name'],
+                'age'  => $validated['age'],
+                'area' => $validated['area'],
+            ]
+        );
+
         //USE CENTRALIZED SERVICE
         return BookService::execute(
             $request->user(),
-            Patient::find($validated['patient_id']),
+            $patient,
             $day,
             $dateTime->format('H:i'),
         );

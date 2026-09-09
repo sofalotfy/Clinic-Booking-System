@@ -11,6 +11,10 @@ use App\APIServices\Days\ShowDay;
 use App\APIServices\Days\UpdateDay;
 use App\APIServices\Days\GetDayAppointments;
 use App\APIServices\Days\MapAppointments;
+use App\APIServices\Days\TransferDay;
+use App\APIServices\Days\GetAvailableDays;
+use App\APIServices\Days\GetEmptyDays;
+use App\APIServices\Days\GetAvailableSlots;
 use Illuminate\Http\Request;
 use App\Models\Day;
 
@@ -69,6 +73,39 @@ class DayController extends Controller implements HasMiddleware
         return response()->json([
             "success"  => true,
             "days"     => MapAppointments::execute($request),
+        ]);
+    }
+
+    public function transfer(Day $day, Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Day transferred successfully',
+            'day'     => TransferDay::execute($request, $day),
+        ]);
+    }
+
+    public function getAvailableDays(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'days'    => GetAvailableDays::execute($request),
+        ]);
+    }
+    
+    public function getEmptyDays(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'days'    => GetEmptyDays::execute($request),
+        ]);
+    }
+
+    public function getAvailableSlots(Request $request, Day $day)
+    {
+        return response()->json([
+            'success' => true,
+            'slots'   => GetAvailableSlots::execute($request, $day),
         ]);
     }
 }

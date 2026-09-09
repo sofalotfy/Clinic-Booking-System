@@ -78,7 +78,9 @@ class InfoInquiry
 
             case self::STEP_AGE:
 
-                if (!is_numeric($message['value']) or $message['value'] < 1 or $message['value'] > 120) {
+                $value = self::convertArabicNumeralsToEnglish($message['value']);
+
+                if (!is_numeric($value) or $value < 1 or $value > 120) {
                     return SendMessage::text(
                         $account->phone_number_id,
                         $account->access_token,
@@ -87,7 +89,7 @@ class InfoInquiry
                     );
                 }
 
-                $data['age'] = (int) $message['value'];
+                $data['age'] = (int) $value;
 
                 $conversation->update([
                     'data' => $data,
@@ -116,5 +118,17 @@ class InfoInquiry
 
                 return self::execute($conversation, $message);
         }
+    }
+
+    private static function convertArabicNumeralsToEnglish(string $value): string
+    {
+        $arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        $persianNumerals = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        $value = str_replace($arabicNumerals, $englishNumerals, $value);
+        $value = str_replace($persianNumerals, $englishNumerals, $value);
+
+        return trim($value);
     }
 }
