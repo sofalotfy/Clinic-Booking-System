@@ -47,7 +47,7 @@ class DoctorAppointmentRescheduled extends Handler
 
         SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification,[
             'appointment_id' => $model->id,
-            'old_date' => $oldDateTime,
+            'date' => $oldDateTime,
         ]);
     }
 }
