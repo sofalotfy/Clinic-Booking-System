@@ -16,44 +16,49 @@ class BookAppointment
 {
     public static function execute(Request $request)
     {
-        //VALIDATE
+        // VALIDATE
         $validated = Validator::make($request->all(), [
-            'phone'     => ['required'],
-            'name'      => ['required'],
-            'age'       => ['required', 'numeric', 'min:1'],
-            'area'      => ['required'],
-            'date'      => ['required', 'date'],
+            'phone' => ['required'],
+            'name'  => ['required'],
+            'age'   => ['required', 'numeric', 'min:1'],
+            'area'  => ['required'],
+            'date'  => ['required', 'date'],
         ])->validate();
 
-        //FORMAT DATE WITH CURRENT TIME
+        // FORMAT DATE WITH CURRENT TIME
         $dateTime = Carbon::parse($validated['date']);
 
-        //GET BOOKING DAY INSTANCE
+        // GET BOOKING DAY INSTANCE
         $day = Day::where('doctor_id', $request->user()->clinicDoctorId())
             ->whereDate('date', $dateTime->toDateString())
             ->first();
 
-        //FETCH OR CREATE PATIENT BY PHONE (WITHOUT OVERWRITING EXISTING)
-        $user = User::firstOrCreate(
-            ['phone' => $validated['phone']],
-            [
-                'name' => $validated['name'],
-                'age'  => $validated['age'],
-                'area' => $validated['area'],
-                'type' => UserType::PATIENT,
-            ]
-        );
+        // FETCH USER BY PHONE
+        $user = User::where('phone', $validated['phone'])->first();
 
-        if(!$user->isPatient())
-        {
-            throw ValidationException::withMessages([
-                'phone' => 'This phone number is not registred as a patient.',
+        // CREATE USER AND PATIENT IF USER DOES NOT EXIST
+        if (!$user) {
+            $user = User::create([
+                'phone' => $validated['phone'],
+                'name'  => $validated['name'],
+                'age'   => $validated['age'],
+                'area'  => $validated['area'],
+                'type'  => UserType::PATIENT,
+            ]);
+
+            Patient::create([
+                'user_id' => $user->id,
             ]);
         }
-        $patient = $user->patient;
 
-        
-        //USE CENTRALIZED SERVICE
+        // EXISTING USER MUST BE A PATIENT
+        if (!$user->isPatient()) {
+            throw ValidationException::withMessages([
+                'phone' => 'This phone number is not registered as a patient.',
+            ]);
+        }
+
+        // USE CENTRALIZED SERVICE
         return BookService::execute(
             $request->user(),
             $user,
