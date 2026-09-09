@@ -25,19 +25,19 @@ class DayController extends Controller implements HasMiddleware
         return [
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value,
-                only: ['index']
+                only: ['index','getAvailableDays','getEmptyDays']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value . ',day',
+                only: ['getAvailableSlots']
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PLAN->value . ',day',
-                only: ['update']
+                only: ['update','transfer']
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
-                only: ['dayAppointments']
-            ),
-            new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
-                only: ['mapAppointments']
+                only: ['dayAppointments','mapAppointments']
             ),
         ];
     }
