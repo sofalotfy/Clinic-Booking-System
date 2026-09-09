@@ -33,7 +33,7 @@ class BookAppointment
             ->first();
 
         //FETCH OR CREATE PATIENT BY PHONE (WITHOUT OVERWRITING EXISTING)
-        $patient = Patient::firstOrCreate(
+        $user = User::firstOrCreate(
             ['phone' => $validated['phone']],
             [
                 'name' => $validated['name'],
@@ -42,10 +42,19 @@ class BookAppointment
             ]
         );
 
+        if(!$user->isPatient())
+        {
+            throw ValidationException::withMessages([
+                'phone' => 'This phone number is not a patient.',
+            ]);
+        }
+        $patient = $user->patient;
+
+        
         //USE CENTRALIZED SERVICE
         return BookService::execute(
             $request->user(),
-            $patient,
+            $user,
             $day,
             $dateTime->format('H:i'),
         );
