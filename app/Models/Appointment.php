@@ -11,6 +11,8 @@ use App\Models\Patient;
 
 class Appointment extends Model
 {
+    public $old_date;
+    
     protected $guarded = [];
 
     /**
