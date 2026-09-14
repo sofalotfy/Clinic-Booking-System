@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:generate-doctor-schedules')
-    ->everyMinute();
+    ->dailyAt('00:00');
 
 Schedule::command('app:test-scheduler')
     ->everyMinute();
