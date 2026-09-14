@@ -7,6 +7,8 @@ use App\Enums\UserType;
 use App\Services\Appointments\Modifications\QueueAppointment;
 use App\Services\Appointments\Modifications\ResheduleAppointment;
 use Carbon\Carbon;
+use App\Models\Appointment;
+use App\Enums\AppointmentStatus;
 
 class SyncDayAppointments
 {
@@ -38,7 +40,7 @@ class SyncDayAppointments
     public static function execute($user, $day): void
     {
         //FETCH APPOINTMENTS
-        $appointments = AppointmentsToRescheduleFinder::forDay($day);
+        $appointments = self::AppointmentsToRescheduleFinder($day);
         
         //GENERATE SLOTS FOR THE NEW DAY SCHEDULE
         $slotPool = new SlotPool(SlotGenerator::generate($day));
@@ -77,5 +79,13 @@ class SyncDayAppointments
             $day->appointment_duration,
             AppointmentUpdateNotificationTypes::COLIDE
         );
+    }
+
+    private static function AppointmentsToRescheduleFinder($day){
+        return Appointment::whereDate('date', $day->date)
+            ->where('doctor_id', $day->doctor_id)
+            ->whereIn('status', AppointmentStatus::working())
+            ->orderBy('date')
+            ->get();
     }
 }

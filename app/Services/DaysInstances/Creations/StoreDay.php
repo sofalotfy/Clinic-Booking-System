@@ -8,9 +8,24 @@ use Carbon\Carbon;
 
 class StoreDay
 {
-    public static function execute($user, TemplatePlan $templatePlan, string $date): Day
-    {
+    public static function execute($user, TemplatePlan $templatePlan, string $date): ?Day {
+        // Don't create the day if it already exists for this doctor.
+        $existingDay = Day::where('doctor_id', $templatePlan->doctor_id)
+            ->whereDate('date', $date)
+            ->first();
+
+        if ($existingDay) {
+            return null;
+        }
+
+        // Find the template day for this date.
         $templateDay = self::findTemplateDay($templatePlan, $date);
+
+        // Don't create anything if this day of the week
+        // isn't configured in the template plan.
+        if (!$templateDay) {
+            return null;
+        }
 
         return Day::create([
             'doctor_id' => $templatePlan->doctor_id,
@@ -22,10 +37,10 @@ class StoreDay
         ]);
     }
 
-    protected static function findTemplateDay(TemplatePlan $templatePlan, string $date)
-    {
+    protected static function findTemplateDay(TemplatePlan $templatePlan, string $date) {
         $dayOfWeek = Carbon::parse($date)->dayOfWeek;
 
-        return $templatePlan->templateDays->firstWhere('day_of_week', $dayOfWeek);
+        return $templatePlan->templateDays
+            ->firstWhere('day_of_week', $dayOfWeek);
     }
 }
