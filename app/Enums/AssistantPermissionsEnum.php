@@ -15,6 +15,12 @@ enum AssistantPermissionsEnum: string {
     case UPDATE_PATIENT = 'update patient';
     case DELETE_PATIENT = 'delete patient';
 
+    case VIEW_ALL_CLINICS = 'view all clinics';
+    case VIEW_SINGLE_CLINIC = 'view single clinic';
+    case CREATE_CLINIC = 'create clinic';
+    case UPDATE_CLINIC = 'update clinic';
+    case DELETE_CLINIC = 'delete clinic';
+
     case VIEW_ALL_PLANS = 'view all plans';
     case VIEW_SINGLE_PLAN = 'view single plan';
     case CREATE_PLAN = 'create plan';

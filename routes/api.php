@@ -12,6 +12,7 @@ use App\Http\Controllers\API\DayController;
 use App\Http\Controllers\API\FlagController;
 use App\Http\Controllers\API\NoteController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\ClinicController;
 use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\TestController;
@@ -77,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');
     Route::put('/flag/{flag}', [FlagController::class, 'update'])->name('update-flag');
     Route::delete('/flag/{flag}', [FlagController::class, 'destroy'])->name('delete-flag');
+
+    Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
+    Route::post('/clinics', [ClinicController::class, 'store'])->name('clinics.store');
+    Route::get('/clinics/{clinic}', [ClinicController::class, 'show'])->name('clinics.show');
+    Route::put('/clinics/{clinic}', [ClinicController::class, 'update'])->name('clinics.update');
 
 
     Route::post('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');//added replaces /edit-note/{noteId}
