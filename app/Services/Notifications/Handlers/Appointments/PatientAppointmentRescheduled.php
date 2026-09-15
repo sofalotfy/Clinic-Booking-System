@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use App\Services\Notifications\Handlers\Handler;
+use App\Enums\AppointmentStatus;
 
 class PatientAppointmentRescheduled extends Handler
 {
