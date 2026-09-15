@@ -2,6 +2,7 @@
 
 namespace App\APIServices\WhatsApp\States;
 
+use App\Support\ArabicDateFormatter;
 use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
@@ -44,7 +45,7 @@ class BookSlot
             ->map(function ($slot) {
                 return [
                     'id' => $slot['time'],
-                    'title' => $slot['time'],
+                    'title' => ArabicDateFormatter::formatTime($slot['time']),
                 ];
             })
             ->values();

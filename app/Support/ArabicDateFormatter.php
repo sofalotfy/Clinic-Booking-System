@@ -68,6 +68,20 @@ class ArabicDateFormatter
 
         return $formatted;
     }
+
+    public static function formatTime(string $time): string
+    {
+        $date = Carbon::createFromFormat('H:i', $time);
+
+        $hour = self::toArabicDigits((int) $date->format('g'));
+        $minutes = self::toArabicDigits($date->format('i'));
+
+        $period = $date->format('A') === 'AM'
+            ? 'صباحا'
+            : 'مساء';
+
+        return "{$hour}:{$minutes} {$period}";
+    }
 }
 
 /*
