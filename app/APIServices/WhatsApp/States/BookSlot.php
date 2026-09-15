@@ -67,7 +67,7 @@ class BookSlot
         if (count($slots) > (($page + 1) * self::PAGE_SIZE)) {
             $rows->push([
                 'id' => 'more_slots',
-                'title' => '➡️ More times',
+                'title' => 'مواعيد أخرى',
             ]);
         }
 
@@ -75,11 +75,11 @@ class BookSlot
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'من فضلك اختر الوقت المفضل لديك',
-            'اختر الوقت',
+            'فضلا إختر الموعد المناسب',
+            'اختر الموعد المناسب',
             $rows->toArray(),
-            'الوقت المتاح',
-            'الوقت'
+            'المواعيد المتاحة',
+            'الموعد'
         );
     }
 
@@ -130,7 +130,7 @@ class BookSlot
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'الوقت غير متاح الان. من فضلك اختر وقت اخر.'
+                "نأسف .. الموعد الذي تم اختياره لم يعد متا ًحا\nفضال اختر موعد آخر"
             );
 
             return self::execute($conversation, $message);

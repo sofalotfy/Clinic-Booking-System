@@ -2,6 +2,7 @@
 
 namespace App\APIServices\WhatsApp\States;
 
+use App\Support\ArabicDateFormatter;
 use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
@@ -25,7 +26,7 @@ class ConfirmBooking
         
         if(CheckAvailability::execute($day)){
             $state = AppointmentStatus::ACTIVE;
-            $text = "هل انت متاكد من حجز الموعد في يوم {$day->date} في تمام الوقت {$conversation->data['selected_slot']}";
+            $text = "شكرا {$conversation->user->name} \nتم حجز موعدك يوم {}";
         }else{
             $state = AppointmentStatus::QUEUED;
             $text = "هل انت متاكد من حجز الموعد في يوم {$day->date} في قائمة الانتظار";
