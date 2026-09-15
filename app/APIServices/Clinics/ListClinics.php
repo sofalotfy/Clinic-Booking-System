@@ -19,6 +19,7 @@ class ListClinics
     {
         return [
             'clinics.id',
+            'clinics.name',
             'clinics.location_link',
             'clinics.facebook',
             'clinics.instgram',

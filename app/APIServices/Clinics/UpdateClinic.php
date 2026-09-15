@@ -12,6 +12,7 @@ class UpdateClinic
     public static function execute(Request $request, Clinic $clinic)
     {
         $validated = Validator::make($request->all(), [
+            'name' => ['nullable', 'string'],
             'location_link' => ['nullable', 'string'],
             'facebook' => ['nullable', 'string'],
             'instgram' => ['nullable', 'string'],

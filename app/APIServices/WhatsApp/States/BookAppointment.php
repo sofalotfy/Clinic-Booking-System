@@ -2,6 +2,8 @@
 
 namespace App\APIServices\WhatsApp\States;
 
+use App\Support\ArabicDateFormatter;
+use Carbon\Carbon;
 use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\APIServices\WhatsApp\States\BookSlot;
@@ -46,7 +48,10 @@ class BookAppointment
             collect($days)->map(function ($day) {
                 return [
                     'id' => $day['id'],
-                    'title' => "{$day['day']} - {$day['date']}",
+                    'title' => ArabicDateFormatter::format(
+                        Carbon::parse($day['date']),
+                        includeTime: false
+                    ),
                     'description' => $day['note'],
                 ];
             })->toArray(),

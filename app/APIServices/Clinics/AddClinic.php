@@ -11,6 +11,7 @@ class AddClinic
     public static function execute(Request $request)
     {
         $validated = Validator::make($request->all(), [
+            'name' => ['required', 'string'],
             'location_link' => ['nullable', 'string'],
             'facebook' => ['nullable', 'string'],
             'instgram' => ['nullable', 'string'],
