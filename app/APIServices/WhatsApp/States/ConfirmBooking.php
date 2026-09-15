@@ -31,7 +31,7 @@ class ConfirmBooking
         $dateTime = Carbon::parse($day->date . ' ' . $time);
         $formattedDate = ArabicDateFormatter::format($dateTime);
 
-        $userName = $conversation->user()->name;
+        $userName = $conversation->data['name'];
 
         if ($isAvailable) {
             $state = AppointmentStatus::ACTIVE;
@@ -94,7 +94,7 @@ class ConfirmBooking
                     $conversation->data['booking_state'],
                 );
 
-                $userName = $conversation->user()->name;
+                $userName = $conversation->data['name'];
 
                 SendMessage::text(
                     $account->phone_number_id,
