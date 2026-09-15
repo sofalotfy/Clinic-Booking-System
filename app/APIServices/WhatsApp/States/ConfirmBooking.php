@@ -5,11 +5,11 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
-use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\Creation\SmartBookAppointment;
-use App\Models\Day;
-use App\Services\TemplatePlans\Checks\CheckAvailability;
 use App\Enums\AppointmentStatus;
+use App\Models\DoctorWhatsAppAccount;
+use App\Models\Day;
+use App\Services\Appointments\Creation\SmartBookAppointment;
+use App\Services\TemplatePlans\Checks\CheckAvailability;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 
@@ -21,37 +21,39 @@ class ConfirmBooking
             $conversation->doctor_whatsapp_account_id
         );
 
-        $day = Day::findOrFail(
-            $conversation->data['selected_day']
-        );
+        $day = Day::find($conversation->data['selected_day']);
+        $isAvailable = CheckAvailability::execute($day);
 
-        $selectedSlot = $conversation->data['selected_slot'];
+        $time = $isAvailable
+            ? $conversation->data['selected_slot']
+            : '00:00';
 
-        $formattedDate = ArabicDateFormatter::format(
-            Carbon::parse($day->date),
-            includeTime: false
-        );
+        $dateTime = Carbon::parse($day->date . ' ' . $time);
+        $formattedDate = ArabicDateFormatter::format($dateTime);
 
-        $formattedTime = ArabicDateFormatter::formatTime(
-            $selectedSlot
-        );
+        $userName = $conversation->user()->name;
 
-        if (CheckAvailability::execute($day)) {
+        if ($isAvailable) {
             $state = AppointmentStatus::ACTIVE;
-
-            $text = "فضلا قم بتأكيد حجز موعدك يوم {$formattedDate} الساعة {$formattedTime}";
+            $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}";
+            $buttons = [
+                ['id' => 'confirm',    'title' => 'تأكيد الموعد'],
+                ['id' => 'reschedule', 'title' => 'اختيار موعد جديد'],
+                ['id' => 'cancel',     'title' => 'إلغاء الموعد'],
+            ];
         } else {
             $state = AppointmentStatus::QUEUED;
-
-            $text = "برجاء تأكيد موعد حجزك يوم {$formattedDate} الساعة {$formattedTime} على قائمة الانتظار";
+            $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}\nعلى قائمة الانتظار";
+            $buttons = [
+                ['id' => 'confirm', 'title' => 'تأكيد الموعد'],
+                ['id' => 'cancel',  'title' => 'الغاء الحجز'],
+            ];
         }
 
         $conversation->update([
             'data' => array_merge(
                 $conversation->data ?? [],
-                [
-                    'booking_state' => $state,
-                ]
+                ['booking_state' => $state]
             ),
         ]);
 
@@ -60,16 +62,7 @@ class ConfirmBooking
             $account->access_token,
             $message['from'],
             $text,
-            [
-                [
-                    'id' => 'confirm',
-                    'title' => 'تأكيد الموعد',
-                ],
-                [
-                    'id' => 'cancel',
-                    'title' => 'إختيار موعد آخر',
-                ],
-            ]
+            $buttons
         );
     }
 
@@ -81,56 +74,47 @@ class ConfirmBooking
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
 
         switch ($message['value']) {
 
             case 'confirm':
-
-                $day = Day::findOrFail(
-                    $conversation->data['selected_day']
-                );
-
-                $date = $day->date;
-
-                $time = CheckAvailability::execute($day)
+                $day = Day::find($conversation->data['selected_day']);
+                $isAvailable = CheckAvailability::execute($day);
+                $time = $isAvailable
                     ? $conversation->data['selected_slot']
                     : '00:00';
-
-                $dateTime = Carbon::parse($date . ' ' . $time);
+                $dateTime = Carbon::parse($day->date . ' ' . $time);
 
                 SmartBookAppointment::execute(
-                    $conversation->patient(),
+                    $conversation->user(),
                     $account->doctor,
                     $dateTime,
                     $day->appointment_duration,
                     $conversation->data['booking_state'],
                 );
 
+                $userName = $conversation->user()->name;
+
                 SendMessage::text(
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم تأكيد موعدك بنجاح',
+                    "شكرا {$userName}\nتم تأكيد موعدك بنجاح",
                 );
 
-                $conversation->update([
-                    'state' => ConversationState::START,
-                ]);
+                $conversation->update(['state' => ConversationState::START]);
 
                 return Start::execute($conversation, $message);
 
-            case 'cancel':
+            case 'reschedule':
+                // Only shown on the available-slot (3-button) screen.
+                $conversation->update(['state' => ConversationState::BOOK_APPOINTMENT]);
 
-                $conversation->update([
-                    'state' => ConversationState::START,
-                ]);
+                return BookAppointment::execute($conversation, $message);
+
+            case 'cancel':
+                $conversation->update(['state' => ConversationState::START]);
 
                 return Start::execute($conversation, $message);
         }
