@@ -20,12 +20,16 @@ use App\Models\Day;
 
 class DayController extends Controller implements HasMiddleware
 {
-    public static function middleware(): array 
+    public static function middleware(): array
     {
         return [
             new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
+                only: ['index']
+            ),
+            new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value,
-                only: ['index','getAvailableDays','getEmptyDays']
+                only: ['getAvailableDays', 'getEmptyDays']
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PLANS->value . ',day',

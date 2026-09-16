@@ -10,6 +10,8 @@ use App\Models\WhatsAppConversation;
 use App\Services\Appointments\Modifications\ConfirmAppointment;
 use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
 use App\Models\Appointment;
+use App\Support\ArabicDateFormatter;
+use Carbon\Carbon;
 
 class DoctorAppointmentBooking
 {
@@ -18,23 +20,29 @@ class DoctorAppointmentBooking
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
- 
-        $newDate = $conversation->data['new_date'] ?? null;
- 
+
+        $appointment = Appointment::find($conversation->data['appointment_id']);
+        $userName = $conversation->user->name;
+
+        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
+        $formattedDate = ArabicDateFormatter::format($dateTime);
+
+        $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}";
+
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "تم حجز موعد لك بتاريخ {$newDate}، هل توافق؟",
+            $text,
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'تاكيد',
+                    'title' => 'تأكيد الموعد',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'الغاء',
-                ],                
+                    'title' => 'إلغاء الموعد',
+                ],
             ]
         );
     }
@@ -48,14 +56,12 @@ class DoctorAppointmentBooking
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
-        
+
+        $userName = $conversation->user->name;
+        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
+        $formattedDate = ArabicDateFormatter::format($dateTime);
+
         switch ($message['value']) {
 
             case 'confirm':
@@ -65,7 +71,7 @@ class DoctorAppointmentBooking
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم تاكيد حجز الموعد'
+                    "شكرا {$userName}\nتم تأكيد حجز موعدك يوم {$formattedDate} بنجاح",
                 );
 
                 $conversation->update([
@@ -74,8 +80,6 @@ class DoctorAppointmentBooking
 
                 return Start::execute($conversation, $message);
 
-                break;
-
             case 'cancel':
                 DenyAppointmentConfirmation::execute($conversation->user, $appointment);
 
@@ -83,9 +87,9 @@ class DoctorAppointmentBooking
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم رفض الموعد'
+                    "أهلا {$userName}\nنأسف لإلغاء موعدك يوم {$formattedDate} لظروف خاصة",
                 );
-                
+
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);

@@ -78,6 +78,8 @@ class MainMenu
                 $conversation->update([
                     'state' => ConversationState::MANAGE_APPOINTMENT,
                 ]);
+
+                ManageAppointment::execute($conversation, $message);
                 return;
 
             case self::WEEKLY_SCHEDULE:

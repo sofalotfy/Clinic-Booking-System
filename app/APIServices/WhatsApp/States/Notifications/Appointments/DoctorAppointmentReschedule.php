@@ -11,6 +11,8 @@ use App\Models\WhatsAppConversation;
 use App\Services\Appointments\Modifications\ConfirmAppointment;
 use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
 use App\Models\Appointment;
+use App\Support\ArabicDateFormatter;
+use Carbon\Carbon;
 
 class DoctorAppointmentReschedule
 {
@@ -21,28 +23,39 @@ class DoctorAppointmentReschedule
         );
         $appointment = Appointment::find($conversation->data['appointment_id']);
 
-        $oldDate = $conversation->data['old_date'] ?? null;
-        $newDate = $appointment->date;
+        $userName = $conversation->user->name;
 
-        $messageText = $oldDate
-            ? "تم تغيير موعدك من {$oldDate} الى {$newDate}، هل توافق؟"
-            : "تم تغيير موعدك الى {$newDate}، هل توافق؟";
+        $newDateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
+        $newDate = ArabicDateFormatter::format($newDateTime);
+
+        $oldDateRaw = $conversation->data['old_date'] ?? null;
+
+        if ($oldDateRaw) {
+            $oldDate = ArabicDateFormatter::format(Carbon::parse($oldDateRaw));
+
+            $text = "اهلا {$userName}\n"
+                . "لظروف خارجة عن إرادتنا نأسف لتعديل موعد زيارتك القادمة يوم {$oldDate} لتصبح يوم {$newDate}";
+
+            $buttons = [
+                ['id' => 'confirm',    'title' => 'تأكيد الموعد'],
+                ['id' => 'reschedule', 'title' => 'إختيار موعد جديد'],
+                ['id' => 'cancel',     'title' => 'إلغاء الموعد'],
+            ];
+        } else {
+            $text = "تم تعديل موعد الحجز بنجاح ليصبح يوم {$newDate}";
+
+            $buttons = [
+                ['id' => 'confirm',    'title' => 'تأكيد الحجز'],
+                ['id' => 'reschedule', 'title' => 'اختيار موعد آخر'],
+            ];
+        }
 
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $messageText,
-            [
-                [
-                    'id' => 'confirm',
-                    'title' => 'تاكيد',
-                ],
-                [
-                    'id' => 'cancel',
-                    'title' => 'الغاء',
-                ],                
-            ]
+            $text,
+            $buttons
         );
     }
 
@@ -55,14 +68,12 @@ class DoctorAppointmentReschedule
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
-        
+
+        $userName = $conversation->user->name;
+        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
+        $formattedDate = ArabicDateFormatter::format($dateTime);
+
         switch ($message['value']) {
 
             case 'confirm':
@@ -72,7 +83,7 @@ class DoctorAppointmentReschedule
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم تاكيد حجز الموعد'
+                    "شكرا {$userName}\nتم تأكيد موعدك بنجاح",
                 );
 
                 $conversation->update([
@@ -81,7 +92,9 @@ class DoctorAppointmentReschedule
 
                 return Start::execute($conversation, $message);
 
-                break;
+            case 'reschedule':
+                // TODO: route to whatever flow lets the patient pick a new slot.
+                return self::execute($conversation, $message);
 
             case 'cancel':
                 DenyAppointmentConfirmation::execute($conversation->user, $appointment);
@@ -90,9 +103,9 @@ class DoctorAppointmentReschedule
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم رفض الموعد'
+                    "أهلا {$userName}\nنأسف لإلغاء موعدك يوم {$formattedDate} لظروف خاصة",
                 );
-                
+
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);
