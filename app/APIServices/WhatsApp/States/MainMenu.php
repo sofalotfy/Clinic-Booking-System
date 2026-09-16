@@ -44,11 +44,11 @@ class MainMenu
                 ],
                 [
                     'id' => self::WEEKLY_SCHEDULE,
-                    'title' => 'مواعيد العيادة الأسبوعية',
+                    'title' => 'مواعيد العيادة',
                 ],
                 [
                     'id' => self::CLINIC_LOCATION,
-                    'title' => 'عنوان العيادة و الموقع على خرائط جوجل',
+                    'title' => 'موقع العيادة',
                 ],
                 [
                     'id' => self::ABOUT_DOCTOR,
@@ -56,7 +56,7 @@ class MainMenu
                 ],
                 [
                     'id' => self::SUBMIT_FEEDBACK,
-                    'title' => 'تسجيل رأي أو شكوى',
+                    'title' => 'تسجيل رأي',
                 ],
             ]
         );
