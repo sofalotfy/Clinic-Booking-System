@@ -40,14 +40,14 @@ class FileEmergencyCase
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'من فضلك صف الاعراض التي تشعر بها.',
+                'من فضلك اشرح الأعراض التي تشعر بها حاليا',
             ),
 
             self::STEP_LOCATION_TYPE => SendMessage::buttons(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'هل انت حاليا في مستشفي؟',
+                'هل أنت حاليا في أحد المستشفيات؟',
                 [
                     [
                         'id' => self::HOSPITAL,
@@ -64,14 +64,14 @@ class FileEmergencyCase
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'من فضلك ارسل موقعك الحالي.',
+                'من فضلك أرسل موقعك الحالي.',
             ),
 
             self::STEP_HOSPITAL_NAME => SendMessage::text(
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'من فضلك ادخل اسم المستشفي.',
+                'من فضلك اكتب اسم المستشفى.',
             ),
         };
     }
@@ -96,7 +96,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'من فضلك صف الاعراض التي تشعر بها.',
+                        'من فضلك اشرح الأعراض التي تشعر بها حاليا',
                     );
                 }
 
@@ -157,7 +157,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'من فضلك ارسل موقعك الحالي.',
+                        'من فضلك أرسل موقعك الحالي.',
                     );
                 }
 
@@ -190,7 +190,7 @@ class FileEmergencyCase
                         $account->phone_number_id,
                         $account->access_token,
                         $message['from'],
-                        'من فضلك ادخل اسم المستشفي.',
+                        'من فضلك اكتب اسم المستشفى.',
                     );
                 }
 
@@ -235,7 +235,7 @@ class FileEmergencyCase
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'تم تسجيل حالتك الطارئة. يرجى طلب المساعدة الطبية الفورية أو الاتصال بخدمات الطوارئ إذا لزم الأمر.',
+            "تم تسجيل حالتك الطارئة\nمن فضلك اطلب المساعدة الطبية فورا أو تواصل مع خدمات الطوارئ إذا لزم الأمر.",
         );
     }
 }
