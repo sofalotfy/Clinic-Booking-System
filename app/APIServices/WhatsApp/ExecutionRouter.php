@@ -18,6 +18,7 @@ use App\APIServices\WhatsApp\States\ConfirmReshedule;
 use App\APIServices\WhatsApp\States\FileEmergencyCase;
 use App\APIServices\WhatsApp\States\AI;
 use App\APIServices\WhatsApp\States\IdleState;
+use App\APIServices\WhatsApp\States\SubmitFeedback;
 use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentReschedule;
 use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentBooking;
 
@@ -37,6 +38,9 @@ class ExecutionRouter
 
             ConversationState::MANAGE_APPOINTMENT =>
                 ManageAppointment::execute($conversation, $message),
+
+            ConversationState::SUBMIT_FEEDBACK =>
+                SubmitFeedback::execute($conversation, $message),
 
             ConversationState::BOOK_APPOINTMENT =>
                 BookAppointment::execute($conversation, $message),

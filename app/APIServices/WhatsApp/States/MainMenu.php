@@ -56,7 +56,7 @@ class MainMenu
                 ],
                 [
                     'id' => self::SUBMIT_FEEDBACK,
-                    'title' => 'تسجيل رأي',
+                    'title' => 'تسجيل رأي او شكوي',
                 ],
             ]
         );
@@ -78,12 +78,11 @@ class MainMenu
                 $conversation->update([
                     'state' => ConversationState::MANAGE_APPOINTMENT,
                 ]);
-
-                break;
+                return;
 
             case self::WEEKLY_SCHEDULE:
                 // TODO
-                break;
+                return;
 
             case self::CLINIC_LOCATION:
                 $doctor = $account->doctor;
@@ -95,7 +94,7 @@ class MainMenu
                     $message['from'],
                     $clinic->location_link,
                 );
-                break;
+                return;
 
             case self::ABOUT_DOCTOR:
                 SendMessage::text(
@@ -104,7 +103,7 @@ class MainMenu
                     $message['from'],
                     $doctor->description,
                 );
-                break;
+                return;
 
             case self::SUBMIT_FEEDBACK:
                 $conversation->update([
