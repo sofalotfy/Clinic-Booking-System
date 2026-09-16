@@ -52,6 +52,8 @@ class SubmitFeedback
             'شكرا لك، تم إرسال رأيك بنجاح',
         );
 
-        return MainMenu::execute($conversation, $message);
+        $conversation->update([
+            'state' => ConversationState::MAIN_MENU,
+        ]);
     }
 }
