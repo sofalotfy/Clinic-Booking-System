@@ -18,50 +18,49 @@ class InfoConfirmation
             $conversation->doctor_whatsapp_account_id
         );
 
+        $text = "فضلا قم بمراجعة بياناتك المدخلة\n"
+            . "الاسم: {$conversation->data['name']}\n"
+            . "السن: {$conversation->data['age']}\n"
+            . "العنوان: {$conversation->data['address']}";
+
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            "تاكيد المعلومات: 
-            الاسم: {$conversation->data['name']}
-            العمر: {$conversation->data['age']}
-            العنوان: {$conversation->data['address']}",
+            $text,
             [
                 [
                     'id' => 'confirm',
-                    'title' => 'تاكيد',
+                    'title' => 'تأكيد البيانات',
+                ],
+                [
+                    'id' => 'edit',
+                    'title' => 'تعديل',
                 ],
                 [
                     'id' => 'cancel',
-                    'title' => 'الغاء',
+                    'title' => 'إلغاء',
                 ],
             ]
         );
-
     }
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
+
         switch ($message['value']) {
 
             case 'confirm':
                 $oldName = $conversation->user->name;
                 $newName = $conversation->data['name'];
-                
+
                 $conversation->user->update([
                     'name' => $newName,
                     'age' => $conversation->data['age'],
@@ -72,17 +71,15 @@ class InfoConfirmation
                     $patient = $conversation->patient();
                     PatientRename::execute($patient, $oldName, $newName);
                 }
-                
+
                 SendMessage::text(
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'تم تحديث معلوماتك بنجاح.',
+                    "شكرا {$newName}\nتم تحديث بياناتك بنجاح",
                 );
 
-
                 $data = $conversation->data;
-
                 $state = array_shift($data['callStack']);
 
                 $conversation->update([
@@ -92,7 +89,12 @@ class InfoConfirmation
 
                 return ExecutionRouter::execute($conversation, $message);
 
-                break;
+            case 'edit':
+                $conversation->update([
+                    'state' => ConversationState::INFO_INQUIRY,
+                ]);
+
+                return InfoInquiry::execute($conversation, $message);
 
             case 'cancel':
                 $conversation->update([
