@@ -102,4 +102,13 @@ class Doctor extends Model
         return $this->hasMany(PatientBlock::class);
     }
 
+    public function clinic()
+    {
+        return $this->hasOne(Clinic::class);
+    }
+
+    public function clinicId(): int
+    {
+        return $this->id;
+    }
 }

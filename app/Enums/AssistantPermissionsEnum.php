@@ -33,6 +33,8 @@ enum AssistantPermissionsEnum: string {
     case UPDATE_ASSISTANT = 'update assistant';
     case DELETE_ASSISTANT = 'delete assistant';
 
+    case UPDATE_DOCTOR = 'update doctor';
+
     case VIEW_ALL_PERMISSIONS = 'view all permissions';
     
     case VIEW_ALL_ROLES = 'view all roles';

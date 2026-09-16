@@ -38,7 +38,7 @@ class CheckDoctorPermission
     // GET MODEL DOCTOR ID
     private static function getModelDoctorId(Model $model): ?int
     {
-        return $model->doctor_id !== null ? (int) $model->doctor_id : null;
+        return $model->doctor_id !== null ? (int) $model->doctor_id : $model->clinicId();
     }
 
     //AUTHORIZE USER BASED ON USER TYPE 

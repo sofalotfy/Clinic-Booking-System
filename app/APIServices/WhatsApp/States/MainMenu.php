@@ -5,108 +5,58 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\Services\Appointments\Retrievals\GetUpComingAppointment;
-use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\ExecutionRouter;
 
 class MainMenu
 {
+    private const MANAGE_BOOKINGS = 'manage_bookings';
+    private const WEEKLY_SCHEDULE = 'weekly_schedule';
+    private const CLINIC_LOCATION = 'clinic_location';
+    private const ABOUT_DOCTOR = 'about_doctor';
+    private const SUBMIT_FEEDBACK = 'submit_feedback';
+
     public static function execute($conversation, $message)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
 
-        $appointment = GetUpComingAppointment::execute(
-            $conversation->patient()?->id,
-            $account->doctor_id
-        );
-
         $conversation->update([
             'state' => ConversationState::MAIN_MENU,
         ]);
 
-        if ($appointment) {
+        $userName = $conversation->user->name;
 
-            $conversation->update([
-                    'data' => array_merge(
-                        $conversation->data ?? [],
-                        [
-                            'appointment_id' => $appointment->id,
-                        ]
-                    ),
-                ]);
+        $greeting = $userName
+            ? "أهلا {$userName}"
+            : "أهلا بك";
 
-            return self::sendAppointmentMenu(
-                $account,
-                $conversation,
-                $message,
-                $appointment
-            );
-        }
-
-        return self::sendBookingMenu(
-            $account,
-            $conversation,
-            $message
-        );
-
-    }
-
-    private static function sendAppointmentMenu($account, $conversation, $message, $appointment) {
-
-        $greeting = $conversation->user->name
-            ? "مرحبا {$conversation->user->name},\n\n"
-            : '';
-
-        
-        SendMessage::buttons(
+        return SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "لديك موعد قادم في يوم {$appointment->date} في تمام الوقت {$appointment->start_time}.\n\nمن فضلك اختر خيار:",
+            $greeting . "\nفضلا اختار من القائمة",
+            'القائمة الرئيسية',
             [
                 [
-                    'id' => 'reschedule_appointment',
-                    'title' => 'تعديل الموعد',
+                    'id' => self::MANAGE_BOOKINGS,
+                    'title' => 'إدارة حجوزاتي',
                 ],
                 [
-                    'id' => 'cancel_appointment',
-                    'title' => 'الغاء الموعد',
+                    'id' => self::WEEKLY_SCHEDULE,
+                    'title' => 'مواعيد العيادة الأسبوعية',
                 ],
                 [
-                    'id' => 'update_profile',
-                    'title' => 'تعديل البيانات',
-                ],
-            ]
-        );
-    }
-
-    private static function sendBookingMenu($account, $conversation, $message)
-    {
-        $greeting = $conversation->user->name
-            ? "Hi {$conversation->user->name},\n\n"
-            : "";
-        \Log::info([
-            'success' => "hello",
-        ]);
-        SendMessage::buttons(
-            $account->phone_number_id,
-            $account->access_token,
-            $message['from'],
-            $greeting . "انت لا تملك اي مواعيد قادمه.\n\nمن فضلك اختر خيار:",
-            [
-                [
-                    'id' => 'book_appointment',
-                    'title' => 'حجز موعد',
+                    'id' => self::CLINIC_LOCATION,
+                    'title' => 'عنوان العيادة و الموقع على خرائط جوجل',
                 ],
                 [
-                    'id' => 'update_profile',
-                    'title' => 'تعديل البيانات',
+                    'id' => self::ABOUT_DOCTOR,
+                    'title' => 'عن دكتور ' . $account->doctor->user->name,
                 ],
                 [
-                    'id' => 'end_conversation',
-                    'title' => 'انهاء المحادثة',
+                    'id' => self::SUBMIT_FEEDBACK,
+                    'title' => 'تسجيل رأي أو شكوى',
                 ],
             ]
         );
@@ -120,67 +70,50 @@ class MainMenu
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
+
         switch ($message['value']) {
 
-            case 'reschedule_appointment':
+            case self::MANAGE_BOOKINGS:
                 $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT,
+                    'state' => ConversationState::MANAGE_APPOINTMENT,
                 ]);
 
-                return BookAppointment::execute($conversation, $message);
                 break;
 
-            case 'cancel_appointment':
-                $conversation->update([
-                    'state' => ConversationState::CANCEL_APPOINTMENT,
-                ]);
-
-                return CancelAppointment::execute($conversation, $message);
+            case self::WEEKLY_SCHEDULE:
+                // TODO
                 break;
 
-            case 'book_appointment':
-                $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT,
-                ]);
-
-                return BookAppointment::execute($conversation, $message);
-                break;
-
-            case 'update_profile':
-                $conversation->update([
-                    'state' => ConversationState::INFO_INQUIRY,
-                    'data' => array_merge(
-                        $conversation->data ?? [],
-                        ['callStack' => array_merge(
-                                [ConversationState::MAIN_MENU],
-                                $conversation->data->callStack ?? [],
-                            )
-                        ]
-                    ),
-                ]);
-
-                return InfoInquiry::execute($conversation, $message);
-                break;
-
-            case 'end_conversation':
-                $conversation->delete();
+            case self::CLINIC_LOCATION:
+                $doctor = $account->doctor;
+                $clinic = $doctor->clinic;
 
                 SendMessage::text(
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    'شكرا لاستخدام خدماتنا',
+                    $clinic->location_link,
                 );
+                break;
 
-                return;
+            case self::ABOUT_DOCTOR:
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    $doctor->description,
+                );
+                break;
+
+            case self::SUBMIT_FEEDBACK:
+                $conversation->update([
+                    'state' => ConversationState::SUBMIT_FEEDBACK,
+                ]);
+
+                return SubmitFeedback::execute($conversation, $message);
         }
+
         return self::execute($conversation, $message);
     }
 }

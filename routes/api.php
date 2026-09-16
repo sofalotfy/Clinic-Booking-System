@@ -105,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notifications/view-bulk', [NotificationController::class, 'viewBulk']);
     Route::post('/notifications/{notification}', [NotificationController::class, 'view']);
 
+    Route::put('/doctors/{doctor}', [App\Http\Controllers\API\DoctorController::class, 'update']);
 
     Route::get('/test', [TestController::class, 'test']);
 });

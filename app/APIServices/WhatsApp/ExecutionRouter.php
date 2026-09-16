@@ -6,6 +6,7 @@ use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\States\Start;
 use App\APIServices\WhatsApp\States\MainMenu;
+use App\APIServices\WhatsApp\States\ManageAppointment;
 use App\APIServices\WhatsApp\States\CancelState;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\States\InfoConfirmation;
@@ -33,6 +34,9 @@ class ExecutionRouter
 
             ConversationState::MAIN_MENU =>
                 MainMenu::execute($conversation, $message),
+
+            ConversationState::MANAGE_APPOINTMENT =>
+                ManageAppointment::execute($conversation, $message),
 
             ConversationState::BOOK_APPOINTMENT =>
                 BookAppointment::execute($conversation, $message),

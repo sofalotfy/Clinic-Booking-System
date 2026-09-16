@@ -125,4 +125,34 @@ class SendMessage
         return $response->json();
     }
 
+    public static function location(
+        string $phoneNumberId,
+        string $accessToken,
+        string $to,
+        float $latitude,
+        float $longitude,
+        ?string $name = null,
+        ?string $address = null
+    ) {
+        $response = Http::withToken($accessToken)
+            ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
+                'messaging_product' => 'whatsapp',
+                'to' => $to,
+                'type' => 'location',
+                'location' => [
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'name' => $name,
+                    'address' => $address,
+                ],
+            ]);
+
+        if ($response->failed()) {
+            \Log::info('SEND MESSAGE ' . $response->body());
+            return;
+            throw new \Exception($response->body());
+        }
+
+        return $response->json();
+    }
 }
