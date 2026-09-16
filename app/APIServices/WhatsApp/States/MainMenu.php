@@ -52,7 +52,7 @@ class MainMenu
                 ],
                 [
                     'id' => self::ABOUT_DOCTOR,
-                    'title' => 'عن دكتور ' . $account->doctor->user->name,
+                    'title' => 'عن الدكتور',
                 ],
                 [
                     'id' => self::SUBMIT_FEEDBACK,
