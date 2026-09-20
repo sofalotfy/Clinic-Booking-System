@@ -16,7 +16,10 @@ class AdminMenu
 {
     public static function execute($conversation, $message)
     {
-        $account = $conversation->doctorWhatsAppAccount;
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+        
         $doctor = $account->doctor;
 
         $message =
