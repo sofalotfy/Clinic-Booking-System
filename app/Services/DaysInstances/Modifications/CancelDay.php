@@ -6,7 +6,7 @@ use App\Models\Appointment;
 use App\Enums\DayStatus;
 use App\Services\Appointments\Modifications\CancelAppointment;
 
-class DeleteDay
+class CancelDay
 {
     public static function execute($user, $day)
     {
