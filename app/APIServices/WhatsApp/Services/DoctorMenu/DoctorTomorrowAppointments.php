@@ -12,7 +12,9 @@ class DoctorTomorrowAppointments
 {
     public static function execute(WhatsAppConversation $conversation)
     {
-        $account = $conversation->doctorWhatsAppAccount;
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
         $doctor = $account->doctor;
         $user = $doctor->user;
 

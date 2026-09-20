@@ -13,7 +13,9 @@ class AdvanceClinicAppointment
 {
     public static function execute(WhatsAppConversation $conversation, int $hours)
     {
-        $account = $conversation->doctorWhatsAppAccount;
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
         $doctor = $account->doctor;
         $user = $doctor->user;
 
