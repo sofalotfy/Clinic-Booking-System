@@ -22,7 +22,9 @@ class CancelTodayAppointments
         $appointments = ListAppointments::execute($user, [
             'date_from' => Carbon::today(),
             'date_to' => Carbon::today(),
-        ])->select('appointments.*')->get();
+        ])
+        ->active()
+        ->select('appointments.*')->get();
 
         if ($appointments->isEmpty()) {
             $messageText = "لا يوجد مواعيد مسجلة لليوم لإلغائها.";

@@ -22,7 +22,9 @@ class DoctorTodayAppointments
         $appointments = ListAppointments::execute($user, [
             'date_from' => Carbon::today(),
             'date_to' => Carbon::today(),
-        ])->select('appointments.*', 'users.name as patient_name')->get();
+        ])
+        ->active()
+        ->select('appointments.*', 'users.name as patient_name')->get();
 
         if ($appointments->isEmpty()) {
             $messageText = "لا يوجد مواعيد مسجلة لليوم.";
