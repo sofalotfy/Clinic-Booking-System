@@ -12,7 +12,8 @@ use App\Models\DoctorWhatsAppAccount;
 
 class ReplaceTodayAppointments
 {
-    public static function execute(WhatsAppConversation $conversation)
+
+    public static function execute(WhatsAppConversation $conversation, $selectedDate = null)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
@@ -27,13 +28,15 @@ class ReplaceTodayAppointments
         if (!$todayDay) {
             $messageText = "لا يوجد جدول عمل لليوم لاستبداله.";
         } else {
-            $nextDate = Carbon::tomorrow();
-            while (Day::where('doctor_id', $doctor->id)->whereDate('date', $nextDate)->exists()) {
-                $nextDate->addDay();
+            if ($selectedDate) {
+                $nextDate = Carbon::parse($selectedDate);
+            } else {
+                $nextDate = Carbon::tomorrow();
+                while (Day::where('doctor_id', $doctor->id)->whereDate('date', $nextDate)->exists()) {
+                    $nextDate->addDay();
+                }
             }
-
             TransferDay::execute($user, $todayDay, $nextDate->toDateString());
-            
             $arabicDate = ArabicDateFormatter::format($nextDate, false);
             $messageText = "تم استبدال مواعيد اليوم ونقلها إلى {$arabicDate} بنجاح.";
         }

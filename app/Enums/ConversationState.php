@@ -22,6 +22,7 @@ enum ConversationState: string
     case AI = 'AI';
     case ADMIN_MENU = 'admin_menu';
     case IDLE = 'idle';
+    case CHOOSE_REPLACE_DAY = 'choose_replace_day';
 
     //Notification Status
     case DOCTOR_APPOINTMENT_BOOKING = 'doctor_appointment_booking';

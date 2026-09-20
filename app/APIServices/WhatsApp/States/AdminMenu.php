@@ -3,15 +3,15 @@
 namespace App\APIServices\WhatsApp\States;
 
 use App\APIServices\WhatsApp\SendMessage;
+use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
-use App\Services\Appointments\Retrievals\ListAppointments;
+use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\Services\DoctorMenu\AdvanceClinicAppointment;
 use App\APIServices\WhatsApp\Services\DoctorMenu\CancelTodayAppointments;
 use App\APIServices\WhatsApp\Services\DoctorMenu\DelayClinicAppointment;
 use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTodayAppointments;
 use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTomorrowAppointments;
-use App\APIServices\WhatsApp\Services\DoctorMenu\ReplaceTodayAppointments;
-use App\Models\DoctorWhatsAppAccount;
+use App\APIServices\WhatsApp\States\ChooseReplaceDay;
 
 class AdminMenu
 {
@@ -85,12 +85,6 @@ class AdminMenu
     {
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
 
         return match ($message['value']) {
@@ -116,7 +110,7 @@ class AdminMenu
                 CancelTodayAppointments::execute($conversation),
 
             'doctor_replace_today' =>
-                ReplaceTodayAppointments::execute($conversation),
+                ChooseReplaceDay::execute($conversation, $message),
 
             default => null,
         };
