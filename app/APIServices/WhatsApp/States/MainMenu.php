@@ -6,6 +6,8 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ExecutionRouter;
+use App\Services\Doctors\GetActivePlan;
+use App\APIServices\WhatsApp\Services\FormatPLanToMessage;
 
 class MainMenu
 {
@@ -84,7 +86,16 @@ class MainMenu
                 return;
 
             case self::WEEKLY_SCHEDULE:
-                // TODO
+                $activePlan = GetActivePlan::execute($doctor);
+
+                $messageText = FormatPLanToMessage::execute($activePlan);
+
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    $messageText,
+                );
                 return;
 
             case self::CLINIC_LOCATION:

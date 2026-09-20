@@ -49,6 +49,15 @@ class ArabicDateFormatter
     }
 
     /**
+     * Get the Arabic name of the day by its integer value (0 for Sunday, 6 for Saturday).
+     */
+    public static function getDayName(int $dayOfWeek): string
+    {
+        return self::DAYS[$dayOfWeek] ?? '';
+    }
+
+
+    /**
      * Format a Carbon date into the Arabic WhatsApp-message style.
      */
     public static function format(Carbon $date, bool $includeTime = true): string
