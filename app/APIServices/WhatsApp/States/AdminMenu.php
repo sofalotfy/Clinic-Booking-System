@@ -77,8 +77,19 @@ class AdminMenu
         );
     }
 
-    public static function handleResponse(WhatsAppConversation $conversation, array $message) {
-        return match ($response) {
+    public static function handleResponse(WhatsAppConversation $conversation, array $message)
+    {
+        if ($message['type'] !== 'interactive') {
+            return self::execute($conversation, $message);
+            
+            $conversation->update([
+                'state' => ConversationState::AI,
+            ]);
+
+            return ExecutionRouter::execute($conversation, $message);
+        }
+
+        return match ($message['value']) {
             'doctor_today_appointments' =>
                 DoctorTodayAppointments::execute($conversation),
 
