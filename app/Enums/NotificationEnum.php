@@ -100,36 +100,30 @@ enum NotificationEnum
 
     public function body(array $data = []): string
     {
+        $date = fn (string $key): string => ArabicDateFormatter::format(Carbon::parse($data[$key]));
+    
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED =>
-                "لديك موعد جديد {$data['patient_name']} "
-                . ArabicDateFormatter::format($data['date']),
-
+                "لديك موعد جديد {$data['patient_name']} " . $date('date'),
+    
             self::PATIENT_APPOINTMENT_RESCHEDULED =>
                 "{$data['patient_name']} قام بتعديل موعده من "
-                . ArabicDateFormatter::format($data['from_date'])
-                . " ليصبح "
-                . ArabicDateFormatter::format($data['to_date']),
-
+                . $date('from_date') . " ليصبح " . $date('to_date'),
+    
             self::PATIENT_APPOINTMENT_CANCEL =>
-                "{$data['patient_name']} قام بإلغاء موعده "
-                . ArabicDateFormatter::format($data['date']),
-
+                "{$data['patient_name']} قام بإلغاء موعده " . $date('date'),
+    
             self::DOCTOR_APPOINTMENT_BOOKED =>
-                "تم حجز موعدك في "
-                . ArabicDateFormatter::format($data['date']),
-
+                "تم حجز موعدك في " . $date('date'),
+    
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                "تم تعديل موعدك من "
-                . ArabicDateFormatter::format($data['from_date'])
-                . " ليصبح "
-                . ArabicDateFormatter::format($data['to_date']),
-
+                "تم تعديل موعدك من " . $date('from_date') . " ليصبح " . $date('to_date'),
+    
             self::DOCTOR_APPOINTMENT_CANCEL =>
-                "تم إلغاء موعدك في "
-                . ArabicDateFormatter::format($data['date']),
+                "تم إلغاء موعدك في " . $date('date'),
         };
     }
+
 
     public function link(array $data = []): ?string
     {
