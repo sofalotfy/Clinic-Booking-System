@@ -29,7 +29,7 @@ class ChooseReplaceDay
         $rows = collect($emptyDates)->map(function ($date) {
             return [
                 'id' => $date,
-                'title' => ArabicDateFormatter::format(Carbon::parse($date), false),
+                'title' => "Asd",
                 'description' => '',
             ];
         })->toArray();
