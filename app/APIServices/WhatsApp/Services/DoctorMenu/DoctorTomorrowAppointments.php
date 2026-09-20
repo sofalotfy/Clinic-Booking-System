@@ -7,6 +7,7 @@ use App\Services\Appointments\Retrievals\ListAppointments;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
+use App\Models\DoctorWhatsAppAccount;
 
 class DoctorTomorrowAppointments
 {

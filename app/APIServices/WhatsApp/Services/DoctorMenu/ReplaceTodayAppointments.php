@@ -8,6 +8,7 @@ use App\Services\DaysInstances\Modifications\TransferDay;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
+use App\Models\DoctorWhatsAppAccount;
 
 class ReplaceTodayAppointments
 {

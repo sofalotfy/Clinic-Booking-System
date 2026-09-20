@@ -7,6 +7,7 @@ use App\Services\Appointments\Retrievals\ListAppointments;
 use App\Services\Appointments\Modifications\CancelAppointment;
 use App\APIServices\WhatsApp\SendMessage;
 use Carbon\Carbon;
+use App\Models\DoctorWhatsAppAccount;
 
 class CancelTodayAppointments
 {
