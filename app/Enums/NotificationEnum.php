@@ -100,7 +100,10 @@ enum NotificationEnum
 
     public function body(array $data = []): string
     {
-        $date = fn (string $key): string => ArabicDateFormatter::format(Carbon::parse($data[$key]));
+        // Accepts a string or a Carbon instance; strings are converted to Carbon.
+        $date = fn (string $key): string => ArabicDateFormatter::format(
+            $data[$key] instanceof Carbon ? $data[$key] : Carbon::parse($data[$key])
+        );
     
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED =>
