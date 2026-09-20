@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Doctor;
+use App\Models\Appointment;
+use App\Enums\DayStatus;
 
 class Day extends Model
 {
@@ -19,5 +21,16 @@ class Day extends Model
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id', 'doctor_id')
+            ->whereDate('date', $this->date);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', DayStatus::working());
     }
 }

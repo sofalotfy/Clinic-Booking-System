@@ -3,8 +3,7 @@
 namespace App\APIServices\WhatsApp\Services\DoctorMenu;
 
 use App\Models\WhatsAppConversation;
-use App\Services\Appointments\Retrievals\ListAppointments;
-use App\Services\Appointments\Modifications\CancelAppointment;
+use App\Services\DaysInstances\Modifications\CancelDay;
 use App\APIServices\WhatsApp\SendMessage;
 use Carbon\Carbon;
 use App\Models\DoctorWhatsAppAccount;
@@ -19,19 +18,12 @@ class CancelTodayAppointments
         $doctor = $account->doctor;
         $user = $doctor->user;
 
-        $appointments = ListAppointments::execute($user, [
-            'date_from' => Carbon::today(),
-            'date_to' => Carbon::today(),
-        ])
-        ->active()
-        ->select('appointments.*')->get();
+        $day = Day::where('doctor_id', $doctor->id)->where('date', Carbon::today())->first();
 
-        if ($appointments->isEmpty()) {
+        if ($day->appointments()->active()->count() == 0) {
             $messageText = "لا يوجد مواعيد مسجلة لليوم لإلغائها.";
         } else {
-            foreach ($appointments as $appointment) {
-                CancelAppointment::execute($user, $appointment);
-            }
+            CancelDay::execute($user, $day);
             $messageText = "تم إلغاء جميع مواعيد اليوم بنجاح.";
         }
 
