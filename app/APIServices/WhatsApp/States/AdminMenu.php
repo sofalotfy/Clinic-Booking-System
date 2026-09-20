@@ -14,7 +14,7 @@ use App\APIServices\WhatsApp\Services\DoctorMenu\ReplaceTodayAppointments;
 
 class AdminMenu
 {
-    public static function execute(WhatsAppConversation $conversation)
+    public static function execute($conversation, $message)
     {
         $account = $conversation->doctorWhatsAppAccount;
         $doctor = $account->doctor;
@@ -77,10 +77,7 @@ class AdminMenu
         );
     }
 
-    public static function handleResponse(
-        WhatsAppConversation $conversation,
-        string $response
-    ) {
+    public static function handleResponse(WhatsAppConversation $conversation, array $message) {
         return match ($response) {
             'doctor_today_appointments' =>
                 DoctorTodayAppointments::execute($conversation),
