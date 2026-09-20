@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use App\Support\ArabicDateFormatter;
+
 enum NotificationEnum
 {
     case PATIENT_APPOINTMENT_BOOKED;
@@ -77,22 +79,22 @@ enum NotificationEnum
     {
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED =>
-                'New Appointment Booked',
+                'حجز جديد',
 
             self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                'Appointment Rescheduled',
+                'تعديل موعد حجز',
 
             self::PATIENT_APPOINTMENT_CANCEL =>
-                'Appointment Cancelled',
+                'إلغاء موعد حجز',
 
             self::DOCTOR_APPOINTMENT_BOOKED =>
-                'New Appointment Booked',
+                'حجز جديد',
 
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                'Appointment Rescheduled',
+                'تعديل موعد حجز',
 
             self::DOCTOR_APPOINTMENT_CANCEL =>
-                'Appointment Cancelled',
+                'إلغاء موعد حجز',
         };
     }
 
@@ -100,22 +102,32 @@ enum NotificationEnum
     {
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED =>
-                "{$data['patient_name']} ({$data['whatsapp']}) booked an appointment on {$data['date']}.",
+                "لديك موعد جديد {$data['patient_name']} "
+                . ArabicDateFormatter::format($data['date']),
 
             self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                "{$data['patient_name']} ({$data['whatsapp']}) rescheduled their appointment from {$data['from_date']} to {$data['to_date']}.",
+                "{$data['patient_name']} قام بتعديل موعده من "
+                . ArabicDateFormatter::format($data['from_date'])
+                . " ليصبح "
+                . ArabicDateFormatter::format($data['to_date']),
 
             self::PATIENT_APPOINTMENT_CANCEL =>
-                "{$data['patient_name']} ({$data['whatsapp']}) cancelled their appointment on {$data['date']}.",
+                "{$data['patient_name']} قام بإلغاء موعده "
+                . ArabicDateFormatter::format($data['date']),
 
             self::DOCTOR_APPOINTMENT_BOOKED =>
-                "Your appointment was booked for {$data['date']}.",
+                "تم حجز موعدك في "
+                . ArabicDateFormatter::format($data['date']),
 
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                "Your appointment was rescheduled from {$data['from_date']} to {$data['to_date']}.",
+                "تم تعديل موعدك من "
+                . ArabicDateFormatter::format($data['from_date'])
+                . " ليصبح "
+                . ArabicDateFormatter::format($data['to_date']),
 
             self::DOCTOR_APPOINTMENT_CANCEL =>
-                "Your appointment on {$data['date']} was cancelled.",
+                "تم إلغاء موعدك في "
+                . ArabicDateFormatter::format($data['date']),
         };
     }
 
@@ -131,8 +143,10 @@ enum NotificationEnum
         return match ($this) {
             self::DOCTOR_APPOINTMENT_BOOKED =>
                 ConversationState::DOCTOR_APPOINTMENT_BOOKING,
+
             self::DOCTOR_APPOINTMENT_RESCHEDULED =>
                 ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE,
+
             default => null,
         };
     }

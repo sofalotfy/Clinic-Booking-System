@@ -6,7 +6,7 @@ use Spatie\Permission\Models\Permission;
 
 class ListPermissions
 {
-    public static function execute($user, $filters)
+    public static function execute($user, $filters = null)
     {
         return Permission::when($filters, fn ($builder) => self::filter($builder, $filters))
             ->orderBy('id', 'asc');

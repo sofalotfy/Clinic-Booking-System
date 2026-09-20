@@ -22,22 +22,24 @@ class DoctorAppointmentBooking
         );
 
         $appointment = Appointment::find($conversation->data['appointment_id']);
-        $userName = $conversation->user->name;
 
-        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
-        $formattedDate = ArabicDateFormatter::format($dateTime);
-
-        $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}";
+        $newDate = ArabicDateFormatter::format(
+            Carbon::parse($appointment->date . ' ' . $appointment->start_time)
+        );
 
         return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $text,
+            "تم حجز موعدك يوم {$newDate}",
             [
                 [
                     'id' => 'confirm',
                     'title' => 'تأكيد الموعد',
+                ],
+                [
+                    'id' => 'reschedule',
+                    'title' => 'اختيار موعد جديد',
                 ],
                 [
                     'id' => 'cancel',
@@ -56,12 +58,14 @@ class DoctorAppointmentBooking
 
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
+            
+            $conversation->update([
+                'state' => ConversationState::AI,
+            ]);
+
+            return ExecutionRouter::execute($conversation, $message);
         }
-
-        $userName = $conversation->user->name;
-        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
-        $formattedDate = ArabicDateFormatter::format($dateTime);
-
+        
         switch ($message['value']) {
 
             case 'confirm':
@@ -71,7 +75,7 @@ class DoctorAppointmentBooking
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    "شكرا {$userName}\nتم تأكيد حجز موعدك يوم {$formattedDate} بنجاح",
+                    'تم تأكيد موعدك بنجاح'
                 );
 
                 $conversation->update([
@@ -80,6 +84,18 @@ class DoctorAppointmentBooking
 
                 return Start::execute($conversation, $message);
 
+                break;
+
+            case 'reschedule':
+
+                $conversation->update([
+                    'state' => ConversationState::BOOK_APPOINTMENT,
+                ]);
+
+                return BookAppointment::execute($conversation, $message);
+
+                break;
+
             case 'cancel':
                 DenyAppointmentConfirmation::execute($conversation->user, $appointment);
 
@@ -87,9 +103,9 @@ class DoctorAppointmentBooking
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    "أهلا {$userName}\nنأسف لإلغاء موعدك يوم {$formattedDate} لظروف خاصة",
+                    'تم رفض الموعد'
                 );
-
+                
                 $conversation->update([
                     'state' => ConversationState::START,
                 ]);

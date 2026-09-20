@@ -19,6 +19,7 @@ use App\APIServices\WhatsApp\States\FileEmergencyCase;
 use App\APIServices\WhatsApp\States\AI;
 use App\APIServices\WhatsApp\States\IdleState;
 use App\APIServices\WhatsApp\States\SubmitFeedback;
+use App\APIServices\WhatsApp\States\AdminMenu;
 use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentReschedule;
 use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentBooking;
 
@@ -32,6 +33,9 @@ class ConversationRouter
 
             ConversationState::IDLE =>
                 IdleState::handleResponse($conversation, $message),
+
+            ConversationState::ADMIN_MENU =>
+                AdminMenu::handleResponse($conversation, $message),
 
             ConversationState::MAIN_MENU =>
                 MainMenu::handleResponse($conversation, $message),

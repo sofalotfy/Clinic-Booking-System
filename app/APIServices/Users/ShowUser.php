@@ -3,6 +3,7 @@
 namespace App\APIServices\Users;
 
 use App\Models\User;
+use App\Services\Permissions\GetUserPermissions;
 
 class ShowUser
 {
@@ -11,6 +12,8 @@ class ShowUser
         $user = $user->select(self::getSelects())->where('id', $user->id)->first();
         
         $user->image = isset($user->image) && $user->image ? asset('storage/' . $user->image) : null;
+
+        $user->permissions = GetUserPermissions::execute($user)->select('id','name')->get();
 
         return response()->json([
             'user' => $user,

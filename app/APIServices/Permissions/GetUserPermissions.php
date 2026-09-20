@@ -8,12 +8,12 @@ class GetUserPermissions
 {
     public static function execute($request)
     {
-        $roles = GetUserPermissionsService::execute($request->user(), $request->user()->clinicDoctor())
+        $permissions = GetUserPermissionsService::execute($request->user(), $request->user()->clinicDoctor())
             ->select(self::getSelects())
             ->get();
 
         return response()->json([
-            'roles' => $roles,
+            'permissions' => $permissions,
         ]);
     }
 

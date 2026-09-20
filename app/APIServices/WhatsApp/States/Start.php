@@ -12,12 +12,12 @@ class Start
         // Route non-patient users to IdleState
         if (!$conversation->user || !$conversation->user->isPatient()) {
             $conversation->update([
-                'state' => ConversationState::IDLE,
+                'state' => ConversationState::ADMIN_MENU,
                 'step'  => null,
                 'data'  => ['name' => $conversation->user->name ?? ''],
             ]);
 
-            return IdleState::execute(
+            return AdminMenu::execute(
                 $conversation,
                 $message
             );
