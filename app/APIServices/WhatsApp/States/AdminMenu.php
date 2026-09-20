@@ -4,6 +4,13 @@ namespace App\APIServices\WhatsApp\States;
 
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\WhatsAppConversation;
+use App\Services\Appointments\Retrievals\ListAppointments;
+use App\APIServices\WhatsApp\Services\DoctorMenu\AdvanceClinicAppointment;
+use App\APIServices\WhatsApp\Services\DoctorMenu\CancelTodayAppointments;
+use App\APIServices\WhatsApp\Services\DoctorMenu\DelayClinicAppointment;
+use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTodayAppointments;
+use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTomorrowAppointments;
+use App\APIServices\WhatsApp\Services\DoctorMenu\ReplaceTodayAppointments;
 
 class AdminMenu
 {
