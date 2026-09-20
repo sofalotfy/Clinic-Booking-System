@@ -11,6 +11,7 @@ use App\APIServices\WhatsApp\Services\DoctorMenu\DelayClinicAppointment;
 use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTodayAppointments;
 use App\APIServices\WhatsApp\Services\DoctorMenu\DoctorTomorrowAppointments;
 use App\APIServices\WhatsApp\Services\DoctorMenu\ReplaceTodayAppointments;
+use App\Models\DoctorWhatsAppAccount;
 
 class AdminMenu
 {
@@ -19,7 +20,7 @@ class AdminMenu
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        
+
         $doctor = $account->doctor;
 
         $message =
