@@ -24,7 +24,7 @@ class AdminMenu
         $doctor = $account->doctor;
 
         $message =
-            "اهلا دكتور {$doctor->name}\n"
+            "اهلا دكتور {$doctor->user->name}\n"
             . "روزة تتمنى لك يوم جميل\n"
             . "كيف استطيع ان اساعدك";
 
@@ -76,7 +76,7 @@ class AdminMenu
                     'description' => 'استبدال مواعيد اليوم بيوم آخر',
                 ],
             ],
-            'خيارات الطبيب',
+            '',
             'مواعيد العيادة'
         );
     }
