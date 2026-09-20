@@ -29,7 +29,7 @@ class ChooseReplaceDay
         $rows = collect($emptyDates)->map(function ($date) {
             return [
                 'id' => $date,
-                'title' => "Asd",
+                'title' => ArabicDateFormatter::format(Carbon::parse($date), false),
                 'description' => '',
             ];
         })->toArray();
@@ -38,7 +38,7 @@ class ChooseReplaceDay
             $account->phone_number_id,
             $account->access_token,
             $conversation->phone_number,
-            'اختر يوماً لتبديل المواعيد',
+            'اختر يوماً ',
             'اختر يوماً',
             $rows,
             'اختر اليوم',
