@@ -3,7 +3,6 @@
 namespace App\Services\DaysInstances\Modifications;
 
 use App\Models\Appointment;
-use App\Enums\AppointmentStatus;
 use App\Enums\DayStatus;
 use App\Services\Appointments\Modifications\CancelAppointment;
 

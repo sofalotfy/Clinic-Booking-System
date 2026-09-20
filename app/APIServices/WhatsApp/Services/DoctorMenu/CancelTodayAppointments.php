@@ -7,6 +7,7 @@ use App\Services\DaysInstances\Modifications\CancelDay;
 use App\APIServices\WhatsApp\SendMessage;
 use Carbon\Carbon;
 use App\Models\DoctorWhatsAppAccount;
+use App\Models\Day;
 
 class CancelTodayAppointments
 {
