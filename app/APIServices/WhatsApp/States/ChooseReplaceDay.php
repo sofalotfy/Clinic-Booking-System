@@ -81,7 +81,7 @@ class ChooseReplaceDay
         }
 
         if ($selectedDate) {
-            ReplaceTodayAppointments::execute($conversation, $selectedDate);
+            return ReplaceTodayAppointments::execute($conversation, $selectedDate);
 
             $conversation->update([
                 'state' => ConversationState::ADMIN_MENU,
