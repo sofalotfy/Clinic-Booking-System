@@ -37,6 +37,9 @@ class ConversationRouter
             ConversationState::ADMIN_MENU =>
                 AdminMenu::handleResponse($conversation, $message),
 
+            ConversationState::CHOOSE_REPLACE_DAY =>
+                ChooseReplaceDay::handleResponse($conversation, $message),
+
             ConversationState::MAIN_MENU =>
                 MainMenu::handleResponse($conversation, $message),
 

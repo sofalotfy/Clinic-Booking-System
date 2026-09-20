@@ -36,10 +36,10 @@ class ExecutionRouter
                 IdleState::execute($conversation, $message),
 
             ConversationState::ADMIN_MENU =>
-                AdminMenu::handleResponse($conversation, $message),
+                AdminMenu::execute($conversation, $message),
 
             ConversationState::CHOOSE_REPLACE_DAY =>
-                ChooseReplaceDay::handleResponse($conversation, $message),
+                ChooseReplaceDay::execute($conversation, $message),
 
             ConversationState::MAIN_MENU =>
                 MainMenu::execute($conversation, $message),
