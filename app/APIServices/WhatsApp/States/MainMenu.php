@@ -67,13 +67,14 @@ class MainMenu
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-
+        $doctor = $account->doctor;
+        $clinic = $doctor->clinic;
         if ($message['type'] !== 'interactive') {
             return self::execute($conversation, $message);
         }
 
         switch ($message['value']) {
-
+            
             case self::MANAGE_BOOKINGS:
                 $conversation->update([
                     'state' => ConversationState::MANAGE_APPOINTMENT,
@@ -87,9 +88,6 @@ class MainMenu
                 return;
 
             case self::CLINIC_LOCATION:
-                $doctor = $account->doctor;
-                $clinic = $doctor->clinic;
-
                 SendMessage::text(
                     $account->phone_number_id,
                     $account->access_token,
