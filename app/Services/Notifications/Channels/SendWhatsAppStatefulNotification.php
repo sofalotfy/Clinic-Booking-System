@@ -21,15 +21,17 @@ class SendWhatsAppStatefulNotification
             return;
         }
 
-        //$conversation = WhatsAppConversation::where('user_id', $receiver->id)->first();
-        $conversation = WhatsAppConversation::where('user_id', $receiver->id)->first();
-
-        if (! $conversation) {
-            $conversation = WhatsAppConversation::create([
+        $conversation = WhatsAppConversation::firstOrCreate(
+            [
                 'doctor_whatsapp_account_id' => $account->id,
                 'phone_number' => $receiver->phone,
-                'user_id' => $receiver->id,
-            ]);
+            ],
+            ['user_id' => $receiver->id]
+        );
+
+        // row existed before the user was linked
+        if ($conversation->user_id !== $receiver->id) {
+            $conversation->update(['user_id' => $receiver->id]);
         }
 
         $conversation->update([
