@@ -161,7 +161,7 @@ class SendMessage
         string $accessToken,
         string $to,
         string $templateName,
-        string $languageCode = 'en_US',
+        string $languageCode = 'en',
         array $bodyParams = [],
         ?array $header = null,
         array $urlButtons = [],
