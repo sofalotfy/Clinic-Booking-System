@@ -11,8 +11,7 @@ class SendMessage
         string $accessToken,
         string $to,
         string $message
-    )
-    {
+    ){
         \Log::info('SEND MESSAGE ' . $accessToken);
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
