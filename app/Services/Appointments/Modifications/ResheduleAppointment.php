@@ -11,6 +11,7 @@ class ResheduleAppointment
 {
     public static function execute($user, $appointment, $new_date, $duration = null)
     {
+        \Log::info("ResheduleAppointment execute {$user->name} {$appointment->doctor_id} {$notification} {$appointment}");
         if($appointment->date == $new_date && $appointment->duration == $duration)
             return $appointment;
             
