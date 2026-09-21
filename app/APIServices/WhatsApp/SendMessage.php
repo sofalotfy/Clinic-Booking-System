@@ -164,7 +164,8 @@ class SendMessage
         string $languageCode = 'en_US',
         array $bodyParams = [],
         ?array $header = null,
-        array $urlButtons = []
+        array $urlButtons = [],
+        array $quickReplies = []
     ) {
         $components = [];
 
@@ -206,6 +207,18 @@ class SendMessage
                 'index' => (string) $index,
                 'parameters' => [
                     ['type' => 'text', 'text' => (string) $suffix],
+                ],
+            ];
+        }
+
+        // Quick reply buttons: button index => payload returned in the webhook
+        foreach ($quickReplies as $index => $payload) {
+            $components[] = [
+                'type' => 'button',
+                'sub_type' => 'quick_reply',
+                'index' => (string) $index,
+                'parameters' => [
+                    ['type' => 'payload', 'payload' => (string) $payload],
                 ],
             ];
         }
