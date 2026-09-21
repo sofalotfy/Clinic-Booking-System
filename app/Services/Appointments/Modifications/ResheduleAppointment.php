@@ -16,7 +16,7 @@ class ResheduleAppointment
             return $appointment;
         
         $old_date = $appointment->date;
-        \Log::info("ResheduleAppointment execute {$user->name} {$appointment->doctor_id} {$notification} {$appointment}");
+
         $appointment->update(
             [
                 'date' => $new_date,
