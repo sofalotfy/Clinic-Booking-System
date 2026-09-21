@@ -25,7 +25,8 @@ class DoctorAppointmentReschedule
         );
 
         $oldDateRaw = $conversation->data['old_date'] ?? null;
-
+        \Log::info("old date raw: " . $oldDateRaw);
+        return true;
         // Template variables can't be empty, so fall back to a dash
         $dateFrom = $oldDateRaw
             ? ArabicDateFormatter::format(Carbon::parse($oldDateRaw))
