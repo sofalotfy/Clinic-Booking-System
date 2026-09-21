@@ -45,8 +45,8 @@ class DoctorAppointmentReschedule
             'ar_EG',
             bodyParams: [
                 'name' => $conversation->data['name'] ?? $conversation->user->name,
-                'old_date' => $oldDate,
-                'new_date' => $newDate,
+                'date_from' => $oldDate,
+                'date_to' => $newDate,
             ],
             quickReplies: [
                 0 => 'confirm',
