@@ -17,7 +17,7 @@ class PatientAppointmentBooked extends Handler
         $title = static::buildTitle($model, $notification);
         $body = static::buildBody($model, $notification);
 
-        static::dispatch($sender, $clinicId, $notification, $model, $receivers, $title, $body);
+        static::dispatch($sender, $clinicId, $notification, $receivers, $model, $title, $body);
     }
 
     private static function buildTitle(Model $model, $notification): string
