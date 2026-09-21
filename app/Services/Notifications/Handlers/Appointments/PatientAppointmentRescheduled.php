@@ -55,10 +55,9 @@ class PatientAppointmentRescheduled extends Handler
             : ArabicDateFormatter::format(Carbon::parse($raw));
 
         return [
-            'patient_name' => $patientUser->name,
-            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $patientUser->phone),
-            'from_date' => $format($model->old_date),
-            'to_date' => $format($model->date),
+            'name' => $patientUser->name,
+            'date_from' => $format($model->old_date),
+            'date_to' => $format($model->date),
         ];
     }
 

@@ -40,7 +40,7 @@ class PatientAppointmentBooked extends Handler
         $patientUser = $model->patient->user;
 
         return [
-            'patient_name' => $patientUser->name,
+            'name' => $patientUser->name,
             'date' => ArabicDateFormatter::format(
                 Carbon::parse("{$model->date} {$model->start_time}")
             ),

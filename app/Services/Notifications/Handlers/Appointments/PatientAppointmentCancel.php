@@ -40,8 +40,7 @@ class PatientAppointmentCancel extends Handler
         $patientUser = $model->patient->user;
 
         return [
-            'patient_name' => $patientUser->name,
-            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $patientUser->phone),
+            'name' => $patientUser->name,
             'date' => ArabicDateFormatter::format(
                 Carbon::parse("{$model->date} {$model->start_time}")
             ),
