@@ -11,12 +11,6 @@ class UpdateAppointment
     {
         GradeAppointment::execute($user, $appointment, $grade);
         
-        if ($time) {
-            $appointment->update([
-                "date"  => self::formatDate($appointment->date, $time),
-            ]);
-        }
-        
         $status = $status?AppointmentStatus::from($status):$appointment->status;
 
         switch ($status) {
@@ -46,6 +40,12 @@ class UpdateAppointment
                 break;
         }
 
+        if ($time) {
+            $appointment->update([
+                "date"  => self::formatDate($appointment->date, $time),
+            ]);
+        }
+        
         return $appointment;
     }
 
