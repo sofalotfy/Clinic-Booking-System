@@ -6,16 +6,15 @@ use Carbon\Carbon;
 
 /**
  * Formats dates into the Arabic pattern used in the WhatsApp bot messages:
- *   {day name} {day# (Arabic-Indic digits)} {month name} الساعة {hour} {مساء/صباحا}
+ *   {day name} {day# (Arabic-Indic digits)} {month name} الساعة {time} {صباحا/مساء}
  * e.g. "الأربعاء ١٢ مايو الساعة ٩ مساء"  ==  Wednesday 12 May at 9 PM
+ *      "الأربعاء ١٢ مايو الساعة ٩:٣٠ مساء" ==  Wednesday 12 May at 9:30 PM
  *
- * Notes on the pattern (confirmed from the source PDF):
- * - Digits are Eastern Arabic numerals, not Western.
- * - Month is the Gregorian month name spelled in Arabic (not Hijri).
+ * - Digits are Eastern Arabic numerals.
+ * - Month is the Gregorian month name in Arabic.
  * - Year is never included.
- * - Minutes are never included — always rounds to the hour in the examples.
- * - One message in the source (appointment cancellation confirm) omits the
- *   time portion entirely — use format($date, includeTime: false) for that case.
+ * - Minutes are shown only when they are not zero.
+ * - Use format($date, includeTime: false) for date-only values (e.g. queued appointments).
  */
 class ArabicDateFormatter
 {
@@ -56,7 +55,6 @@ class ArabicDateFormatter
         return self::DAYS[$dayOfWeek] ?? '';
     }
 
-
     /**
      * Format a Carbon date into the Arabic WhatsApp-message style.
      */
@@ -69,10 +67,17 @@ class ArabicDateFormatter
         $formatted = "{$dayName} {$dayNumber} {$monthName}";
 
         if ($includeTime) {
-            $hour12       = (int) $date->format('g'); // 1-12, no leading zero
-            $hourArabic   = self::toArabicDigits($hour12);
-            $period       = $date->format('A') === 'AM' ? 'صباحا' : 'مساء';
-            $formatted   .= " الساعة {$hourArabic} {$period}";
+            $hour12     = (int) $date->format('g'); // 1-12, no leading zero
+            $minutes    = (int) $date->format('i');
+            $hourArabic = self::toArabicDigits($hour12);
+            $period     = $date->format('A') === 'AM' ? 'صباحا' : 'مساء';
+
+            // Show minutes only when they aren't zero
+            $time = $minutes > 0
+                ? $hourArabic . ':' . self::toArabicDigits($date->format('i'))
+                : $hourArabic;
+
+            $formatted .= " الساعة {$time} {$period}";
         }
 
         return $formatted;
@@ -92,25 +97,3 @@ class ArabicDateFormatter
         return "{$hour}:{$minutes} {$period}";
     }
 }
-
-/*
-Usage example:
-
-use App\Support\ArabicDateFormatter;
-use Carbon\Carbon;
-
-$date = Carbon::create(2026, 5, 13, 21, 0); // a Wednesday, 9 PM
-
-ArabicDateFormatter::format($date);
-// => "الأربعاء ١٣ مايو الساعة ٩ مساء"
-
-ArabicDateFormatter::format($date, includeTime: false);
-// => "الأربعاء ١٣ مايو"
-
-Then feed it into the lang file:
-
-__('whatsapp.appointment_booked.message', [
-    'name' => $patientName,
-    'date' => ArabicDateFormatter::format($appointmentDate),
-]);
-*/

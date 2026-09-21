@@ -2,13 +2,13 @@
 
 namespace App\Services\Notifications\Handlers\Appointments;
 
+use App\Enums\AppointmentStatus;
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatefulNotification;
+use App\Services\Notifications\Handlers\Handler;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use App\Services\Notifications\Handlers\Handler;
-use App\Enums\AppointmentStatus;
 
 class DoctorAppointmentRescheduled extends Handler
 {
@@ -27,27 +27,31 @@ class DoctorAppointmentRescheduled extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
-        if($model->status == AppointmentStatus::QUEUED){
-            $from_date = Carbon::parse("{$model->old_date}")->format('M j, Y');
-            $to_date   = Carbon::parse("{$model->date}")->format('M j, Y');
-        }else{
-            $from_date = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
-            $to_date   = Carbon::parse("{$model->date}")->format('M j, Y g:i A');
-        }
+        $format = $model->status == AppointmentStatus::QUEUED ? 'M j, Y' : 'M j, Y g:i A';
+
+        $fromDate = $model->old_date
+            ? Carbon::parse($model->old_date)->format($format)
+            : '-';
+        $toDate = Carbon::parse($model->date)->format($format);
 
         return $notification->body([
-            'from_date' => $from_date,
-            'to_date'   => $to_date,
+            'from_date' => $fromDate,
+            'to_date'   => $toDate,
         ]);
     }
 
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        $oldDateTime = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
-
-        SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification,[
+        $data = [
             'appointment_id' => $model->id,
-            'old_date' => $oldDateTime,
-        ]);
+            'is_queued'      => $model->status == AppointmentStatus::QUEUED,
+        ];
+
+        // Raw value; the state class formats it in Arabic when sending the template
+        if ($model->old_date) {
+            $data['old_date'] = Carbon::parse($model->old_date)->toDateTimeString();
+        }
+
+        SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification, $data);
     }
 }
