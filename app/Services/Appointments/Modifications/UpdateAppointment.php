@@ -32,6 +32,7 @@ class UpdateAppointment
             case AppointmentStatus::ACTIVE:
                 ActivateAppointment::execute($user, $appointment);
                 if ($time) { // RESCHEDULE APPOINTMENT
+                    \Log::info("UpdateAppointment ResheduleAppointment::execute {$user->name} {$appointment->doctor_id} {$notification} {$appointment}");
                     $newDate = self::formatDate($appointment->date, $time);
                     ResheduleAppointment::execute($user, $appointment, $newDate, $appointment->duration);
                 }

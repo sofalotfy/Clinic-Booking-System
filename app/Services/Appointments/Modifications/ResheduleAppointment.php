@@ -25,7 +25,7 @@ class ResheduleAppointment
         );
 
         $appointment->old_date = $old_date;
-        \Log::info("ResheduleAppointment NotificationManager::execute {$user->name} {$appointment->doctor_id} {$notification} {$appointment}");
+        
         if (in_array($appointment->status, AppointmentStatus::working())){
             
             if ($user->isPatient()) {
