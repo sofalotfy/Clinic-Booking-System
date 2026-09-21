@@ -31,7 +31,7 @@ class DoctorAppointmentBooking
             $account->access_token,
             $message['from'],
             'appointment_creation_by_doctor',
-            'en',
+            'ar_EG',
             bodyParams: [
                 'name' => $conversation->data['name'] ?? $conversation->user->name,
                 'date' => $date,
