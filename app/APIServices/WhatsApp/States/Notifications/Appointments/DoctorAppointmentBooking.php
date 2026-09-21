@@ -30,8 +30,8 @@ class DoctorAppointmentBooking
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $conversation->data['template_name'],
-            'English',
+            'appointment_creation_by_doctor',
+            'en',
             bodyParams: [
                 'name' => $conversation->data['name'] ?? $conversation->user->name,
                 'date' => $date,
