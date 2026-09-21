@@ -38,6 +38,7 @@ class SendWhatsAppStatefulNotification
             'state' => $type->state(),
             'data' => array_merge([
                 'name' => $receiver->name,
+                'template_name' => $type->templateName(),
             ], $data),
             'last_activity_at' => now(),
         ]);

@@ -76,6 +76,29 @@ enum NotificationEnum
         };
     }
 
+    public function templateName(array $data = []): string
+    {
+        return match ($this) {
+            self::PATIENT_APPOINTMENT_BOOKED =>
+                'appointment_booking_by_patient',
+
+            self::PATIENT_APPOINTMENT_RESCHEDULED =>
+                'appointment_reschedule_by_patient',
+
+            self::PATIENT_APPOINTMENT_CANCEL =>
+                'appointment_cancelation_by_patient',
+
+            self::DOCTOR_APPOINTMENT_BOOKED =>
+                'appointment_creation_by_doctor',
+
+            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
+                'appointment_reschedule_by_doctor',
+
+            self::DOCTOR_APPOINTMENT_CANCEL =>
+                'appointment_cancelation_by_doctor',
+        };
+    }
+
     public function title(array $data = []): string
     {
         return match ($this) {
