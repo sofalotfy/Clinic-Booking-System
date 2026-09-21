@@ -34,7 +34,7 @@ class ResheduleAppointment
                 $notification = NotificationEnum::DOCTOR_APPOINTMENT_RESCHEDULED;
                 UnConfirmAppointment::execute($user, $appointment);
             }
-
+            \Log::info("ResheduleAppointment NotificationManager::execute {$user->name} {$appointment->doctor_id} {$notification} {$appointment}");
             NotificationManager::execute($user, $appointment->doctor_id, $notification, $appointment);
         }
 
