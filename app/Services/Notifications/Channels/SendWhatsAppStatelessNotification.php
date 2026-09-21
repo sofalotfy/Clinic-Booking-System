@@ -8,10 +8,22 @@ use App\Models\User;
 
 class SendWhatsAppStatelessNotification
 {
-    public static function execute(User $sender, User $receiver, int $clinicId, string $title, string $body)
-    {
-        \Log::info("Creating whatsapp stateless notification for user {$receiver->name}");
-        
+    public const DEFAULT_LANGUAGE = 'ar_EG';
+
+    /**
+     * @param string $templateName  technical template name, e.g. "doctor_appointment_cancel"
+     * @param array  $params        named variables, e.g. ['name' => 'Ahmed', 'date' => '...']
+     */
+    public static function execute(
+        User $sender,
+        User $receiver,
+        int $clinicId,
+        string $templateName,
+        array $params = [],
+        string $language = self::DEFAULT_LANGUAGE
+    ) {
+        \Log::info("Creating whatsapp template notification '{$templateName}' for user {$receiver->name}");
+
         $account = DoctorWhatsAppAccount::where('doctor_id', $clinicId)
             ->where('is_active', true)
             ->first();
@@ -20,8 +32,13 @@ class SendWhatsAppStatelessNotification
             return;
         }
 
-        $message = "*{$title}*\n\n{$body}";
-
-        return SendMessage::text($account->phone_number_id, $account->access_token, $receiver->phone, $message);
+        return SendMessage::template(
+            $account->phone_number_id,
+            $account->access_token,
+            $receiver->phone,
+            $templateName,
+            $language,
+            bodyParams: $params
+        );
     }
 }

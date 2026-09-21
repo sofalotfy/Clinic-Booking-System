@@ -2,15 +2,11 @@
 
 namespace App\APIServices\WhatsApp\States\Notifications\Appointments;
 
-use App\APIServices\WhatsApp\ExecutionRouter;
 use App\APIServices\WhatsApp\SendMessage;
-use App\Enums\AppointmentUpdateNotificationTypes;
 use App\Enums\ConversationState;
+use App\Models\Appointment;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\WhatsAppConversation;
-use App\Services\Appointments\Modifications\ConfirmAppointment;
-use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
-use App\Models\Appointment;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 
@@ -21,106 +17,41 @@ class DoctorAppointmentReschedule
         $account = DoctorWhatsAppAccount::findOrFail(
             $conversation->doctor_whatsapp_account_id
         );
-        $appointment = Appointment::find($conversation->data['appointment_id']);
 
-        $oldDateRaw = $conversation->data['old_date'] ?? null;
+        $appointment = Appointment::findOrFail($conversation->data['appointment_id']);
 
-        $newDate = ArabicDateFormatter::format(
+        $dateTo = ArabicDateFormatter::format(
             Carbon::parse($appointment->date . ' ' . $appointment->start_time)
         );
 
-        $oldDate = $oldDateRaw
+        $oldDateRaw = $conversation->data['old_date'] ?? null;
+
+        // Template variables can't be empty, so fall back to a dash
+        $dateFrom = $oldDateRaw
             ? ArabicDateFormatter::format(Carbon::parse($oldDateRaw))
-            : null;
+            : '-';
 
-        $messageText = "لظروف خارجة عن إرادتنا نأسف لتعديل موعد زيارتك القادمة يوم {$oldDate} لتصبح يوم {$newDate}";
-
-        return SendMessage::buttons(
+        return SendMessage::template(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $messageText,
-            [
-                [
-                    'id' => 'confirm',
-                    'title' => 'تأكيد الموعد',
-                ],
-                [
-                    'id' => 'reschedule',
-                    'title' => 'إختيار موعد جديد',
-                ],
-                [
-                    'id' => 'cancel',
-                    'title' => 'إلغاء الموعد',
-                ],
+            $conversation->data['template_name'],
+            'ar_EG',
+            bodyParams: [
+                'name' => $conversation->data['name'] ?? $conversation->user->name,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
             ]
         );
     }
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        $appointment = Appointment::find($conversation->data['appointment_id']);
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
+        // The template has no buttons, so any reply just returns the user to the main flow
+        $conversation->update([
+            'state' => ConversationState::START,
+        ]);
 
-        if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
-        }
-        
-        switch ($message['value']) {
-
-            case 'confirm':
-                ConfirmAppointment::execute($conversation->user, $appointment);
-
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    'تم تأكيد موعدك بنجاح'
-                );
-
-                $conversation->update([
-                    'state' => ConversationState::START,
-                ]);
-
-                return Start::execute($conversation, $message);
-
-                break;
-
-            case 'reschedule':
-
-                $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT,
-                ]);
-
-                return BookAppointment::execute($conversation, $message);
-
-                break;
-
-            case 'cancel':
-                DenyAppointmentConfirmation::execute($conversation->user, $appointment);
-
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    'تم رفض الموعد'
-                );
-                
-                $conversation->update([
-                    'state' => ConversationState::START,
-                ]);
-
-                return Start::execute($conversation, $message);
-        }
-
-        return self::execute($conversation, $message);
+        return Start::execute($conversation, $message);
     }
 }

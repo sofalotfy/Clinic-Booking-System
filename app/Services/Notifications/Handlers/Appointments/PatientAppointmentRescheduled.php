@@ -2,14 +2,14 @@
 
 namespace App\Services\Notifications\Handlers\Appointments;
 
-use App\Models\Patient;
+use App\Enums\AppointmentStatus;
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
-use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use App\Services\Notifications\Handlers\Handler;
-use App\Enums\AppointmentStatus;
+use App\Support\ArabicDateFormatter;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class PatientAppointmentRescheduled extends Handler
 {
@@ -28,25 +28,48 @@ class PatientAppointmentRescheduled extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
-        if($model->status == AppointmentStatus::QUEUED){
+        if ($model->status == AppointmentStatus::QUEUED) {
             $fromDate = Carbon::parse("{$model->old_date}")->format('M j, Y');
             $toDate = Carbon::parse("{$model->date}")->format('M j, Y');
-        }else{
+        } else {
             $fromDate = Carbon::parse("{$model->old_date}")->format('M j, Y g:i A');
             $toDate = Carbon::parse("{$model->date}")->format('M j, Y g:i A');
         }
 
-
         return $notification->body([
             'patient_name' => $model->patient->user->name,
-            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $model->patient->user->phone),
             'from_date' => $fromDate,
             'to_date' => $toDate,
         ]);
     }
 
+    private static function buildWhatsAppParams(Model $model): array
+    {
+        $patientUser = $model->patient->user;
+
+        // Queued appointments have a date only, no specific time
+        $isQueued = $model->status == AppointmentStatus::QUEUED;
+
+        $format = fn ($raw) => $isQueued
+            ? ArabicDateFormatter::format(Carbon::parse($raw)->startOfDay())
+            : ArabicDateFormatter::format(Carbon::parse($raw));
+
+        return [
+            'patient_name' => $patientUser->name,
+            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $patientUser->phone),
+            'from_date' => $format($model->old_date),
+            'to_date' => $format($model->date),
+        ];
+    }
+
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        SendWhatsAppStatelessNotification::execute($sender, $receiver, $clinicId, $title, $body);
+        SendWhatsAppStatelessNotification::execute(
+            $sender,
+            $receiver,
+            $clinicId,
+            $notification->templateName(),   // template comes from the notification
+            self::buildWhatsAppParams($model)
+        );
     }
 }

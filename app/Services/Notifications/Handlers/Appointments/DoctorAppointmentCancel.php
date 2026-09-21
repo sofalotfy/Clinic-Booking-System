@@ -4,10 +4,11 @@ namespace App\Services\Notifications\Handlers\Appointments;
 
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
+use App\Services\Notifications\Handlers\Handler;
+use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use App\Services\Notifications\Handlers\Handler;
 
 class DoctorAppointmentCancel extends Handler
 {
@@ -33,8 +34,24 @@ class DoctorAppointmentCancel extends Handler
         ]);
     }
 
+    private static function buildWhatsAppParams(User $receiver, Model $model): array
+    {
+        return [
+            'name' => $receiver->name,
+            'date' => ArabicDateFormatter::format(
+                Carbon::parse("{$model->date} {$model->start_time}")
+            ),
+        ];
+    }
+
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        SendWhatsAppStatelessNotification::execute($sender, $receiver, $clinicId, $title, $body);
+        SendWhatsAppStatelessNotification::execute(
+            $sender,
+            $receiver,
+            $clinicId,
+            $notification->templateName(),   // template comes from the notification
+            self::buildWhatsAppParams($receiver, $model)
+        );
     }
 }

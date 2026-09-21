@@ -4,10 +4,11 @@ namespace App\Services\Notifications\Handlers\Appointments;
 
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
+use App\Services\Notifications\Handlers\Handler;
+use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use App\Services\Notifications\Handlers\Handler;
 
 class PatientAppointmentCancel extends Handler
 {
@@ -30,13 +31,31 @@ class PatientAppointmentCancel extends Handler
 
         return $notification->body([
             'patient_name' => $model->patient->user->name,
-            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $model->patient->user->phone),
             'date' => $dateTime,
         ]);
     }
 
+    private static function buildWhatsAppParams(Model $model): array
+    {
+        $patientUser = $model->patient->user;
+
+        return [
+            'patient_name' => $patientUser->name,
+            'whatsapp' => 'https://wa.me/' . preg_replace('/\D/', '', $patientUser->phone),
+            'date' => ArabicDateFormatter::format(
+                Carbon::parse("{$model->date} {$model->start_time}")
+            ),
+        ];
+    }
+
     protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        SendWhatsAppStatelessNotification::execute($sender, $receiver, $clinicId, $title, $body);
+        SendWhatsAppStatelessNotification::execute(
+            $sender,
+            $receiver,
+            $clinicId,
+            $notification->templateName(),   // template comes from the notification
+            self::buildWhatsAppParams($model)
+        );
     }
 }
