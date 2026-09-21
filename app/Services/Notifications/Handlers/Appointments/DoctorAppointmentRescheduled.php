@@ -14,8 +14,6 @@ class DoctorAppointmentRescheduled extends Handler
 {
     public static function execute(User $sender, int $clinicId, $notification, Collection $receivers, Model $model)
     {
-        \Log::info("appointment old date saved: " . $model->old_date);
-        return true;
         $title = static::buildTitle($model, $notification);
         $body = static::buildBody($model, $notification);
 
@@ -29,6 +27,7 @@ class DoctorAppointmentRescheduled extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
+        \Log::info("appointment old date saved: " . $model->old_date);
         if($model->status == AppointmentStatus::QUEUED){
             $from_date = Carbon::parse("{$model->old_date}")->format('M j, Y');
             $to_date   = Carbon::parse("{$model->date}")->format('M j, Y');
@@ -37,6 +36,8 @@ class DoctorAppointmentRescheduled extends Handler
             $to_date   = Carbon::parse("{$model->date}")->format('M j, Y g:i A');
         }
 
+        \Log::info("appointment old date  used: " . $from_date);
+        return true;
         return $notification->body([
             'from_date' => $from_date,
             'to_date'   => $to_date,
