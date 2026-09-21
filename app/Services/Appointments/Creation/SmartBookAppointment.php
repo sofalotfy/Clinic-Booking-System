@@ -23,6 +23,12 @@ class SmartBookAppointment
             ->whereIn('status', AppointmentStatus::working())
             ->first();
 
+        \Log::info('SmartBook lookup', [
+            'found_id' => $appointment?->id,
+            'created_at' => $appointment?->created_at,
+            'old_date' => $appointment?->date,
+            'new_date' => (string) $date,
+        ]);
         $old_date = null;
 
         \Log::info("appointment is : {$appointment} : {$patient->user->name}");
