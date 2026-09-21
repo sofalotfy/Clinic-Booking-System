@@ -25,6 +25,7 @@ class SmartBookAppointment
 
         $old_date = null;
 
+        \Log::info("appointment is : {$appointment} : {$patient->user->name}");
         if ($appointment) {
             $old_date = $appointment->date;
 
