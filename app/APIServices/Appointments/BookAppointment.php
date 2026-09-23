@@ -31,6 +31,7 @@ class BookAppointment
         // GET BOOKING DAY INSTANCE
         $day = Day::where('doctor_id', $request->user()->clinicDoctorId())
             ->whereDate('date', $dateTime->toDateString())
+            ->active()
             ->first();
 
         // FETCH USER BY PHONE

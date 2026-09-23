@@ -15,6 +15,6 @@ class CheckSlotAvailability
         return !Appointment::where('date', $requestedDateTime)
             ->where('doctor_id', $day->doctor_id)
             ->whereNotIn('status', AppointmentStatus::working())
-            ->exists();
+            ->exists() && $day->isActive;
     }
 }

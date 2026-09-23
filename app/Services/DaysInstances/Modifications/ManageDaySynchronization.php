@@ -59,6 +59,7 @@ class ManageDaySynchronization
     {
         return Day::where('date', $date)
             ->where('doctor_id', $templatePlan->doctor_id)
+            ->active()
             ->first();
     }
 }

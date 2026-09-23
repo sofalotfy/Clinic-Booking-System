@@ -12,6 +12,7 @@ class StoreDay
         // Don't create the day if it already exists for this doctor.
         $existingDay = Day::where('doctor_id', $templatePlan->doctor_id)
             ->whereDate('date', $date)
+            ->active()
             ->first();
 
         if ($existingDay) {

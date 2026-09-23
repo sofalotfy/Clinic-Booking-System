@@ -28,6 +28,7 @@ class ListDays
             'days.end_time',
             'days.appointment_duration',
             'days.queue_length',
+            'days.status',
             DB::raw('COUNT(appointments.id) as total_appointments')
         ];
     }

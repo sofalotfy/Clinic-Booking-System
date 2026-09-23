@@ -70,18 +70,26 @@ class BookAppointment
         );
 
         if ($message['type'] !== 'interactive') {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'عفواً، استجابة غير صحيحة. يرجى اختيار أحد الخيارات المتاحة.'
+            );
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
 
         $day = Day::where('doctor_id', $account->doctor_id)->find($message['value']);
 
-        if (!$day) {return;}
+        if (!$day) {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'عفواً، اليوم المختار غير صحيح. يرجى اختيار أحد الأيام المتاحة.'
+            );
+            return self::execute($conversation, $message);
+        }
 
         if(CheckAvailability::execute($day)){
             $conversation->update([

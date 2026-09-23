@@ -3,6 +3,7 @@
 namespace App\APIServices\WhatsApp\Services\DoctorMenu;
 
 use App\Models\WhatsAppConversation;
+use App\APIServices\WhatsApp\States\AdminMenu;
 use App\Models\Day;
 use App\Services\DaysInstances\Modifications\TransferDay;
 use App\APIServices\WhatsApp\SendMessage;
@@ -38,7 +39,8 @@ class ReplaceTodayAppointments
             }
             TransferDay::execute($user, $todayDay, $nextDate->toDateString());
             $arabicDate = ArabicDateFormatter::format($nextDate, false);
-            $messageText = "تم استبدال مواعيد اليوم ونقلها إلى {$arabicDate} بنجاح.";
+            $messageText = "تم استبدال مواعيد اليوم بيوم {$arabicDate} وتم إرسال التنبيهات اللازمة لجميع المواعيد\n" .
+                           "العودة إلى القائمة الرئيسية";
         }
 
         SendMessage::text(
@@ -47,5 +49,7 @@ class ReplaceTodayAppointments
             $conversation->phone_number,
             $messageText
         );
+
+        AdminMenu::execute($conversation, []);
     }
 }

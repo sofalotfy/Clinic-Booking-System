@@ -20,6 +20,6 @@ class CheckSlotExistance
         // Check that the time falls exactly on a slot
         $minutesFromStart = $start->diffInMinutes($requestedTime);
 
-        return ($minutesFromStart % $day->appointment_duration) === 0;
+        return ($minutesFromStart % $day->appointment_duration) === 0 && $day->isActive;
     }
 }

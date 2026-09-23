@@ -18,6 +18,7 @@ class ReplicateDay
             'end_time' => $day->end_time,
             'appointment_duration' => $day->appointment_duration,
             'queue_length' => $day->queue_length,
+            'status' => $day->status,
         ]);
     }
 }

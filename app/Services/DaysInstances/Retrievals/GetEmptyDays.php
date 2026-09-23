@@ -17,6 +17,7 @@ class GetEmptyDays
         $existingDates = Day::where('doctor_id', $user->clinicDoctorId())
             ->where('doctor_id', $clinicId)
             ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->inActive()
             ->pluck('date')
             ->map(fn ($date) => Carbon::parse($date)->toDateString())
             ->toArray();

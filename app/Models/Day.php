@@ -13,6 +13,7 @@ class Day extends Model
 
     protected $casts = [
         'appointment_duration' => 'integer',
+        'status' => DayStatus::class,
     ];
 
     /**
@@ -32,5 +33,15 @@ class Day extends Model
     public function scopeActive($query)
     {
         return $query->whereIn('status', DayStatus::working());
+    }
+    
+    public function scopeinActive($query)
+    {
+        return $query->whereIn('status', DayStatus::closed());
+    }
+
+    public function isActive()
+    {
+        return self->status == DayStatus::ACTIVE;
     }
 }

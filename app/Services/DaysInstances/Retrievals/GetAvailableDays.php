@@ -18,14 +18,12 @@ class GetAvailableDays
         $days = Day::where('doctor_id', $doctorId)
             ->whereBetween('date', [$start, $end])
             ->orderBy('date')
+            ->active()
             ->get();
 
         $appointmentsCounts = Appointment::where('doctor_id', $doctorId)
             ->whereBetween('date', [$start, $end])
-            ->whereIn('status', [
-                AppointmentStatus::ACTIVE,
-                AppointmentStatus::QUEUED,
-            ])
+            ->active()
             ->select(
                 DB::raw('DATE(date) as day'),
                 DB::raw('COUNT(*) as count')

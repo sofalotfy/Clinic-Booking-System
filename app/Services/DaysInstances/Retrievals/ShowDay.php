@@ -32,6 +32,7 @@ class ShowDay
             'end_time',
             'appointment_duration',
             'queue_length',
+            'status',
         ];
     }
 }

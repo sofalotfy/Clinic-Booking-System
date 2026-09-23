@@ -23,6 +23,6 @@ class CheckAvailability
             ->whereIn('status', AppointmentStatus::working())
             ->count();
 
-        return $activeAppointments < ($totalSlots + $day->queue_length);
+        return ($activeAppointments < ($totalSlots + $day->queue_length)) && $day->isActive();
     }
 }

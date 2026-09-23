@@ -92,13 +92,13 @@ class BookSlot
 
         // This state only accepts interactive list replies
         if ($message['type'] !== 'interactive') {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'عفواً، استجابة غير صحيحة. يرجى اختيار أحد الخيارات المتاحة.'
+            );
             return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
         }
 
         // User requested the next page
@@ -131,7 +131,7 @@ class BookSlot
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                "نأسف .. الموعد الذي تم اختياره لم يعد متا ًحا\nفضال اختر موعد آخر"
+                "نأسف .. الموعد الذي تم اختياره لم يعد متاحاً\nفضلاً اختر موعد آخر"
             );
 
             return self::execute($conversation, $message);

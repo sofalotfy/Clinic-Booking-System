@@ -3,6 +3,7 @@
 namespace App\APIServices\WhatsApp\Services\DoctorMenu;
 
 use App\Models\WhatsAppConversation;
+use App\APIServices\WhatsApp\States\AdminMenu;
 use App\Services\DaysInstances\Modifications\CancelDay;
 use App\APIServices\WhatsApp\SendMessage;
 use Carbon\Carbon;
@@ -21,11 +22,12 @@ class CancelTodayAppointments
 
         $day = Day::where('doctor_id', $doctor->id)->where('date', Carbon::today())->first();
 
-        if ($day->appointments()->active()->count() == 0) {
+        if (!$day || $day->appointments()->active()->count() == 0) {
             $messageText = "لا يوجد مواعيد مسجلة لليوم لإلغائها.";
         } else {
             CancelDay::execute($user, $day);
-            $messageText = "تم إلغاء جميع مواعيد اليوم بنجاح.";
+            $messageText = "تم الغاء حجوزات اليوم وإرسال التنبيهات لجميع المواعيد\n" .
+                           "العودة إلى القائمة الرئيسية";
         }
 
         SendMessage::text(
@@ -34,5 +36,7 @@ class CancelTodayAppointments
             $conversation->phone_number,
             $messageText
         );
+
+        AdminMenu::execute($conversation, []);
     }
 }

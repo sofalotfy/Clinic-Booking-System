@@ -37,6 +37,7 @@ class MapAppointments
             DB::raw('COUNT(appointments.id) as total_appointments'),
             'days.id as day_id',
             'days.date',
+            'days.status',
         ];
     }
 }
