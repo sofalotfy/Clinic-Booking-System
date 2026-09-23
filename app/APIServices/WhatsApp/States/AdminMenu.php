@@ -84,16 +84,10 @@ class AdminMenu
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
         if ($message['type'] !== 'interactive') {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $conversation->phone_number,
-                'عفواً، استجابة غير صحيحة. يرجى اختيار أحد الخيارات المتاحة.'
-            );
             return self::execute($conversation, $message);
         }
 
-        $result = match ($message['value']) {
+        return match ($message['value']) {
             'doctor_today_appointments' =>
                 DoctorTodayAppointments::execute($conversation),
 
@@ -120,17 +114,5 @@ class AdminMenu
 
             default => null,
         };
-
-        if ($result === null) {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $conversation->phone_number,
-                'عفواً، خيار غير صحيح. يرجى اختيار أحد الخيارات المتاحة.'
-            );
-            return self::execute($conversation, $message);
-        }
-
-        return $result;
     }
 }
