@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:generate-doctor-schedules')
     ->dailyAt('00:00');
 
+Schedule::command('app:prune-idempotency-keys')
+    ->dailyAt('00:00');
+
 Schedule::command('app:test-scheduler')
     ->everyMinute();
 
