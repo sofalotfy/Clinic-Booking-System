@@ -5,7 +5,6 @@ namespace App\APIServices\WhatsApp\States;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use App\APIServices\WhatsApp\SendMessage;
-use App\APIServices\WhatsApp\ExecutionRouter;
 use App\APIServices\WhatsApp\States\BookSlot;
 use App\Enums\ConversationState;
 use App\Models\Day;
@@ -70,18 +69,22 @@ class BookAppointment
         );
 
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
+            return self::invalidResponse($conversation, $message);
+        }
 
-            return ExecutionRouter::execute($conversation, $message);
+        $availableDayIds = collect(GetAvailableDays::execute($account->doctor_id))
+            ->pluck('id')
+            ->all();
+
+        if (!in_array($message['value'], $availableDayIds, true)) {
+            return self::invalidResponse($conversation, $message);
         }
 
         $day = Day::where('doctor_id', $account->doctor_id)->find($message['value']);
 
-        if (!$day) {return;}
+        if (!$day) {
+            return self::invalidResponse($conversation, $message);
+        }
 
         if(CheckAvailability::execute($day)){
             $conversation->update([
@@ -104,5 +107,21 @@ class BookAppointment
 
             return ConfirmBooking::execute($conversation, $message); 
         }        
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

@@ -17,18 +17,18 @@ return new class extends Migration
         }
 
         // 2. Backfill user_id from patient_id
-        DB::statement('
-            UPDATE whats_app_conversations wc
-            JOIN patients p ON p.id = wc.patient_id
-            SET wc.user_id = p.user_id
-            WHERE wc.patient_id IS NOT NULL
-        ');
+        DB::statement("
+            UPDATE whats_app_conversations
+            SET user_id = (SELECT p.user_id FROM patients p WHERE p.id = whats_app_conversations.patient_id)
+            WHERE whats_app_conversations.patient_id IS NOT NULL
+        ");
 
         // 3. Drop the old patient_id FK/column
         if (Schema::hasColumn('whats_app_conversations', 'patient_id')) {
-            $foreignKeys = collect(Schema::getForeignKeys('whats_app_conversations'))->pluck('name');
+            $hasPatientForeignKey = collect(Schema::getForeignKeys('whats_app_conversations'))
+                ->contains(fn ($foreignKey) => in_array('patient_id', $foreignKey['columns'], true));
 
-            if ($foreignKeys->contains('whats_app_conversations_patient_id_foreign')) {
+            if ($hasPatientForeignKey) {
                 Schema::table('whats_app_conversations', function (Blueprint $table) {
                     $table->dropForeign(['patient_id']);
                 });
@@ -40,24 +40,34 @@ return new class extends Migration
         }
 
         // 4. Tighten user_id to NOT NULL now that it's backfilled
-        Schema::table('whats_app_conversations', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable(false)->change();
-        });
+        if (Schema::hasColumn('whats_app_conversations', 'user_id')) {
+            Schema::table('whats_app_conversations', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable(false)->change();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('whats_app_conversations', function (Blueprint $table) {
-            $foreignKeys = collect(Schema::getForeignKeys('whats_app_conversations'))->pluck('name');
-            if ($foreignKeys->contains('whats_app_conversations_user_id_foreign')) {
-                $table->dropForeign(['user_id']);
+        if (Schema::hasColumn('whats_app_conversations', 'user_id')) {
+            $hasUserForeignKey = collect(Schema::getForeignKeys('whats_app_conversations'))
+                ->contains(fn ($foreignKey) => in_array('user_id', $foreignKey['columns'], true));
+
+            if ($hasUserForeignKey) {
+                Schema::table('whats_app_conversations', function (Blueprint $table) {
+                    $table->dropForeign(['user_id']);
+                });
             }
-            if (Schema::hasColumn('whats_app_conversations', 'user_id')) {
+
+            Schema::table('whats_app_conversations', function (Blueprint $table) {
                 $table->dropColumn('user_id');
-            }
-            if (! Schema::hasColumn('whats_app_conversations', 'patient_id')) {
+            });
+        }
+
+        if (! Schema::hasColumn('whats_app_conversations', 'patient_id')) {
+            Schema::table('whats_app_conversations', function (Blueprint $table) {
                 $table->foreignId('patient_id')->nullable()->constrained()->cascadeOnDelete();
-            }
-        });
+            });
+        }
     }
 };

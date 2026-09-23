@@ -53,12 +53,8 @@ class InfoInquiry
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
-
         if ($message['type'] !== 'text') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         $data = $conversation->data ?? [];
@@ -81,12 +77,7 @@ class InfoInquiry
                 $value = self::convertArabicNumeralsToEnglish($message['value']);
 
                 if (!is_numeric($value) or $value < 1 or $value > 120) {
-                    return SendMessage::text(
-                        $account->phone_number_id,
-                        $account->access_token,
-                        $message['from'],
-                        'من فضلك ادخل عمرك.',
-                    );
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 $data['age'] = (int) $value;
@@ -130,5 +121,21 @@ class InfoInquiry
         $value = str_replace($persianNumerals, $englishNumerals, $value);
 
         return trim($value);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

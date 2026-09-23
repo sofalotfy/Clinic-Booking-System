@@ -6,7 +6,6 @@ use App\Enums\ConversationState;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
-use App\APIServices\WhatsApp\ConversationRouter;
 use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Services\Notifications\Doctor\Profile\PatientRename;
 
@@ -52,7 +51,7 @@ class InfoConfirmation
         );
 
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         switch ($message['value']) {
@@ -104,10 +103,22 @@ class InfoConfirmation
                 return Start::execute($conversation, $message);
         }
 
-        // Unknown button -> show the menu again
-        return self::execute($conversation, [
-            'type' => 'text',
-            'from' => $message['from'],
-        ]);
+        return self::invalidResponse($conversation, $message);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

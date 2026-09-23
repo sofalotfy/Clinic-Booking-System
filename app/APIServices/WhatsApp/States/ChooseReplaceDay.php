@@ -65,7 +65,7 @@ class ChooseReplaceDay
     public static function handleResponse($conversation, $message)
     {
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         $selectedDate = $message['value'] ?? null;
@@ -80,15 +80,48 @@ class ChooseReplaceDay
             return self::execute($conversation, $message);
         }
 
-        if ($selectedDate) {
-            ReplaceTodayAppointments::execute($conversation, $selectedDate);
-
-            $conversation->update([
-                'state' => ConversationState::ADMIN_MENU,
-                'data' => array_merge($conversation->data ?? [], [
-                    'replace_day_page' => 0,
-                ]),
-            ]);
+        if (!$selectedDate) {
+            return self::invalidResponse($conversation, $message);
         }
+
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+        $doctor = $account->doctor;
+        $user = $doctor->user;
+
+        $validDates = array_map(
+            fn ($date) => Carbon::parse($date)->toDateString(),
+            GetEmptyDays::execute($user, $doctor->id)
+        );
+
+        if (!in_array($selectedDate, $validDates, true)) {
+            return self::invalidResponse($conversation, $message);
+        }
+
+        ReplaceTodayAppointments::execute($conversation, $selectedDate);
+
+        $conversation->update([
+            'state' => ConversationState::ADMIN_MENU,
+            'data' => array_merge($conversation->data ?? [], [
+                'replace_day_page' => 0,
+            ]),
+        ]);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

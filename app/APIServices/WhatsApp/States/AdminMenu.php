@@ -84,7 +84,7 @@ class AdminMenu
     public static function handleResponse(WhatsAppConversation $conversation, array $message)
     {
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         return match ($message['value']) {
@@ -112,7 +112,23 @@ class AdminMenu
             'doctor_replace_today' =>
                 ChooseReplaceDay::execute($conversation, $message),
 
-            default => null,
+            default => self::invalidResponse($conversation, $message),
         };
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

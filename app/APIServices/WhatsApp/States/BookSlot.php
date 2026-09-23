@@ -4,7 +4,6 @@ namespace App\APIServices\WhatsApp\States;
 
 use App\Support\ArabicDateFormatter;
 use App\APIServices\WhatsApp\SendMessage;
-use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\DaysInstances\Retrievals\GetAvailableSlots;
@@ -92,13 +91,7 @@ class BookSlot
 
         // This state only accepts interactive list replies
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
-            
-            $conversation->update([
-                'state' => ConversationState::AI,
-            ]);
-
-            return ExecutionRouter::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         // User requested the next page
@@ -149,5 +142,21 @@ class BookSlot
         ]);
 
         return ConfirmBooking::execute($conversation, $message);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

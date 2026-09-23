@@ -33,8 +33,8 @@ class SubmitFeedback
             $conversation->doctor_whatsapp_account_id
         );
 
-        if ($message['type'] !== 'text') {
-            return self::execute($conversation, $message);
+        if ($message['type'] !== 'text' || empty(trim($message['value'] ?? ''))) {
+            return self::invalidResponse($conversation, $message);
         }
 
         $clinic = $account->doctor->clinic;
@@ -55,5 +55,21 @@ class SubmitFeedback
         $conversation->update([
             'state' => ConversationState::MAIN_MENU,
         ]);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

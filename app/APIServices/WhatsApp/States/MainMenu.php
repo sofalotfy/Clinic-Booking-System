@@ -5,7 +5,6 @@ namespace App\APIServices\WhatsApp\States;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
-use App\APIServices\WhatsApp\ExecutionRouter;
 use App\Services\Doctors\GetActivePlan;
 use App\APIServices\WhatsApp\Services\FormatPLanToMessage;
 
@@ -72,7 +71,7 @@ class MainMenu
         $doctor = $account->doctor;
         $clinic = $doctor->clinic;
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         switch ($message['value']) {
@@ -123,6 +122,22 @@ class MainMenu
 
                 return SubmitFeedback::execute($conversation, $message);
         }
+
+        return self::invalidResponse($conversation, $message);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
 
         return self::execute($conversation, $message);
     }

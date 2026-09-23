@@ -8,7 +8,6 @@ use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\Retrievals\GetUpComingAppointment;
 use App\Support\ArabicDateFormatter;
 use App\APIServices\WhatsApp\States\InfoInquiry;
-use App\APIServices\WhatsApp\ExecutionRouter;
 use Carbon\Carbon;
 
 class ManageAppointment
@@ -126,7 +125,7 @@ class ManageAppointment
         );
 
         if ($message['type'] !== 'interactive') {
-            return self::execute($conversation, $message);
+            return self::invalidResponse($conversation, $message);
         }
 
         switch ($message['value']) {
@@ -180,6 +179,22 @@ class ManageAppointment
 
                 return;
         }
+
+        return self::invalidResponse($conversation, $message);
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
 
         return self::execute($conversation, $message);
     }

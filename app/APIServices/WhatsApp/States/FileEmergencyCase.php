@@ -90,14 +90,9 @@ class FileEmergencyCase
 
                 if (
                     $message['type'] !== 'text' ||
-                    empty(trim($message['value']))
+                    empty(trim($message['value'] ?? ''))
                 ) {
-                    return SendMessage::text(
-                        $account->phone_number_id,
-                        $account->access_token,
-                        $message['from'],
-                        'من فضلك اشرح الأعراض التي تشعر بها حاليا',
-                    );
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 CreateEmergencyCase::execute(
@@ -119,7 +114,7 @@ class FileEmergencyCase
                     $message['type'] !== 'interactive' ||
                     empty($message['value'])
                 ) {
-                    return self::execute($conversation, $message);
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 $locationType = strtolower(trim($message['value']));
@@ -128,7 +123,7 @@ class FileEmergencyCase
                     self::ELSE,
                     self::HOSPITAL,
                 ])) {
-                    return self::execute($conversation, $message);
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 $inHospital = $locationType === self::HOSPITAL;
@@ -153,12 +148,7 @@ class FileEmergencyCase
             case self::STEP_LOCATION:
 
                 if ($message['type'] !== 'location') {
-                    return SendMessage::text(
-                        $account->phone_number_id,
-                        $account->access_token,
-                        $message['from'],
-                        'من فضلك أرسل موقعك الحالي.',
-                    );
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 $location = $message['value'];
@@ -184,14 +174,9 @@ class FileEmergencyCase
 
                 if (
                     $message['type'] !== 'text' ||
-                    empty(trim($message['value']))
+                    empty(trim($message['value'] ?? ''))
                 ) {
-                    return SendMessage::text(
-                        $account->phone_number_id,
-                        $account->access_token,
-                        $message['from'],
-                        'من فضلك اكتب اسم المستشفى.',
-                    );
+                    return self::invalidResponse($conversation, $message);
                 }
 
                 UpdateEmergencyCase::execute(
@@ -237,5 +222,21 @@ class FileEmergencyCase
             $message['from'],
             "تم تسجيل حالتك الطارئة\nمن فضلك اطلب المساعدة الطبية فورا أو تواصل مع خدمات الطوارئ إذا لزم الأمر.",
         );
+    }
+
+    private static function invalidResponse($conversation, $message)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        SendMessage::text(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+        );
+
+        return self::execute($conversation, $message);
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\APIServices\WhatsApp\States\InfoConfirmation;
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Notification;
@@ -30,6 +31,7 @@ class InfoConfirmationTest extends TestCase
         // 1. Create a doctor user and doctor profile
         $doctorUser = User::create([
             'name' => 'Doctor Name',
+            'phone' => '1111111111',
             'email' => 'doctor@example.com',
             'password' => bcrypt('password'),
         ]);
@@ -45,6 +47,7 @@ class InfoConfirmationTest extends TestCase
         // 3. Create a patient user and patient profile
         $patientUser = User::create([
             'name' => 'John Doe',
+            'phone' => '2222222222',
             'email' => 'patient@example.com',
             'password' => bcrypt('password'),
         ]);
@@ -53,11 +56,12 @@ class InfoConfirmationTest extends TestCase
         // 4. Create a WhatsApp conversation
         $conversation = WhatsAppConversation::create([
             'doctor_whatsapp_account_id' => $doctorAccount->id,
-            'patient_id' => $patient->id,
+            'user_id' => $patientUser->id,
             'phone_number' => '987654321',
             'state' => \App\Enums\ConversationState::INFO_CONFIRMATION,
             'data' => [
-                'name' => 'John Doe', // Same name
+                'name' => 'John Doe',
+            'phone' => '2222222222', // Same name
                 'age' => 30,
                 'address' => 'Test Address',
                 'callStack' => [\App\Enums\ConversationState::START->value],
@@ -88,6 +92,7 @@ class InfoConfirmationTest extends TestCase
         // 1. Create a doctor user and doctor profile
         $doctorUser = User::create([
             'name' => 'Doctor Name',
+            'phone' => '1111111111',
             'email' => 'doctor@example.com',
             'password' => bcrypt('password'),
         ]);
@@ -103,15 +108,24 @@ class InfoConfirmationTest extends TestCase
         // 3. Create a patient user and patient profile
         $patientUser = User::create([
             'name' => 'John Doe',
+            'phone' => '2222222222',
             'email' => 'patient@example.com',
             'password' => bcrypt('password'),
         ]);
         $patient = Patient::create(['user_id' => $patientUser->id]);
 
-        // 4. Create a WhatsApp conversation with a different name in the state data
+        // 4. Link the patient to the doctor so renaming creates a notification
+        Appointment::create([
+            'doctor_id' => $doctor->id,
+            'patient_id' => $patient->id,
+            'date' => now()->addDay(),
+            'duration' => 30,
+        ]);
+
+        // 5. Create a WhatsApp conversation with a different name in the state data
         $conversation = WhatsAppConversation::create([
             'doctor_whatsapp_account_id' => $doctorAccount->id,
-            'patient_id' => $patient->id,
+            'user_id' => $patientUser->id,
             'phone_number' => '987654321',
             'state' => \App\Enums\ConversationState::INFO_CONFIRMATION,
             'data' => [
@@ -140,8 +154,8 @@ class InfoConfirmationTest extends TestCase
         // A notification should be created for the doctor
         $this->assertEquals(1, Notification::count());
         $notification = Notification::first();
-        $this->assertEquals($doctorUser->id, $notification->user_id);
-        $this->assertEquals(\App\Enums\NotificationsType::PATIENT_PROFILE, $notification->type);
+        $this->assertEquals($doctorUser->id, $notification->receiver_id);
+        $this->assertEquals($patientUser->id, $notification->sender_id);
         $this->assertEquals('Patient name changed', $notification->title);
         $this->assertEquals('Patient John Doe has been renamed to Jonathan Doe', $notification->text);
     }
