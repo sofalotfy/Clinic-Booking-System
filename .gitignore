@@ -12,5 +12,7 @@
 .env
 .env.*
 !.env.example
+.specify
+.opencode
 .phpunit.result.cache
 composer.*

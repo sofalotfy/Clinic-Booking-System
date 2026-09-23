@@ -11,6 +11,7 @@ use App\Enums\ConversationState;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\WhatsappMessages;
 use App\APIServices\WhatsApp\AI\WhatsAppAiService;
+use App\Services\IdempotencyKeys\LogIdempotencyKey;
 use App\Services\Patients\Creations\StorePatient;
 
 class ConversationManager
@@ -29,6 +30,11 @@ class ConversationManager
         ]);
         // 1. Extract the message from the webhook
         $message = self::extractMessage($payload);
+
+        // Stop if this message was already processed
+        if (! LogIdempotencyKey::execute($message['message_id'])) {
+            return;
+        }
 
         \Log::info([
             'message_id' => $message['message_id'],
