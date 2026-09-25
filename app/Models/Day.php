@@ -42,6 +42,6 @@ class Day extends Model
 
     public function isActive()
     {
-        return self->status == DayStatus::ACTIVE;
+        return $this->status == DayStatus::ACTIVE->value;
     }
 }
