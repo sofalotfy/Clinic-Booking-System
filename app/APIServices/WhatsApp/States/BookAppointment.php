@@ -76,7 +76,7 @@ class BookAppointment
             ->pluck('id')
             ->all();
 
-        if (!in_array($message['value'], $availableDayIds, true)) {
+        if (!in_array((int) $message['value'], $availableDayIds, true)) {
             return self::invalidResponse($conversation, $message);
         }
 
@@ -97,15 +97,14 @@ class BookAppointment
 
             return BookSlot::execute($conversation, $message); 
         }else{
-            $conversation->update([
-                'state' => ConversationState::CONFIRM_BOOKING,
-                'data' => array_merge(
-                    $conversation->data ?? [],
-                    ['selected_day' => $day->id],
-                ),
-            ]);
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                'عذرا، لا يوجد مواعيد متاحه لهذا اليوم، من فضلك اختر يوم اخر'
+            );
 
-            return ConfirmBooking::execute($conversation, $message); 
+            return self::execute($conversation, $message);
         }        
     }
 
