@@ -10,6 +10,9 @@ Schedule::command('app:generate-doctor-schedules')
 Schedule::command('app:prune-idempotency-keys')
     ->dailyAt('00:00');
 
+Schedule::command('app:send-appointment-reminders')
+    ->dailyAt('08:00');
+
 Schedule::command('app:test-scheduler')
     ->everyMinute();
 

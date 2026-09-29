@@ -13,6 +13,7 @@ enum NotificationEnum
     case DOCTOR_APPOINTMENT_BOOKED;
     case DOCTOR_APPOINTMENT_RESCHEDULED;
     case DOCTOR_APPOINTMENT_CANCEL;
+    case PATIENT_DAY_APPOINTMENT_REMINDER;
 
     public function type(): self
     {
@@ -28,29 +29,26 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_BOOKED => 'Doctor Booked Appointment',
             self::DOCTOR_APPOINTMENT_RESCHEDULED => 'Doctor Rescheduled Appointment',
             self::DOCTOR_APPOINTMENT_CANCEL => 'Doctor Cancelled Appointment',
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => 'Patient Day Appointment Reminder',
         };
     }
 
     public function permission(): ?string
     {
         return match ($this) {
-            self::PATIENT_APPOINTMENT_BOOKED =>
-                'patient_appointment_booked_notifications',
+            self::PATIENT_APPOINTMENT_BOOKED => 'patient_appointment_booked_notifications',
 
-            self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                'patient_appointment_rescheduled_notifications',
+            self::PATIENT_APPOINTMENT_RESCHEDULED => 'patient_appointment_rescheduled_notifications',
 
-            self::PATIENT_APPOINTMENT_CANCEL =>
-                'patient_appointment_cancel_notifications',
+            self::PATIENT_APPOINTMENT_CANCEL => 'patient_appointment_cancel_notifications',
 
-            self::DOCTOR_APPOINTMENT_BOOKED =>
-                'doctor_appointment_booked_notifications',
+            self::DOCTOR_APPOINTMENT_BOOKED => 'doctor_appointment_booked_notifications',
 
-            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                'doctor_appointment_rescheduled_notifications',
+            self::DOCTOR_APPOINTMENT_RESCHEDULED => 'doctor_appointment_rescheduled_notifications',
 
-            self::DOCTOR_APPOINTMENT_CANCEL =>
-                'doctor_appointment_cancel_notifications',
+            self::DOCTOR_APPOINTMENT_CANCEL => 'doctor_appointment_cancel_notifications',
+
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder_notifications',
         };
     }
 
@@ -59,7 +57,8 @@ enum NotificationEnum
         return match ($this) {
             self::DOCTOR_APPOINTMENT_BOOKED,
             self::DOCTOR_APPOINTMENT_RESCHEDULED,
-            self::DOCTOR_APPOINTMENT_CANCEL => true,
+            self::DOCTOR_APPOINTMENT_CANCEL,
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => true,
 
             default => false,
         };
@@ -79,46 +78,38 @@ enum NotificationEnum
     public function templateName(array $data = []): string
     {
         return match ($this) {
-            self::PATIENT_APPOINTMENT_BOOKED =>
-                'appointment_booking_by_patient',
+            self::PATIENT_APPOINTMENT_BOOKED => 'appointment_booking_by_patient',
 
-            self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                'appointment_reschedule_by_patient',
+            self::PATIENT_APPOINTMENT_RESCHEDULED => 'appointment_reschedule_by_patient',
 
-            self::PATIENT_APPOINTMENT_CANCEL =>
-                'appointment_cancelation_by_patient',
+            self::PATIENT_APPOINTMENT_CANCEL => 'appointment_cancelation_by_patient',
 
-            self::DOCTOR_APPOINTMENT_BOOKED =>
-                'appointment_creation_by_doctor',
+            self::DOCTOR_APPOINTMENT_BOOKED => 'appointment_creation_by_doctor',
 
-            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                'appointment_reschedule_by_doctor',
+            self::DOCTOR_APPOINTMENT_RESCHEDULED => 'appointment_reschedule_by_doctor',
 
-            self::DOCTOR_APPOINTMENT_CANCEL =>
-                'appointment_cancelation_by_doctor',
+            self::DOCTOR_APPOINTMENT_CANCEL => 'appointment_cancelation_by_doctor',
+
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder',
         };
     }
 
     public function title(array $data = []): string
     {
         return match ($this) {
-            self::PATIENT_APPOINTMENT_BOOKED =>
-                'حجز جديد',
+            self::PATIENT_APPOINTMENT_BOOKED => 'حجز جديد',
 
-            self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                'تعديل موعد حجز',
+            self::PATIENT_APPOINTMENT_RESCHEDULED => 'تعديل موعد حجز',
 
-            self::PATIENT_APPOINTMENT_CANCEL =>
-                'إلغاء موعد حجز',
+            self::PATIENT_APPOINTMENT_CANCEL => 'إلغاء موعد حجز',
 
-            self::DOCTOR_APPOINTMENT_BOOKED =>
-                'حجز جديد',
+            self::DOCTOR_APPOINTMENT_BOOKED => 'حجز جديد',
 
-            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                'تعديل موعد حجز',
+            self::DOCTOR_APPOINTMENT_RESCHEDULED => 'تعديل موعد حجز',
 
-            self::DOCTOR_APPOINTMENT_CANCEL =>
-                'إلغاء موعد حجز',
+            self::DOCTOR_APPOINTMENT_CANCEL => 'إلغاء موعد حجز',
+
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => 'تذكير بموعد',
         };
     }
 
@@ -128,29 +119,29 @@ enum NotificationEnum
         $date = fn (string $key): string => ArabicDateFormatter::format(
             $data[$key] instanceof Carbon ? $data[$key] : Carbon::parse($data[$key])
         );
-    
+
+        // Time only, for same-day notifications where repeating the date is noise.
+        $time = fn (string $key): string => ArabicDateFormatter::formatTime(
+            ($data[$key] instanceof Carbon ? $data[$key] : Carbon::parse($data[$key]))->format('H:i')
+        );
+
         return match ($this) {
-            self::PATIENT_APPOINTMENT_BOOKED =>
-                "لديك موعد جديد {$data['patient_name']} " . $date('date'),
-    
-            self::PATIENT_APPOINTMENT_RESCHEDULED =>
-                "{$data['patient_name']} قام بتعديل موعده من "
-                . $date('from_date') . " ليصبح " . $date('to_date'),
-    
-            self::PATIENT_APPOINTMENT_CANCEL =>
-                "{$data['patient_name']} قام بإلغاء موعده " . $date('date'),
-    
-            self::DOCTOR_APPOINTMENT_BOOKED =>
-                "تم حجز موعدك في " . $date('date'),
-    
-            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                "تم تعديل موعدك من " . $date('from_date') . " ليصبح " . $date('to_date'),
-    
-            self::DOCTOR_APPOINTMENT_CANCEL =>
-                "تم إلغاء موعدك في " . $date('date'),
+            self::PATIENT_APPOINTMENT_BOOKED => "لديك موعد جديد {$data['patient_name']} ".$date('date'),
+
+            self::PATIENT_APPOINTMENT_RESCHEDULED => "{$data['patient_name']} قام بتعديل موعده من "
+                .$date('from_date').' ليصبح '.$date('to_date'),
+
+            self::PATIENT_APPOINTMENT_CANCEL => "{$data['patient_name']} قام بإلغاء موعده ".$date('date'),
+
+            self::DOCTOR_APPOINTMENT_BOOKED => 'تم حجز موعدك في '.$date('date'),
+
+            self::DOCTOR_APPOINTMENT_RESCHEDULED => 'تم تعديل موعدك من '.$date('from_date').' ليصبح '.$date('to_date'),
+
+            self::DOCTOR_APPOINTMENT_CANCEL => 'تم إلغاء موعدك في '.$date('date'),
+
+            self::PATIENT_DAY_APPOINTMENT_REMINDER => 'لديك موعد الساعة '.$time('date'),
         };
     }
-
 
     public function link(array $data = []): ?string
     {
@@ -162,11 +153,9 @@ enum NotificationEnum
     public function state(): ?ConversationState
     {
         return match ($this) {
-            self::DOCTOR_APPOINTMENT_BOOKED =>
-                ConversationState::DOCTOR_APPOINTMENT_BOOKING,
+            self::DOCTOR_APPOINTMENT_BOOKED => ConversationState::DOCTOR_APPOINTMENT_BOOKING,
 
-            self::DOCTOR_APPOINTMENT_RESCHEDULED =>
-                ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE,
+            self::DOCTOR_APPOINTMENT_RESCHEDULED => ConversationState::DOCTOR_APPOINTMENT_RESCHEDULE,
 
             default => null,
         };

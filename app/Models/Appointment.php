@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentGrade;
-use App\Models\Doctor;
-use App\Models\Patient;
+use App\Enums\AppointmentStatus;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Appointment extends Model
 {
     public $old_date;
-    
+
     protected $guarded = [];
 
     /**
@@ -31,7 +29,7 @@ class Appointment extends Model
     /**
      * Get the doctor for this appointment.
      */
-    public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
     }
@@ -39,7 +37,7 @@ class Appointment extends Model
     /**
      * Get the patient for this appointment.
      */
-    public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
     }
