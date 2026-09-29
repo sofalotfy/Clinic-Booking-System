@@ -9,13 +9,11 @@ enum ConversationState: string
     case MANAGE_APPOINTMENT = 'manage_appointment';
     case SUBMIT_FEEDBACK = 'submit_feedback';
     case BOOK_APPOINTMENT = 'book_appointment';
-    case RESCHEDULE_APPOINTMENT = 'reschedule_appointment';
     case CANCEL_APPOINTMENT = 'cancel_appointment';
     case INFO_INQUIRY = 'info_inquiry';
     case INFO_CONFIRMATION = 'info_confirmation';
     case BOOK_SLOT = 'book_slot';
     case CONFIRM_BOOKING = 'confirm_booking';
-    case CONFIRM_RESHEDULE = 'confirm_reshedule';
     case EMERGENCY_CASE = 'emergency_case';
     case EMERGENCY_CASE_IN_HOME = 'emergency_case_in_home';
     case EMERGENCY_CASE_IN_HOSPITAL = 'emergency_case_in_hospital';
@@ -24,7 +22,7 @@ enum ConversationState: string
     case IDLE = 'idle';
     case CHOOSE_REPLACE_DAY = 'choose_replace_day';
 
-    //Notification Status
+    // Notification Status
     case DOCTOR_APPOINTMENT_BOOKING = 'doctor_appointment_booking';
     case DOCTOR_APPOINTMENT_RESCHEDULE = 'doctor_appointment_reschedule';
 }

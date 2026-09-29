@@ -3,9 +3,6 @@
 namespace App\Services\Appointments\Modifications;
 
 use App\Enums\AppointmentStatus;
-use App\Enums\AppointmentUpdateNotificationTypes;
-use App\Enums\UserType;
-use App\Services\Appointments\General\NotifyPatientOfReschedule;
 
 class ActivateAppointment
 {
@@ -18,8 +15,6 @@ class ActivateAppointment
             'status' => AppointmentStatus::ACTIVE,
             'isConfirmed' => false,
         ]);
-
-        NotifyPatientOfReschedule::execute($user, $appointment, $appointment->date, AppointmentUpdateNotificationTypes::ACTIVATE);
 
         return $appointment;
     }

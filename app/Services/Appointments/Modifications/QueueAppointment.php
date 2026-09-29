@@ -4,7 +4,6 @@ namespace App\Services\Appointments\Modifications;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentUpdateNotificationTypes;
-use App\Services\Appointments\General\NotifyPatientOfReschedule;
 
 class QueueAppointment
 {
@@ -23,8 +22,6 @@ class QueueAppointment
 
         if($user->isPatient())
             return $appointment;
-
-        NotifyPatientOfReschedule::execute($user, $appointment, null, $type);
 
         return $appointment;
     }
