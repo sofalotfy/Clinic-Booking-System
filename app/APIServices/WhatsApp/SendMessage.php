@@ -11,8 +11,7 @@ class SendMessage
         string $accessToken,
         string $to,
         string $message
-    ){
-        \Log::info('SEND MESSAGE ' . $accessToken);
+    ) {
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
                 'messaging_product' => 'whatsapp',
@@ -24,7 +23,7 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
-            \Log::info('SEND MESSAGE ' . $response->body());
+            \Log::info('SEND MESSAGE '.$response->body());
 
             return false;
         }
@@ -32,7 +31,6 @@ class SendMessage
         return $response->json();
     }
 
-    
     public static function buttons(
         string $phoneNumberId,
         string $accessToken,
@@ -65,7 +63,7 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
-            \Log::info('SEND MESSAGE ' . $response->body());
+            \Log::info('SEND MESSAGE '.$response->body());
 
             return false;
         }
@@ -116,7 +114,7 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
-            \Log::info('SEND MESSAGE ' . $response->body());
+            \Log::info('SEND MESSAGE '.$response->body());
 
             return false;
         }
@@ -147,7 +145,7 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
-            \Log::info('SEND MESSAGE ' . $response->body());
+            \Log::info('SEND MESSAGE '.$response->body());
 
             return false;
         }
@@ -183,7 +181,7 @@ class SendMessage
 
         // Body: ['Ahmed', '#10432'] for {{1}}, {{2}}
         // or ['name' => 'Ahmed'] for named variables like {{name}}
-        if (!empty($bodyParams)) {
+        if (! empty($bodyParams)) {
             $components[] = [
                 'type' => 'body',
                 'parameters' => collect($bodyParams)->map(function ($value, $key) {
@@ -227,7 +225,7 @@ class SendMessage
             'language' => ['code' => $languageCode],
         ];
 
-        if (!empty($components)) {
+        if (! empty($components)) {
             $template['components'] = $components;
         }
 
@@ -240,7 +238,7 @@ class SendMessage
             ]);
 
         if ($response->failed()) {
-            \Log::info('SEND TEMPLATE ' . $response->body());
+            \Log::info('SEND TEMPLATE '.$response->body());
 
             return false;
         }
