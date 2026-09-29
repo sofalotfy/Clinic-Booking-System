@@ -12,7 +12,8 @@ class CheckAvailability
     public static function execute(Day $day): bool
     {
         $start = Carbon::parse($day->date . ' ' . $day->start_time);
-        $end = Carbon::parse($day->date . ' ' . $day->end_time);
+        $end = Carbon::parse($day->date . ' ' 
+        . $day->end_time);
 
         $totalSlots = intdiv(
             $start->diffInMinutes($end),
