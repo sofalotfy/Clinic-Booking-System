@@ -26,7 +26,7 @@ class DoctorAppointmentBooking
         $appointment = Appointment::findOrFail($conversation->data['appointment_id']);
 
         $date = ArabicDateFormatter::format(
-            Carbon::parse($appointment->date . ' ' . $appointment->start_time)
+            Carbon::parse($appointment->date)
         );
 
         return SendMessage::template(
@@ -51,7 +51,7 @@ class DoctorAppointmentBooking
     {
         // Template quick replies arrive as "button",
         // normal interactive replies as "interactive".
-        if (!in_array($message['type'] ?? null, ['interactive', 'button'], true)) {
+        if (! in_array($message['type'] ?? null, ['interactive', 'button'], true)) {
             SendMessage::text(
                 DoctorWhatsAppAccount::findOrFail(
                     $conversation->doctor_whatsapp_account_id
@@ -69,7 +69,7 @@ class DoctorAppointmentBooking
         $value = $message['value']
             ?? ($message['button']['payload'] ?? null);
 
-        if (!in_array($value, ['confirm', 'reschedule', 'cancel'], true)) {
+        if (! in_array($value, ['confirm', 'reschedule', 'cancel'], true)) {
             $account = DoctorWhatsAppAccount::findOrFail(
                 $conversation->doctor_whatsapp_account_id
             );
@@ -105,7 +105,7 @@ class DoctorAppointmentBooking
                 );
 
                 $conversation->update([
-                    'state' => ConversationState::START
+                    'state' => ConversationState::START,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
@@ -114,7 +114,7 @@ class DoctorAppointmentBooking
 
             case 'reschedule':
                 $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT
+                    'state' => ConversationState::BOOK_APPOINTMENT,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
@@ -135,7 +135,7 @@ class DoctorAppointmentBooking
                 );
 
                 $conversation->update([
-                    'state' => ConversationState::START
+                    'state' => ConversationState::START,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);

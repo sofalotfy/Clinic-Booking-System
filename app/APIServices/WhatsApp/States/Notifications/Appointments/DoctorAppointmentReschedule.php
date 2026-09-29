@@ -28,7 +28,7 @@ class DoctorAppointmentReschedule
         $includeTime = ! ($conversation->data['is_queued'] ?? false);
 
         $newDate = ArabicDateFormatter::format(
-            Carbon::parse($appointment->date . ' ' . $appointment->start_time),
+            Carbon::parse($appointment->date),
             includeTime: $includeTime
         );
 
@@ -120,7 +120,7 @@ class DoctorAppointmentReschedule
                 );
 
                 $conversation->update([
-                    'state' => ConversationState::START
+                    'state' => ConversationState::START,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
@@ -129,7 +129,7 @@ class DoctorAppointmentReschedule
 
             case 'reschedule':
                 $conversation->update([
-                    'state' => ConversationState::BOOK_APPOINTMENT
+                    'state' => ConversationState::BOOK_APPOINTMENT,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
@@ -150,7 +150,7 @@ class DoctorAppointmentReschedule
                 );
 
                 $conversation->update([
-                    'state' => ConversationState::START
+                    'state' => ConversationState::START,
                 ]);
 
                 MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);

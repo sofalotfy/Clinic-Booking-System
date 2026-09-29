@@ -28,7 +28,7 @@ class DoctorAppointmentCancel extends Handler
 
     private static function buildBody(Model $model, $notification): string
     {
-        $dateTime = Carbon::parse("{$model->date} {$model->start_time}")->format('M j, Y g:i A');
+        $dateTime = Carbon::parse($model->date)->format('M j, Y g:i A');
 
         return $notification->body([
             'date' => $dateTime,
@@ -40,7 +40,7 @@ class DoctorAppointmentCancel extends Handler
         return [
             'name' => $receiver->name,
             'date' => ArabicDateFormatter::format(
-                Carbon::parse("{$model->date} {$model->start_time}")
+                Carbon::parse($model->date)
             ),
         ];
     }

@@ -7,7 +7,6 @@ use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Appointments\Retrievals\GetUpComingAppointment;
 use App\Support\ArabicDateFormatter;
-use App\APIServices\WhatsApp\States\InfoInquiry;
 use Carbon\Carbon;
 
 class ManageAppointment
@@ -57,14 +56,14 @@ class ManageAppointment
     {
         $userName = $conversation->user->name;
 
-        $dateTime = Carbon::parse($appointment->date . ' ' . $appointment->start_time);
+        $dateTime = Carbon::parse($appointment->date);
         $formattedDate = ArabicDateFormatter::format($dateTime);
 
         $greeting = $userName
             ? "أهلا {$userName}\n"
             : "أهلا بك\n";
 
-        $text = $greeting . "لديك موعد يوم {$formattedDate}";
+        $text = $greeting."لديك موعد يوم {$formattedDate}";
 
         SendMessage::buttons(
             $account->phone_number_id,

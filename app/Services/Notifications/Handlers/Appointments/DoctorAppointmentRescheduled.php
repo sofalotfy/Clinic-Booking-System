@@ -37,7 +37,7 @@ class DoctorAppointmentRescheduled extends Handler
 
         return $notification->body([
             'from_date' => $fromDate,
-            'to_date'   => $toDate,
+            'to_date' => $toDate,
         ]);
     }
 
@@ -45,7 +45,7 @@ class DoctorAppointmentRescheduled extends Handler
     {
         $data = [
             'appointment_id' => $model->id,
-            'is_queued'      => $model->status == AppointmentStatus::QUEUED,
+            'is_queued' => $model->status == AppointmentStatus::QUEUED,
         ];
 
         // Raw value; the state class formats it in Arabic when sending the template
