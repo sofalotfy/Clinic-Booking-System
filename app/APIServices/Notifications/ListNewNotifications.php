@@ -8,8 +8,9 @@ class ListNewNotifications
 {
     public static function execute($request)
     {
-        $notifications = Notification::where('user_id',$request->user()->id)->where('viewed',false)->get();
-
-        return $notifications;
+        return Notification::forUser($request->user())
+            ->unread()
+            ->latest()
+            ->get();
     }
 }

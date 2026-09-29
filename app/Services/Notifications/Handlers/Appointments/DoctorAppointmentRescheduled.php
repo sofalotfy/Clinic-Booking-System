@@ -3,6 +3,7 @@
 namespace App\Services\Notifications\Handlers\Appointments;
 
 use App\Enums\AppointmentStatus;
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatefulNotification;
 use App\Services\Notifications\Handlers\Handler;
@@ -40,7 +41,7 @@ class DoctorAppointmentRescheduled extends Handler
         ]);
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
         $data = [
             'appointment_id' => $model->id,
@@ -52,6 +53,13 @@ class DoctorAppointmentRescheduled extends Handler
             $data['old_date'] = Carbon::parse($model->old_date)->toDateTimeString();
         }
 
-        SendWhatsAppStatefulNotification::execute($sender, $receiver, $clinicId, $notification, $data);
+        return SendWhatsAppStatefulNotification::execute(
+            $sender,
+            $receiver,
+            $clinicId,
+            $notification,
+            $data,
+            $systemNotification?->id,
+        );
     }
 }

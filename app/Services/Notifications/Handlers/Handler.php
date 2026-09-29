@@ -2,6 +2,7 @@
 
 namespace App\Services\Notifications\Handlers;
 
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\Notifications\Channels\PushSystemNotification;
 use Illuminate\Database\Eloquent\Model;
@@ -19,15 +20,37 @@ class Handler
         \Log::info("in handler receivers " . $receivers->toJson());
         foreach ($receivers as $receiver) {
             \Log::info("in handler iteration for {$receiver->name}");
-            
-            PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
 
-            static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $model, $title, $body);
+            $systemNotification = PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
+
+            static::deliver($systemNotification, $sender, $receiver, $clinicId, $notification, $model, $title, $body);
         }
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
+    /**
+     * Run the WhatsApp channel for a single receiver and record the outcome on
+     * the in-app notification. A channel failure must never bubble up into the
+     * caller, which is usually mid-appointment inside a transaction.
+     */
+    protected static function deliver(Notification $systemNotification, User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
-        //
+        try {
+            $result = static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $model, $title, $body, $systemNotification);
+        } catch (\Throwable $exception) {
+            \Log::error("Notification {$systemNotification->id} whatsapp channel threw: " . $exception->getMessage());
+
+            $systemNotification->markFailed($exception->getMessage());
+
+            return;
+        }
+
+        $result === false
+            ? $systemNotification->markFailed('WhatsApp channel reported a failure')
+            : $systemNotification->markSent();
+    }
+
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
+    {
+        return null;
     }
 }

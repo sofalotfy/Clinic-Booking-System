@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\APIServices\WhatsApp\States\InfoConfirmation;
-use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Notification;
@@ -87,7 +86,7 @@ class InfoConfirmationTest extends TestCase
         $this->assertEquals(0, Notification::count());
     }
 
-    public function test_confirm_response_with_name_change_creates_notification()
+    public function test_confirm_response_with_name_change_updates_the_user_without_notifying()
     {
         // 1. Create a doctor user and doctor profile
         $doctorUser = User::create([
@@ -114,15 +113,7 @@ class InfoConfirmationTest extends TestCase
         ]);
         $patient = Patient::create(['user_id' => $patientUser->id]);
 
-        // 4. Link the patient to the doctor so renaming creates a notification
-        Appointment::create([
-            'doctor_id' => $doctor->id,
-            'patient_id' => $patient->id,
-            'date' => now()->addDay(),
-            'duration' => 30,
-        ]);
-
-        // 5. Create a WhatsApp conversation with a different name in the state data
+        // 4. Create a WhatsApp conversation with a different name in the state data
         $conversation = WhatsAppConversation::create([
             'doctor_whatsapp_account_id' => $doctorAccount->id,
             'user_id' => $patientUser->id,
@@ -151,12 +142,7 @@ class InfoConfirmationTest extends TestCase
         $this->assertEquals(31, $patientUser->age);
         $this->assertEquals('New Address', $patientUser->area);
 
-        // A notification should be created for the doctor
-        $this->assertEquals(1, Notification::count());
-        $notification = Notification::first();
-        $this->assertEquals($doctorUser->id, $notification->receiver_id);
-        $this->assertEquals($patientUser->id, $notification->sender_id);
-        $this->assertEquals('Patient name changed', $notification->title);
-        $this->assertEquals('Patient John Doe has been renamed to Jonathan Doe', $notification->text);
+        // Renames no longer notify the clinic.
+        $this->assertEquals(0, Notification::count());
     }
 }

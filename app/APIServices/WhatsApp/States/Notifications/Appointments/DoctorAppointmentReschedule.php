@@ -3,12 +3,15 @@
 namespace App\APIServices\WhatsApp\States\Notifications\Appointments;
 
 use App\APIServices\WhatsApp\SendMessage;
+use App\APIServices\WhatsApp\States\BookAppointment;
+use App\APIServices\WhatsApp\States\Start;
 use App\Enums\ConversationState;
 use App\Models\Appointment;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\WhatsAppConversation;
 use App\Services\Appointments\Modifications\ConfirmAppointment;
 use App\Services\Appointments\Modifications\DenyAppointmentConfirmation;
+use App\Services\Notifications\Modifications\MarkNotificationViewed;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 
@@ -120,12 +123,16 @@ class DoctorAppointmentReschedule
                     'state' => ConversationState::START
                 ]);
 
+                MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
+
                 return Start::execute($conversation, $message);
 
             case 'reschedule':
                 $conversation->update([
                     'state' => ConversationState::BOOK_APPOINTMENT
                 ]);
+
+                MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
 
                 return BookAppointment::execute($conversation, $message);
 
@@ -145,6 +152,8 @@ class DoctorAppointmentReschedule
                 $conversation->update([
                     'state' => ConversationState::START
                 ]);
+
+                MarkNotificationViewed::execute($conversation->data['notification_id'] ?? null);
 
                 return Start::execute($conversation, $message);
         }

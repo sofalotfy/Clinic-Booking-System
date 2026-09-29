@@ -11,10 +11,13 @@ class SyncNotification
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $notifications = Notification::where('user_id', auth()->id())->where('viewed',false)->get();
+        $notifications = Notification::forUser($request->user())
+            ->unread()
+            ->latest()
+            ->get();
 
-        session(['notifications' => $notifications , 'notifications_count'  => count($notifications)]);
+        session(['notifications' => $notifications, 'notifications_count' => count($notifications)]);
 
         return $next($request);
-    }   
+    }
 }

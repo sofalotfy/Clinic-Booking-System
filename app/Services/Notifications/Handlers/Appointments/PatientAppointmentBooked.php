@@ -2,6 +2,7 @@
 
 namespace App\Services\Notifications\Handlers\Appointments;
 
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
 use App\Services\Notifications\Handlers\Handler;
@@ -47,9 +48,9 @@ class PatientAppointmentBooked extends Handler
         ];
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
+    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
-        SendWhatsAppStatelessNotification::execute(
+        return SendWhatsAppStatelessNotification::execute(
             $sender,
             $receiver,
             $clinicId,

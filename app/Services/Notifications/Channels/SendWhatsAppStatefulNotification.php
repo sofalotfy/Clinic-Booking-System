@@ -9,16 +9,31 @@ use App\Models\WhatsAppConversation;
 
 class SendWhatsAppStatefulNotification
 {
-    public static function execute(User $sender, User $receiver, int $clinicId, $type, array $data = [])
-    {
+    /**
+     * Returns null when the clinic has no active WhatsApp account, meaning
+     * the channel was not applicable rather than attempted and failed.
+     *
+     * The in-app notification row is threaded through the conversation data so
+     * the patient's reply can be reconciled with it.
+     */
+    public static function execute(
+        User $sender,
+        User $receiver,
+        int $clinicId,
+        $type,
+        array $data = [],
+        ?int $notificationId = null
+    ): ?bool {
         \Log::info("Creating whatsapp stateful notification for user {$receiver->name}");
-        
+
         $account = DoctorWhatsAppAccount::where('doctor_id', $clinicId)
             ->where('is_active', true)
             ->first();
 
         if (! $account) {
-            return;
+            \Log::info("No active whatsapp account for clinic {$clinicId}, skipping stateful notification");
+
+            return null;
         }
 
         $conversation = WhatsAppConversation::firstOrCreate(
@@ -34,12 +49,18 @@ class SendWhatsAppStatefulNotification
             $conversation->update(['user_id' => $receiver->id]);
         }
 
+        $data = array_merge([
+            'name' => $receiver->name,
+            'template_name' => $type->templateName(),
+        ], $data);
+
+        if ($notificationId !== null) {
+            $data['notification_id'] = $notificationId;
+        }
+
         $conversation->update([
             'state' => $type->state(),
-            'data' => array_merge([
-                'name' => $receiver->name,
-                'template_name' => $type->templateName(),
-            ], $data),
+            'data' => $data,
             'last_activity_at' => now(),
         ]);
 
@@ -48,6 +69,7 @@ class SendWhatsAppStatefulNotification
             'from' => $receiver->phone,
             'type' => 'notification',
         ];
-        ExecutionRouter::execute($conversation,$message);
+
+        return ExecutionRouter::execute($conversation, $message) !== false;
     }
 }

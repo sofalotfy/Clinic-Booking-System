@@ -8,21 +8,20 @@ class ViewBulkNotification
 {
     public static function execute($request)
     {
-        if(!isset($request->ids)){
+        $ids = $request->input('ids');
+
+        if (! is_array($ids) || $ids === []) {
             abort(400, 'Missing notification IDs!');
         }
 
-        $notifications = Notification::where('user_id',$request->user()->id)->whereIn('id', $request->ids)->update([
-            "viewed" => true,
-        ]);
+        Notification::forUser($request->user())->whereIn('id', $ids)->update(['viewed' => true]);
 
-        if($notifications == 0){
+        $notifications = Notification::forUser($request->user())->whereIn('id', $ids)->get();
+
+        // Scoped to the receiver, so this also covers ids belonging to other users.
+        if ($notifications->isEmpty()) {
             abort(404, 'No notifications found!');
         }
-
-        $notifications = Notification::where('user_id', $request->user()->id)
-            ->whereIn('id', $request->ids)
-            ->get();
 
         return $notifications;
     }

@@ -25,8 +25,8 @@ class SendMessage
 
         if ($response->failed()) {
             \Log::info('SEND MESSAGE ' . $response->body());
-            return;
-            throw new \Exception($response->body());
+
+            return false;
         }
 
         return $response->json();
@@ -66,8 +66,8 @@ class SendMessage
 
         if ($response->failed()) {
             \Log::info('SEND MESSAGE ' . $response->body());
-            return;
-            throw new \Exception($response->body());
+
+            return false;
         }
 
         return $response->json();
@@ -117,8 +117,8 @@ class SendMessage
 
         if ($response->failed()) {
             \Log::info('SEND MESSAGE ' . $response->body());
-            return;
-            throw new \Exception($response->body());
+
+            return false;
         }
 
         return $response->json();
@@ -148,8 +148,8 @@ class SendMessage
 
         if ($response->failed()) {
             \Log::info('SEND MESSAGE ' . $response->body());
-            return;
-            throw new \Exception($response->body());
+
+            return false;
         }
 
         return $response->json();
@@ -241,8 +241,8 @@ class SendMessage
 
         if ($response->failed()) {
             \Log::info('SEND TEMPLATE ' . $response->body());
-            return;
-            throw new \Exception($response->body());
+
+            return false;
         }
 
         return $response->json();

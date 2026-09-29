@@ -11,6 +11,9 @@ class SendWhatsAppStatelessNotification
     public const DEFAULT_LANGUAGE = 'ar_EG';
 
     /**
+     * Returns null when the clinic has no active WhatsApp account, meaning
+     * the channel was not applicable rather than attempted and failed.
+     *
      * @param string $templateName  technical template name, e.g. "doctor_appointment_cancel"
      * @param array  $params        named variables, e.g. ['name' => 'Ahmed', 'date' => '...']
      */
@@ -21,7 +24,7 @@ class SendWhatsAppStatelessNotification
         string $templateName,
         array $params = [],
         string $language = self::DEFAULT_LANGUAGE
-    ) {
+    ): ?bool {
         \Log::info("Creating whatsapp template notification '{$templateName}' for user {$receiver->name}");
 
         $account = DoctorWhatsAppAccount::where('doctor_id', $clinicId)
@@ -29,7 +32,9 @@ class SendWhatsAppStatelessNotification
             ->first();
 
         if (! $account) {
-            return;
+            \Log::info("No active whatsapp account for clinic {$clinicId}, skipping template '{$templateName}'");
+
+            return null;
         }
 
         return SendMessage::template(
@@ -39,6 +44,6 @@ class SendWhatsAppStatelessNotification
             $templateName,
             $language,
             bodyParams: $params
-        );
+        ) !== false;
     }
 }
