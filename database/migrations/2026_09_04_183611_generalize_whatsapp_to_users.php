@@ -16,12 +16,14 @@ return new class extends Migration
             });
         }
 
-        // 2. Backfill user_id from patient_id
-        DB::statement("
-            UPDATE whats_app_conversations
-            SET user_id = (SELECT p.user_id FROM patients p WHERE p.id = whats_app_conversations.patient_id)
-            WHERE whats_app_conversations.patient_id IS NOT NULL
-        ");
+        // 2. Backfill user_id from patient_id (only if patient_id still exists)
+        if (Schema::hasColumn('whats_app_conversations', 'patient_id')) {
+            DB::statement("
+                UPDATE whats_app_conversations
+                SET user_id = (SELECT p.user_id FROM patients p WHERE p.id = whats_app_conversations.patient_id)
+                WHERE whats_app_conversations.patient_id IS NOT NULL
+            ");
+        }
 
         // 3. Drop the old patient_id FK/column
         if (Schema::hasColumn('whats_app_conversations', 'patient_id')) {
@@ -39,10 +41,23 @@ return new class extends Migration
             });
         }
 
-        // 4. Tighten user_id to NOT NULL now that it's backfilled
+        // 4. Tighten user_id to NOT NULL (FK must be dropped first on MySQL)
         if (Schema::hasColumn('whats_app_conversations', 'user_id')) {
+            $hasUserForeignKey = collect(Schema::getForeignKeys('whats_app_conversations'))
+                ->contains(fn ($fk) => in_array('user_id', $fk['columns'], true));
+
+            if ($hasUserForeignKey) {
+                Schema::table('whats_app_conversations', function (Blueprint $table) {
+                    $table->dropForeign(['user_id']);
+                });
+            }
+
             Schema::table('whats_app_conversations', function (Blueprint $table) {
                 $table->unsignedBigInteger('user_id')->nullable(false)->change();
+            });
+
+            Schema::table('whats_app_conversations', function (Blueprint $table) {
+                $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             });
         }
     }
