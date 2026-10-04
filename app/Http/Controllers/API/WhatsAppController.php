@@ -17,8 +17,7 @@ class WhatsAppController extends Controller
      * Verify webhook with Meta.
      */
     public function verify(Request $request)
-    {
-        
+    {   
         \Log::info('Meta verification hit', $request->all());
 
         if (
@@ -38,10 +37,10 @@ class WhatsAppController extends Controller
      */
     public function receive(Request $request)
     {
-        // Only production forwards, so staging can never loop back
-        if (app()->environment('production') && $this->isForTestNumber($request)) {
-            return $this->forwardToStaging($request);
-        }
+        // // Only production forwards, so staging can never loop back
+        // if (app()->environment('production') && $this->isForTestNumber($request)) {
+        //     return $this->forwardToStaging($request);
+        // }
         ConversationManager::execute($request->all());
 
         return response()->json([
