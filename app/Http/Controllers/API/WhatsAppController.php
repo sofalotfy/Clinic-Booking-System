@@ -9,6 +9,7 @@ use App\Models\Doctor;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Models\DoctorWhatsAppAccount;
 use App\APIServices\WhatsApp\ConversationManager;
+use Illuminate\Support\Facades\Http;
 
 class WhatsAppController extends Controller
 {
@@ -17,6 +18,10 @@ class WhatsAppController extends Controller
      */
     public function verify(Request $request)
     {
+        // Only production forwards, so staging can never loop back
+        if (app()->environment('production') && $this->isForTestNumber($request)) {
+            return $this->forwardToStaging($request);
+        }
         \Log::info('Meta verification hit', $request->all());
 
         if (
@@ -41,5 +46,31 @@ class WhatsAppController extends Controller
         return response()->json([
             'success' => true,
         ]);
+    }
+
+    private function isForTestNumber(Request $request): bool
+    {
+        $id = data_get($request->all(), 'entry.0.changes.0.value.metadata.phone_number_id');
+
+        return $id && (string) $id === (string) config('services.whatsapp.test_phone_number_id');
+    }
+
+    private function forwardToStaging(Request $request)
+    {
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'X-Hub-Signature-256' => $request->header('X-Hub-Signature-256', ''),
+                ])
+                ->withBody($request->getContent(), 'application/json')
+                ->post(config('services.whatsapp.staging_webhook_url'));
+
+            return response($response->body(), $response->status())
+                ->header('Content-Type', $response->header('Content-Type') ?? 'text/plain');
+        } catch (\Throwable $e) {
+            Log::warning('Forward to staging failed: ' . $e->getMessage());
+
+            return response('OK', 200); // keep Meta happy
+        }
     }
 }
