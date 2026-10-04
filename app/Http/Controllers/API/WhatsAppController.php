@@ -58,12 +58,24 @@ class WhatsAppController extends Controller
     private function forwardToStaging(Request $request)
     {
         try {
+            $url = config('services.whatsapp.staging_webhook_url');
+            Log::info('Forwarding webhook to staging', [
+                'url' => $url,
+                'environment' => app()->environment(),
+                'phone_number_id' => data_get($request->all(), 'entry.0.changes.0.value.metadata.phone_number_id'),
+            ]);
+
             $response = Http::timeout(10)
                 ->withHeaders([
                     'X-Hub-Signature-256' => $request->header('X-Hub-Signature-256', ''),
                 ])
                 ->withBody($request->getContent(), 'application/json')
-                ->post(config('services.whatsapp.staging_webhook_url'));
+                ->post($url);
+
+            Log::info('Forward to staging completed', [
+                'status' => $response->status(),
+                'success' => $response->successful(),
+            ]);
 
             return response($response->body(), $response->status())
                 ->header('Content-Type', $response->header('Content-Type') ?? 'text/plain');
