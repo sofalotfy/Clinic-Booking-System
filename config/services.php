@@ -37,6 +37,8 @@ return [
 
     'whatsapp' => [
         'verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+        'test_phone_number_id' => env('WHATSAPP_TEST_PHONE_NUMBER_ID'),
+        'staging_webhook_url' => env('WHATSAPP_STAGING_WEBHOOK_URL'),
     ],
 
 ];
