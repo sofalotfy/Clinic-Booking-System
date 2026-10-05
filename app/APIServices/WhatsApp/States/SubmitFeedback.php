@@ -55,6 +55,8 @@ class SubmitFeedback
         $conversation->update([
             'state' => ConversationState::MAIN_MENU,
         ]);
+
+        return MainMenu::execute($conversation, $message);
     }
 
     private static function invalidResponse($conversation, $message)

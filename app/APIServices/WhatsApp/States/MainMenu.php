@@ -128,8 +128,6 @@ class MainMenu
                 ]);
 
                 SubmitFeedback::execute($conversation, $message);
-
-                self::execute($conversation, $message);
                 return;
         }
 

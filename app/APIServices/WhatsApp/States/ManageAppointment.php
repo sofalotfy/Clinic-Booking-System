@@ -110,8 +110,8 @@ class ManageAppointment
                     'title' => 'تحديث البيانات',
                 ],
                 [
-                    'id' => 'end_conversation',
-                    'title' => 'إنهاء المحادثة',
+                    'id' => 'back_to_mainmenu',
+                    'title' => 'العودة للقائمة الرئيسية',
                 ],
             ]
         );
@@ -165,6 +165,9 @@ class ManageAppointment
                 ]);
 
                 return InfoInquiry::execute($conversation, $message);
+
+            case 'back_to_mainmenu':
+                return MainMenu::execute($conversation, $message);
 
             case 'end_conversation':
                 $conversation->delete();
