@@ -7,6 +7,7 @@ use App\Enums\AssistantPermissionsEnum;
 use App\Enums\AdminPermissionsEnum;
 use App\Enums\PermissionsTypeEnum;
 use App\Enums\NotificationEnum;
+use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -48,9 +49,45 @@ class PermissionTableSeeder extends Seeder
             );
         }
 
-        $role = Role::firstOrCreate([
-            'name' => 'Super Admin'
+        // doctor_id is pinned to null so firstOrCreate cannot latch onto a
+        // doctor-scoped role of the same name created through the API, whose
+        // permissions would then be overwritten by syncPermissions.
+        $superAdminRole = Role::firstOrCreate([
+            'name'       => 'Super Admin',
+            'doctor_id'  => null,
+            'guard_name' => 'web',
         ]);
-        $role->syncPermissions(Permission::pluck('id'));
+        $superAdminRole->syncPermissions(Permission::pluck('id'));
+
+        // syncPermissions reconciles the pivot on every run, so permissions
+        // added to the enums later are picked up without extra bookkeeping.
+        $doctorRole = Role::firstOrCreate([
+            'name'       => 'doctor',
+            'doctor_id'  => null,
+            'guard_name' => 'web',
+        ]);
+        $doctorRole->syncPermissions(
+            Permission::where('type', '!=', PermissionsTypeEnum::ADMIN->value)->pluck('id')
+        );
+
+        $missingDoctors = fn () => User::query()
+            ->has('doctor')
+            ->whereDoesntHave('roles', fn ($query) => $query->where('roles.id', $doctorRole->id));
+
+        $missing = $missingDoctors()->count();
+
+        if ($missing === 0) {
+            $this->command?->info('All doctors already have the doctor role.');
+
+            return;
+        }
+
+        $missingDoctors()->chunkById(200, function ($users) use ($doctorRole) {
+            foreach ($users as $user) {
+                $user->assignRole($doctorRole);
+            }
+        });
+
+        $this->command?->info("Assigned the doctor role to {$missing} doctor(s).");
     }
 }
