@@ -16,6 +16,8 @@ class MainMenu
     private const ABOUT_DOCTOR = 'about_doctor';
     private const SUBMIT_FEEDBACK = 'submit_feedback';
 
+    private const CONTACT_NUMBERS = '٠٦٥٤٦٦٦٥٧٧٦٤٣';
+
     public static function execute($conversation, $message)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
@@ -36,7 +38,7 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "\nفضلا اختار من القائمة",
+            $greeting . "\nفضلا اختر من القائمة",
             'القائمة الرئيسية',
             [
                 [
@@ -104,7 +106,7 @@ class MainMenu
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    $clinic->location_link,
+                    self::clinicInfo($clinic),
                 );
                 return;
 
@@ -126,6 +128,22 @@ class MainMenu
         }
 
         return self::invalidResponse($conversation, $message);
+    }
+
+    private static function clinicInfo($clinic): string
+    {
+        $lines = ['*بيانات العيادة*'];
+
+        $lines[] = "\n*الموقع على خرائط جوجل*\n" . $clinic->location_link;
+
+        if ($clinic->address) {
+            $lines[] = "\n*العنوان*\n" . $clinic->address;
+        }
+
+        $lines[] = "\n*ارقام التواصل*\n" . self::CONTACT_NUMBERS;
+        $lines[] = "\n_ملاحظة: الارقام تعمل فقط خلال اوقات العمل الرسمية للعيادة_";
+
+        return implode("\n", $lines);
     }
 
     private static function invalidResponse($conversation, $message)
