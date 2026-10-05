@@ -57,6 +57,7 @@ class PatientAppointmentRescheduled extends Handler
 
         return [
             'name' => $patientUser->name,
+            'phone' => $patientUser->phone,
             'date_from' => $format($model->old_date),
             'date_to' => $format($model->date),
         ];

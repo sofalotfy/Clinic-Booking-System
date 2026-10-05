@@ -42,6 +42,7 @@ class PatientAppointmentBooked extends Handler
 
         return [
             'name' => $patientUser->name,
+            'link' => $patientUser->phone,
             'date' => ArabicDateFormatter::format(
                 Carbon::parse($model->date)
             ),

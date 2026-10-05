@@ -42,6 +42,7 @@ class PatientAppointmentCancel extends Handler
 
         return [
             'name' => $patientUser->name,
+            'phone' => $patientUser->phone,
             'date' => ArabicDateFormatter::format(
                 Carbon::parse($model->date)
             ),
