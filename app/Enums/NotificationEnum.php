@@ -151,7 +151,7 @@ enum NotificationEnum
 
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'لديك موعد الساعة '.$time('date'),
 
-            self::PATIENT_FEEDBACK => "{$data['patient_name']} أرسل رسالة\n{$data['message']}\n{$data['phone']}",
+            self::PATIENT_FEEDBACK => "{$data['patient']} أرسل رسالة\n{$data['message']}\n{$data['phone']}",
         };
     }
 
