@@ -145,6 +145,8 @@ class IdleCheckState
             'expires_at' => now()->addMinutes(10),
         ]);
 
+        ExecutionRouter::execute($conversation, $message);
+
         return $conversation;
     }
 
