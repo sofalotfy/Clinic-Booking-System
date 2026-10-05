@@ -11,7 +11,7 @@ use Throwable;
 class CheckIdleConversations extends Command
 {
     protected $signature = 'app:check-idle-conversations
-                            {--minutes=10 : Idle window in minutes, defaults to 10}';
+                            {--minutes=1 : Idle window in minutes, defaults to 1}';
 
     protected $description = 'Prompt WhatsApp conversations abandoned mid-flow, asking whether to end the chat.';
 
