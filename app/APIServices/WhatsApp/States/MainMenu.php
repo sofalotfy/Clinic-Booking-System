@@ -107,6 +107,8 @@ class MainMenu
                     $message['from'],
                     self::clinicInfo($doctor, $clinic),
                 );
+
+                self::execute($conversation, $message);
                 return;
 
             case self::ABOUT_DOCTOR:
@@ -116,6 +118,8 @@ class MainMenu
                     $message['from'],
                     $doctor->description,
                 );
+
+                self::execute($conversation, $message);
                 return;
 
             case self::SUBMIT_FEEDBACK:
@@ -123,7 +127,10 @@ class MainMenu
                     'state' => ConversationState::SUBMIT_FEEDBACK,
                 ]);
 
-                return SubmitFeedback::execute($conversation, $message);
+                SubmitFeedback::execute($conversation, $message);
+
+                self::execute($conversation, $message);
+                return;
         }
 
         return self::invalidResponse($conversation, $message);
