@@ -16,3 +16,11 @@
 .opencode
 .phpunit.result.cache
 composer.*
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.swo
+.idea/
+.vscode/

@@ -12,6 +12,7 @@ use App\Services\Notifications\Handlers\Appointments\PatientAppointmentCancel;
 use App\Services\Notifications\Handlers\Appointments\PatientAppointmentRescheduled;
 use App\Services\Notifications\Handlers\Appointments\PatientDayAppointmentReminder;
 use App\Services\Notifications\Handlers\Handler;
+use App\Services\Notifications\Handlers\Feedback\FeedbackByPatient;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -27,6 +28,7 @@ class NotificationRouter
             NotificationEnum::DOCTOR_APPOINTMENT_RESCHEDULED => DoctorAppointmentRescheduled::class,
             NotificationEnum::DOCTOR_APPOINTMENT_CANCEL => DoctorAppointmentCancel::class,
             NotificationEnum::PATIENT_DAY_APPOINTMENT_REMINDER => PatientDayAppointmentReminder::class,
+            NotificationEnum::PATIENT_FEEDBACK => FeedbackByPatient::class,
             default => Handler::class,
         };
 

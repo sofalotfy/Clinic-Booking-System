@@ -6,7 +6,9 @@ use App\Support\ArabicDateFormatter;
 use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
+use App\Models\Day;
 use App\Services\DaysInstances\Retrievals\GetAvailableSlots;
+use Carbon\Carbon;
 
 class BookSlot
 {
@@ -71,11 +73,16 @@ class BookSlot
             ]);
         }
 
+        $day = Day::find($conversation->data['selected_day']);
+
         SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'فضلا إختر الموعد المناسب',
+            "مواعيد يوم " . ArabicDateFormatter::format(
+                Carbon::parse($day->date),
+                includeTime: false
+            ) . "\nفضلا إختر الموعد المناسب",
             'اختر الموعد المناسب',
             $rows->toArray(),
             '',

@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Enums\ConversationState;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\DoctorWhatsAppAccount;
-use App\Models\Patient;
-use App\Models\User;
 
 class WhatsAppConversation extends Model
 {
@@ -22,7 +19,10 @@ class WhatsAppConversation extends Model
 
     public function doctorWhatsAppAccount()
     {
-        return $this->belongsTo(DoctorWhatsAppAccount::class);
+        // Explicit foreign key: Str::snake('doctorWhatsAppAccount') derives
+        // 'doctor_whats_app_account_id', which is not the real column, so
+        // leaving this implicit made the relation always resolve to null.
+        return $this->belongsTo(DoctorWhatsAppAccount::class, 'doctor_whatsapp_account_id');
     }
 
     public function user(): BelongsTo

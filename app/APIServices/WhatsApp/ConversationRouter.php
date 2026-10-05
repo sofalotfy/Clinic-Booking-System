@@ -10,7 +10,7 @@ use App\APIServices\WhatsApp\States\CancelAppointment;
 use App\APIServices\WhatsApp\States\ChooseReplaceDay;
 use App\APIServices\WhatsApp\States\ConfirmBooking;
 use App\APIServices\WhatsApp\States\FileEmergencyCase;
-use App\APIServices\WhatsApp\States\IdleState;
+use App\APIServices\WhatsApp\States\IdleCheckState;
 use App\APIServices\WhatsApp\States\InfoConfirmation;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\States\MainMenu;
@@ -30,7 +30,7 @@ class ConversationRouter
 
             null => Start::execute($conversation, $message),
 
-            ConversationState::IDLE => IdleState::handleResponse($conversation, $message),
+            ConversationState::IDLE_CHECK => IdleCheckState::handleResponse($conversation, $message),
 
             ConversationState::ADMIN_MENU => AdminMenu::handleResponse($conversation, $message),
 

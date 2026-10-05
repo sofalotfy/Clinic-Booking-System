@@ -16,6 +16,10 @@ Schedule::command('app:send-appointment-reminders')
 Schedule::command('app:test-scheduler')
     ->everyMinute();
 
+Schedule::command('app:check-idle-conversations')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
