@@ -6,6 +6,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Doctors\GetActivePlan;
+use App\Services\Assistants\GetAssistantsContacts;
 use App\APIServices\WhatsApp\Services\FormatPLanToMessage;
 
 class MainMenu
@@ -15,6 +16,9 @@ class MainMenu
     private const CLINIC_LOCATION = 'clinic_location';
     private const ABOUT_DOCTOR = 'about_doctor';
     private const SUBMIT_FEEDBACK = 'submit_feedback';
+    private const BACK_TO_MAIN_MENU = 'back_to_mainmenu';
+
+    private const MAX_BUTTON_BODY_LENGTH = 1024;
 
     public static function execute($conversation, $message)
     {
@@ -36,7 +40,7 @@ class MainMenu
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            $greeting . "\nفضلا اختار من القائمة",
+            $greeting . "\nفضلا اختر من القائمة",
             'القائمة الرئيسية',
             [
                 [
@@ -71,7 +75,7 @@ class MainMenu
         $doctor = $account->doctor;
         $clinic = $doctor->clinic;
         if ($message['type'] !== 'interactive') {
-            return self::invalidResponse($conversation, $message);
+            return self::execute($conversation, $message);
         }
 
         switch ($message['value']) {
@@ -87,58 +91,117 @@ class MainMenu
             case self::WEEKLY_SCHEDULE:
                 $activePlan = GetActivePlan::execute($doctor);
 
-                $messageText = FormatPLanToMessage::execute($activePlan);
-
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    $messageText,
-                );
+                self::sendInfo($account, $message, FormatPLanToMessage::execute($activePlan));
                 return;
 
             case self::CLINIC_LOCATION:
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    $clinic->location_link,
-                );
+                self::sendInfo($account, $message, self::clinicInfo($doctor, $clinic));
                 return;
 
             case self::ABOUT_DOCTOR:
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    $doctor->description,
-                );
+                self::sendInfo($account, $message, (string) $doctor->description);
                 return;
+
+            case self::BACK_TO_MAIN_MENU:
+                return self::execute($conversation, $message);
 
             case self::SUBMIT_FEEDBACK:
                 $conversation->update([
                     'state' => ConversationState::SUBMIT_FEEDBACK,
                 ]);
 
-                return SubmitFeedback::execute($conversation, $message);
+                SubmitFeedback::execute($conversation, $message);
+                return;
         }
 
-        return self::invalidResponse($conversation, $message);
+        return self::execute($conversation, $message);
     }
 
-    private static function invalidResponse($conversation, $message)
+    private static function clinicInfo($doctor, $clinic): string
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
+        $lines = ['*بيانات العيادة*'];
+
+        if ($clinic?->location_link) {
+            $lines[] = "\n*الموقع على خرائط جوجل*\n" . $clinic->location_link;
+        }
+
+        if ($clinic?->address) {
+            $lines[] = "\n*العنوان*\n" . $clinic->address;
+        }
+
+        $contacts = self::contactNumbers($doctor);
+
+        if ($contacts) {
+            $lines[] = "\n*ارقام التواصل*";
+
+            foreach ($contacts as $contact) {
+                $lines[] = "{$contact['name']}: {$contact['phone']}";
+            }
+
+            $lines[] = "\n_ملاحظة: الارقام تعمل فقط خلال اوقات العمل الرسمية للعيادة_";
+        }
+
+        return implode("\n", $lines);
+    }
+
+    private static function contactNumbers($doctor): array
+    {
+        $contacts = array_merge(
+            [
+                [
+                    'name' => $doctor->user?->name ?? 'الدكتور',
+                    'phone' => $doctor->user?->phone,
+                ],
+            ],
+            GetAssistantsContacts::execute($doctor)
         );
 
-        SendMessage::text(
+        return array_values(array_filter(
+            $contacts,
+            fn ($contact) => ! empty($contact['name']) && ! empty($contact['phone'])
+        ));
+    }
+
+    private static function sendInfo($account, $message, string $body)
+    {
+        if (mb_strlen($body) > self::MAX_BUTTON_BODY_LENGTH) {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                $body,
+            );
+
+            return self::sendBackToMainMenuButton($account, $message);
+        }
+
+        return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+            $body,
+            self::backToMainMenuButtons()
         );
+    }
 
-        return self::execute($conversation, $message);
+    private static function sendBackToMainMenuButton($account, $message)
+    {
+        return SendMessage::buttons(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            'هل تريد العودة للقائمة الرئيسية؟',
+            self::backToMainMenuButtons()
+        );
+    }
+
+    private static function backToMainMenuButtons(): array
+    {
+        return [
+            [
+                'id' => self::BACK_TO_MAIN_MENU,
+                'title' => 'القائمة الرئيسية',
+            ],
+        ];
     }
 }

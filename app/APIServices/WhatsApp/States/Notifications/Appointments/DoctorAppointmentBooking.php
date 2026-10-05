@@ -60,7 +60,8 @@ class DoctorAppointmentBooking
                     $conversation->doctor_whatsapp_account_id
                 )->access_token,
                 $message['from'],
-                'من فضلك اختر أحد الخيارات المتاحة.'
+                'نأسف لعدم تفهمنا لرسالتك 
+فضلا اختر أحد الخيارات المتاحة.',
             );
 
             return self::execute($conversation, $message);

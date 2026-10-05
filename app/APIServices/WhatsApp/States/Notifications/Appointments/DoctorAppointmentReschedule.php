@@ -93,7 +93,8 @@ class DoctorAppointmentReschedule
                 $account->phone_number_id,
                 $account->access_token,
                 $message['from'],
-                'من فضلك اختر أحد الخيارات المتاحة.'
+                'نأسف لعدم تفهمنا لرسالتك 
+فضلا اختر أحد الخيارات المتاحة.',
             );
 
             return self::execute($conversation, $message);

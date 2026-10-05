@@ -14,6 +14,7 @@ class UpdateClinic
         $validated = Validator::make($request->all(), [
             'name' => ['nullable', 'string'],
             'location_link' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
             'facebook' => ['nullable', 'string'],
             'instgram' => ['nullable', 'string'],
             'linkedin' => ['nullable', 'string'],

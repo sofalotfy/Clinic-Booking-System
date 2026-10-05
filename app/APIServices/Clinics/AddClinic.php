@@ -13,6 +13,7 @@ class AddClinic
         $validated = Validator::make($request->all(), [
             'name' => ['required', 'string'],
             'location_link' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
             'facebook' => ['nullable', 'string'],
             'instgram' => ['nullable', 'string'],
             'linkedin' => ['nullable', 'string'],

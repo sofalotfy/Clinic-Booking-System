@@ -21,6 +21,7 @@ class ListClinics
             'clinics.id',
             'clinics.name',
             'clinics.location_link',
+            'clinics.address',
             'clinics.facebook',
             'clinics.instgram',
             'clinics.linkedin',

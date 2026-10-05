@@ -12,6 +12,7 @@ class StoreClinic
             'name' => $data['name'],
             'doctor_id' => $user->clinicDoctorId(),
             'location_link' => $data['location_link'] ?? null,
+            'address' => $data['address'] ?? null,
             'facebook' => $data['facebook'] ?? null,
             'instgram' => $data['instgram'] ?? null,
             'linkedin' => $data['linkedin'] ?? null,

@@ -110,8 +110,8 @@ class ManageAppointment
                     'title' => 'تحديث البيانات',
                 ],
                 [
-                    'id' => 'end_conversation',
-                    'title' => 'إنهاء المحادثة',
+                    'id' => 'back_to_mainmenu',
+                    'title' => 'القائمة الرئيسية',
                 ],
             ]
         );
@@ -166,6 +166,9 @@ class ManageAppointment
 
                 return InfoInquiry::execute($conversation, $message);
 
+            case 'back_to_mainmenu':
+                return MainMenu::execute($conversation, $message);
+
             case 'end_conversation':
                 $conversation->delete();
 
@@ -192,7 +195,8 @@ class ManageAppointment
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+            'نأسف لعدم تفهمنا لرسالتك 
+فضلا اختر أحد الخيارات المتاحة',
         );
 
         return self::execute($conversation, $message);

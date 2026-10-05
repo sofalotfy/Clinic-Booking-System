@@ -42,7 +42,7 @@ class BookAppointment
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'من فضلك اختر يوم',
+            'من فضلك اختر اليوم المناسب',
             'اختر يوم',
             collect($days)->map(function ($day) {
                 return [
@@ -54,7 +54,7 @@ class BookAppointment
                     'description' => $day['note'],
                 ];
             })->toArray(),
-            'ايام متاحه',
+            '',
             'اخر 7 ايام'
         );
     }
@@ -118,7 +118,8 @@ class BookAppointment
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+            'نأسف لعدم تفهمنا لرسالتك 
+فضلا اختر أحد الخيارات المتاحة',
         );
 
         return self::execute($conversation, $message);
