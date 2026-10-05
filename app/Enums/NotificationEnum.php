@@ -14,6 +14,7 @@ enum NotificationEnum
     case DOCTOR_APPOINTMENT_RESCHEDULED;
     case DOCTOR_APPOINTMENT_CANCEL;
     case PATIENT_DAY_APPOINTMENT_REMINDER;
+    case PATIENT_FEEDBACK;
 
     public function type(): self
     {
@@ -30,6 +31,8 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_RESCHEDULED => 'Doctor Rescheduled Appointment',
             self::DOCTOR_APPOINTMENT_CANCEL => 'Doctor Cancelled Appointment',
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'Patient Day Appointment Reminder',
+
+            self::PATIENT_FEEDBACK => 'Patient Sent Feedback',
         };
     }
 
@@ -49,6 +52,8 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_CANCEL => 'doctor_appointment_cancel_notifications',
 
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder_notifications',
+
+            self::PATIENT_FEEDBACK => 'patient_feedback_notifications',
         };
     }
 
@@ -69,7 +74,8 @@ enum NotificationEnum
         return match ($this) {
             self::PATIENT_APPOINTMENT_BOOKED,
             self::PATIENT_APPOINTMENT_RESCHEDULED,
-            self::PATIENT_APPOINTMENT_CANCEL => true,
+            self::PATIENT_APPOINTMENT_CANCEL,
+            self::PATIENT_FEEDBACK => true,
 
             default => false,
         };
@@ -91,6 +97,8 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_CANCEL => 'appointment_cancelation_by_doctor',
 
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder',
+
+            self::PATIENT_FEEDBACK => 'feedback_by_patient',
         };
     }
 
@@ -110,6 +118,8 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_CANCEL => 'إلغاء موعد حجز',
 
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'تذكير بموعد',
+
+            self::PATIENT_FEEDBACK => 'رسالة جديدة',
         };
     }
 
@@ -140,6 +150,8 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_CANCEL => 'تم إلغاء موعدك في '.$date('date'),
 
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'لديك موعد الساعة '.$time('date'),
+
+            self::PATIENT_FEEDBACK => "{$data['patient_name']} أرسل رسالة\n{$data['message']}\n{$data['phone']}",
         };
     }
 
