@@ -103,7 +103,7 @@ class IdleCheckState
             ],
             [
                 'id' => self::BACK_TO_MAIN_MENU,
-                'title' => 'العودة للقائمة الرئيسية',
+                'title' => 'القائمة الرئيسية',
             ],
         ];
     }
