@@ -16,6 +16,7 @@ class MainMenu
     private const CLINIC_LOCATION = 'clinic_location';
     private const ABOUT_DOCTOR = 'about_doctor';
     private const SUBMIT_FEEDBACK = 'submit_feedback';
+    private const BACK_TO_MAIN_MENU = 'back_to_mainmenu';
 
     public static function execute($conversation, $message)
     {
@@ -72,7 +73,7 @@ class MainMenu
         $doctor = $account->doctor;
         $clinic = $doctor->clinic;
         if ($message['type'] !== 'interactive') {
-            return self::invalidResponse($conversation, $message);
+            return self::execute($conversation, $message);
         }
 
         switch ($message['value']) {
@@ -97,7 +98,7 @@ class MainMenu
                     $messageText,
                 );
 
-                self::execute($conversation, $message);
+                self::sendBackToMainMenuButton($account, $message);
                 return;
 
             case self::CLINIC_LOCATION:
@@ -108,7 +109,7 @@ class MainMenu
                     self::clinicInfo($doctor, $clinic),
                 );
 
-                self::execute($conversation, $message);
+                self::sendBackToMainMenuButton($account, $message);
                 return;
 
             case self::ABOUT_DOCTOR:
@@ -119,8 +120,11 @@ class MainMenu
                     $doctor->description,
                 );
 
-                self::execute($conversation, $message);
+                self::sendBackToMainMenuButton($account, $message);
                 return;
+
+            case self::BACK_TO_MAIN_MENU:
+                return self::execute($conversation, $message);
 
             case self::SUBMIT_FEEDBACK:
                 $conversation->update([
@@ -131,7 +135,7 @@ class MainMenu
                 return;
         }
 
-        return self::invalidResponse($conversation, $message);
+        return self::execute($conversation, $message);
     }
 
     private static function clinicInfo($doctor, $clinic): string
@@ -179,20 +183,19 @@ class MainMenu
         ));
     }
 
-    private static function invalidResponse($conversation, $message)
+    private static function sendBackToMainMenuButton($account, $message)
     {
-        $account = DoctorWhatsAppAccount::findOrFail(
-            $conversation->doctor_whatsapp_account_id
-        );
-
-        SendMessage::text(
+        return SendMessage::buttons(
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'نأسف لعدم تفهمنا لرسالتك 
-فضلا اختر أحد الخيارات المتاحة',
+            'هل تريد العودة للقائمة الرئيسية؟',
+            [
+                [
+                    'id' => self::BACK_TO_MAIN_MENU,
+                    'title' => 'القائمة الرئيسية',
+                ],
+            ]
         );
-
-        return self::execute($conversation, $message);
     }
 }
