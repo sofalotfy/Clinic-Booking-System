@@ -119,7 +119,8 @@ class ChooseReplaceDay
             $account->phone_number_id,
             $account->access_token,
             $message['from'],
-            'هذا الرد غير صالح، فضلا اختر أحد الخيارات المتاحة',
+            'نأسف لعدم تفهمنا لرسالتك 
+فضلا اختر أحد الخيارات المتاحة',
         );
 
         return self::execute($conversation, $message);
