@@ -111,7 +111,7 @@ class ManageAppointment
                 ],
                 [
                     'id' => 'back_to_mainmenu',
-                    'title' => 'العودة للقائمة الرئيسية',
+                    'title' => 'القائمة الرئيسية',
                 ],
             ]
         );
