@@ -18,6 +18,8 @@ class MainMenu
     private const SUBMIT_FEEDBACK = 'submit_feedback';
     private const BACK_TO_MAIN_MENU = 'back_to_mainmenu';
 
+    private const MAX_BUTTON_BODY_LENGTH = 1024;
+
     public static function execute($conversation, $message)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
@@ -89,38 +91,15 @@ class MainMenu
             case self::WEEKLY_SCHEDULE:
                 $activePlan = GetActivePlan::execute($doctor);
 
-                $messageText = FormatPLanToMessage::execute($activePlan);
-
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    $messageText,
-                );
-
-                self::sendBackToMainMenuButton($account, $message);
+                self::sendInfo($account, $message, FormatPLanToMessage::execute($activePlan));
                 return;
 
             case self::CLINIC_LOCATION:
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    self::clinicInfo($doctor, $clinic),
-                );
-
-                self::sendBackToMainMenuButton($account, $message);
+                self::sendInfo($account, $message, self::clinicInfo($doctor, $clinic));
                 return;
 
             case self::ABOUT_DOCTOR:
-                SendMessage::text(
-                    $account->phone_number_id,
-                    $account->access_token,
-                    $message['from'],
-                    $doctor->description,
-                );
-
-                self::sendBackToMainMenuButton($account, $message);
+                self::sendInfo($account, $message, (string) $doctor->description);
                 return;
 
             case self::BACK_TO_MAIN_MENU:
@@ -183,6 +162,28 @@ class MainMenu
         ));
     }
 
+    private static function sendInfo($account, $message, string $body)
+    {
+        if (mb_strlen($body) > self::MAX_BUTTON_BODY_LENGTH) {
+            SendMessage::text(
+                $account->phone_number_id,
+                $account->access_token,
+                $message['from'],
+                $body,
+            );
+
+            return self::sendBackToMainMenuButton($account, $message);
+        }
+
+        return SendMessage::buttons(
+            $account->phone_number_id,
+            $account->access_token,
+            $message['from'],
+            $body,
+            self::backToMainMenuButtons()
+        );
+    }
+
     private static function sendBackToMainMenuButton($account, $message)
     {
         return SendMessage::buttons(
@@ -190,12 +191,17 @@ class MainMenu
             $account->access_token,
             $message['from'],
             'هل تريد العودة للقائمة الرئيسية؟',
-            [
-                [
-                    'id' => self::BACK_TO_MAIN_MENU,
-                    'title' => 'القائمة الرئيسية',
-                ],
-            ]
+            self::backToMainMenuButtons()
         );
+    }
+
+    private static function backToMainMenuButtons(): array
+    {
+        return [
+            [
+                'id' => self::BACK_TO_MAIN_MENU,
+                'title' => 'القائمة الرئيسية',
+            ],
+        ];
     }
 }
