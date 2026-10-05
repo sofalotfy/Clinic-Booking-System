@@ -78,8 +78,8 @@ class SendMessage
         string $text,
         string $buttonText,
         array $rows,
-        string $title = 'Select an option',
-        string $sectionTitle = 'Options'
+        string $title = '',
+        string $sectionTitle = ''
     ) {
         $response = Http::withToken($accessToken)
             ->post("https://graph.facebook.com/v23.0/{$phoneNumberId}/messages", [
