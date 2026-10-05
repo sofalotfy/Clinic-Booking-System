@@ -55,7 +55,7 @@ class BookAppointment
                 ];
             })->toArray(),
             '',
-            'اخر 7 ايام'
+            'اخر 10 ايام'
         );
     }
 

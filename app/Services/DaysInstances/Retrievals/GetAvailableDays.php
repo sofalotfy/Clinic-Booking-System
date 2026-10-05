@@ -54,7 +54,7 @@ class GetAvailableDays
                         : '',
                 ];
 
-                if (count($availableDays) >= 7) {
+                if (count($availableDays) >= 10) {
                     break;
                 }
             }
