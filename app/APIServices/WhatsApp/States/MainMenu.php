@@ -95,6 +95,8 @@ class MainMenu
                     $message['from'],
                     $messageText,
                 );
+
+                self::execute($conversation, $message);
                 return;
 
             case self::CLINIC_LOCATION:
