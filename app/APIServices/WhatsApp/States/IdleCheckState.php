@@ -44,16 +44,19 @@ class IdleCheckState
 
         $update = ['state' => ConversationState::IDLE_CHECK];
 
-        // A re-prompt (free text while already in the prompt state) must keep the
-        // original snapshot, otherwise the FR-014 resume fallback would be lost.
+        // Only push on the first prompt. A re-prompt (free text while already in
+        // the idle state) must not push IDLE_CHECK itself or a duplicate entry.
         if ($conversation->state !== ConversationState::IDLE_CHECK) {
-            $update['data'] = array_merge(
-                $conversation->data ?? [],
-                [
-                    self::KEY_PREVIOUS_STATE => $conversation->state->value,
-                    self::KEY_PROMPTED_AT => now()->toDateTimeString(),
-                ]
-            );
+            $data = $conversation->data ?? [];
+
+            $callStack = $data['callStack'] ?? [];
+            array_unshift($callStack, $conversation->state->value);
+
+            $data['callStack'] = array_values($callStack);
+            $data[self::KEY_PREVIOUS_STATE] = $conversation->state->value;
+            $data[self::KEY_PROMPTED_AT] = now()->toDateTimeString();
+
+            $update['data'] = $data;
         }
 
         $conversation->update($update);
@@ -113,6 +116,8 @@ class IdleCheckState
         $data = $conversation->data ?? [];
 
         $callStack = $data['callStack'] ?? [];
+
+        // The state pushed in execute() is on top of the stack.
         $state = count($callStack) > 0
             ? array_shift($callStack)
             : ($data[self::KEY_PREVIOUS_STATE] ?? null);
@@ -145,6 +150,27 @@ class IdleCheckState
 
     private static function returnToMenu(WhatsAppConversation $conversation, array $message): WhatsAppConversation
     {
+        // Drop the state we pushed, so it doesn't linger in the stack after leaving.
+        $data = $conversation->data ?? [];
+        $callStack = $data['callStack'] ?? [];
+
+        if (isset($data[self::KEY_PREVIOUS_STATE]) && count($callStack) > 0) {
+            array_shift($callStack);
+        }
+
+        if ($callStack === []) {
+            unset($data['callStack']);
+        } else {
+            $data['callStack'] = array_values($callStack);
+        }
+
+        unset(
+            $data[self::KEY_PREVIOUS_STATE],
+            $data[self::KEY_PROMPTED_AT]
+        );
+
+        $conversation->update(['data' => $data]);
+
         Start::execute(
             $conversation,
             ['from' => $conversation->phone_number]
