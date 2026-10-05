@@ -9,12 +9,12 @@ class Start
 {
     public static function execute(WhatsAppConversation $conversation, array $message)
     {
-        // Route non-patient users to IdleState
-        if (!$conversation->user || !$conversation->user->isPatient()) {
+        // Route non-patient users to the staff menu
+        if (! $conversation->user || ! $conversation->user->isPatient()) {
             $conversation->update([
                 'state' => ConversationState::ADMIN_MENU,
-                'step'  => null,
-                'data'  => ['name' => $conversation->user->name ?? ''],
+                'step' => null,
+                'data' => ['name' => $conversation->user->name ?? ''],
             ]);
 
             return AdminMenu::execute(
@@ -26,8 +26,8 @@ class Start
         // Reset the conversation
         $conversation->update([
             'state' => ConversationState::MAIN_MENU,
-            'step'  => null,
-            'data'  => ['name' => $conversation->user->name],
+            'step' => null,
+            'data' => ['name' => $conversation->user->name],
         ]);
 
         return MainMenu::execute(

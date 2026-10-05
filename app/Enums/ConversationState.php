@@ -19,10 +19,42 @@ enum ConversationState: string
     case EMERGENCY_CASE_IN_HOSPITAL = 'emergency_case_in_hospital';
     case AI = 'AI';
     case ADMIN_MENU = 'admin_menu';
-    case IDLE = 'idle';
+    case IDLE_CHECK = 'idle_check';
     case CHOOSE_REPLACE_DAY = 'choose_replace_day';
 
     // Notification Status
     case DOCTOR_APPOINTMENT_BOOKING = 'doctor_appointment_booking';
     case DOCTOR_APPOINTMENT_RESCHEDULE = 'doctor_appointment_reschedule';
+
+    /**
+     * States that represent an entry point or a menu rather than productive
+     * work. A conversation sitting in one of these is not stuck in anything,
+     * so it is never a candidate for the idle prompt.
+     */
+    public const array ROUTING_STATES = [
+        self::START,
+        self::MAIN_MENU,
+        self::ADMIN_MENU,
+        self::IDLE_CHECK,
+    ];
+
+    /**
+     * Every conversation state that counts as an in-progress flow.
+     *
+     * Computed as the complement of ROUTING_STATES so that a state added later
+     * is picked up automatically. Do not replace this with a hard-coded list:
+     * a literal list fails silently whenever a new flow is introduced, because
+     * that flow would simply never be prompted.
+     *
+     * @return array<int, self>
+     */
+    public static function active(): array
+    {
+        return array_values(
+            array_filter(
+                self::cases(),
+                fn (self $state) => ! in_array($state, self::ROUTING_STATES, true)
+            )
+        );
+    }
 }
