@@ -6,6 +6,7 @@ use App\APIServices\WhatsApp\SendMessage;
 use App\Enums\ConversationState;
 use App\Models\DoctorWhatsAppAccount;
 use App\Services\Doctors\GetActivePlan;
+use App\Services\Assistants\GetAssistantsContacts;
 use App\APIServices\WhatsApp\Services\FormatPLanToMessage;
 
 class MainMenu
@@ -15,8 +16,6 @@ class MainMenu
     private const CLINIC_LOCATION = 'clinic_location';
     private const ABOUT_DOCTOR = 'about_doctor';
     private const SUBMIT_FEEDBACK = 'submit_feedback';
-
-    private const CONTACT_NUMBERS = '٠٦٥٤٦٦٦٥٧٧٦٤٣';
 
     public static function execute($conversation, $message)
     {
@@ -106,7 +105,7 @@ class MainMenu
                     $account->phone_number_id,
                     $account->access_token,
                     $message['from'],
-                    self::clinicInfo($clinic),
+                    self::clinicInfo($doctor, $clinic),
                 );
                 return;
 
@@ -130,20 +129,49 @@ class MainMenu
         return self::invalidResponse($conversation, $message);
     }
 
-    private static function clinicInfo($clinic): string
+    private static function clinicInfo($doctor, $clinic): string
     {
         $lines = ['*بيانات العيادة*'];
 
-        $lines[] = "\n*الموقع على خرائط جوجل*\n" . $clinic->location_link;
+        if ($clinic?->location_link) {
+            $lines[] = "\n*الموقع على خرائط جوجل*\n" . $clinic->location_link;
+        }
 
-        if ($clinic->address) {
+        if ($clinic?->address) {
             $lines[] = "\n*العنوان*\n" . $clinic->address;
         }
 
-        $lines[] = "\n*ارقام التواصل*\n" . self::CONTACT_NUMBERS;
-        $lines[] = "\n_ملاحظة: الارقام تعمل فقط خلال اوقات العمل الرسمية للعيادة_";
+        $contacts = self::contactNumbers($doctor);
+
+        if ($contacts) {
+            $lines[] = "\n*ارقام التواصل*";
+
+            foreach ($contacts as $contact) {
+                $lines[] = "{$contact['name']}: {$contact['phone']}";
+            }
+
+            $lines[] = "\n_ملاحظة: الارقام تعمل فقط خلال اوقات العمل الرسمية للعيادة_";
+        }
 
         return implode("\n", $lines);
+    }
+
+    private static function contactNumbers($doctor): array
+    {
+        $contacts = array_merge(
+            [
+                [
+                    'name' => $doctor->user?->name ?? 'الدكتور',
+                    'phone' => $doctor->user?->phone,
+                ],
+            ],
+            GetAssistantsContacts::execute($doctor)
+        );
+
+        return array_values(array_filter(
+            $contacts,
+            fn ($contact) => ! empty($contact['name']) && ! empty($contact['phone'])
+        ));
     }
 
     private static function invalidResponse($conversation, $message)
