@@ -50,8 +50,8 @@ class GetAvailableDays
                     'date' => $day->date,
                     'day'  => Carbon::parse($day->date)->format('l'),
                     'note' => $appointmentsCount >= $slots
-                        ? 'Only waiting queue'
-                        : 'Available slots',
+                        ? 'فقط قائمة الانتظار'
+                        : '',
                 ];
 
                 if (count($availableDays) >= 7) {
