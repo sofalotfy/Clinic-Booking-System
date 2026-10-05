@@ -61,33 +61,42 @@ class PermissionTableSeeder extends Seeder
 
         // syncPermissions reconciles the pivot on every run, so permissions
         // added to the enums later are picked up without extra bookkeeping.
-        $doctorRole = Role::firstOrCreate([
-            'name'       => 'doctor',
-            'doctor_id'  => null,
-            'guard_name' => 'web',
-        ]);
-        $doctorRole->syncPermissions(
-            Permission::where('type', '!=', PermissionsTypeEnum::ADMIN->value)->pluck('id')
-        );
+        $doctorPermissionIds = Permission::where('type', '!=', PermissionsTypeEnum::ADMIN->value)->pluck('id');
 
-        $missingDoctors = fn () => User::query()
+        // The doctor role is scoped per doctor rather than global because
+        // GetClinicPriviligedUsers looks roles up by doctor_id. A single
+        // doctor_id => null role is invisible to it, so clinic notifications
+        // would resolve no receivers at all.
+        $doctors = User::query()
             ->has('doctor')
-            ->whereDoesntHave('roles', fn ($query) => $query->where('roles.id', $doctorRole->id));
+            ->with('doctor')
+            ->chunkById(200, function ($users) use ($doctorPermissionIds) {
+                foreach ($users as $user) {
+                    $role = Role::firstOrCreate([
+                        'name'       => 'doctor',
+                        'doctor_id'  => $user->doctor?->id,
+                        'guard_name' => 'web',
+                    ]);
 
-        $missing = $missingDoctors()->count();
+                    $role->syncPermissions($doctorPermissionIds);
 
-        if ($missing === 0) {
-            $this->command?->info('All doctors already have the doctor role.');
+                    if (! $user->roles()->whereKey($role->id)->exists()) {
+                        $user->assignRole($role);
+                    }
+                }
+            });
 
-            return;
+        // Legacy global role from before the role became doctor-scoped. It
+        // grants nothing GetClinicPriviligedUsers can find, so drop the
+        // assignments and the role itself.
+        $legacyRoles = Role::whereNull('doctor_id')->where('name', 'doctor')->get();
+
+        foreach ($legacyRoles as $legacyRole) {
+            User::role($legacyRole)->chunkById(200, function ($users) use ($legacyRole) {
+                $users->each(fn ($user) => $user->removeRole($legacyRole));
+            });
+
+            $legacyRole->delete();
         }
-
-        $missingDoctors()->chunkById(200, function ($users) use ($doctorRole) {
-            foreach ($users as $user) {
-                $user->assignRole($doctorRole);
-            }
-        });
-
-        $this->command?->info("Assigned the doctor role to {$missing} doctor(s).");
     }
 }
