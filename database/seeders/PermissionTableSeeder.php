@@ -20,20 +20,22 @@ class PermissionTableSeeder extends Seeder
      */
     public function run()
     {
+        // type must be part of the lookup key, not just the insert payload:
+        // an admin permission and a clinic permission are allowed to share a
+        // name, and matching on name alone returns whichever row was created
+        // first and silently skips the other.
         $assistantPermissions = AssistantPermissionsEnum::cases();
         foreach ($assistantPermissions as $permission) {
             Permission::firstOrCreate(
-                ['name' => $permission],
-                ['guard_name' => 'web',
-                'type'  => PermissionsTypeEnum::ASSISTANT]
+                ['name' => $permission, 'type' => PermissionsTypeEnum::ASSISTANT],
+                ['guard_name' => 'web']
             );
         }
         $adminPermissions = AdminPermissionsEnum::cases();
         foreach ($adminPermissions as $permission) {
             Permission::firstOrCreate(
-                ['name' => $permission],
-                ['guard_name' => 'web',
-                'type'  => PermissionsTypeEnum::ADMIN]
+                ['name' => $permission, 'type' => PermissionsTypeEnum::ADMIN],
+                ['guard_name' => 'web']
             );
         }
 
@@ -43,9 +45,8 @@ class PermissionTableSeeder extends Seeder
         
         foreach ($notificationPermissions as $permission) {
             Permission::firstOrCreate(
-                ['name' => $permission],
-                ['guard_name' => 'web',
-                'type'  => PermissionsTypeEnum::NOTIFICATION]
+                ['name' => $permission, 'type' => PermissionsTypeEnum::NOTIFICATION],
+                ['guard_name' => 'web']
             );
         }
 
