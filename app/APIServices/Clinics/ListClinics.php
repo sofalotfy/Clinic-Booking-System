@@ -2,6 +2,7 @@
 
 namespace App\APIServices\Clinics;
 
+use App\Models\Doctor;
 use App\Services\Clinics\ListClinics as ListService;
 
 class ListClinics
