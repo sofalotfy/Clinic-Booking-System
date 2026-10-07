@@ -39,7 +39,7 @@ class GetNotificationReceivers
 
         return $receivers
             ->unique('phone')
-            ->reject(fn ($receiver) => $receiver['phone'] === $user->phone)
+            // ->reject(fn ($receiver) => $receiver['phone'] === $user->phone)
             ->values();
     }
 }
