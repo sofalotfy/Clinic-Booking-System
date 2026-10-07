@@ -36,6 +36,8 @@ enum ConversationState: string
         self::MAIN_MENU,
         self::ADMIN_MENU,
         self::IDLE_CHECK,
+        self::DOCTOR_APPOINTMENT_BOOKING,
+        self::DOCTOR_APPOINTMENT_RESCHEDULE,
     ];
 
     /**
