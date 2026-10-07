@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class GetAvailableDays
 {
-    public static function execute(int $doctorId): array
+    public static function execute(int $doctorId, ?int $limit = null): array
     {
         $start = now()->startOfDay();
         $end = now()->addMonth()->endOfDay();
@@ -54,7 +54,7 @@ class GetAvailableDays
                         : '',
                 ];
 
-                if (count($availableDays) >= 10) {
+                if ($limit !== null && count($availableDays) >= $limit) {
                     break;
                 }
             }

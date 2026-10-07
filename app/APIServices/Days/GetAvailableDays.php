@@ -9,7 +9,8 @@ class GetAvailableDays
     public static function execute($request)
     {
         $doctorId = $request->user()->clinicDoctorId();
-            
-        return GetAvailableDaysService::execute($doctorId);
+        $limit = $request->filled('limit') ? (int) $request->input('limit') : null;
+
+        return GetAvailableDaysService::execute($doctorId, $limit);
     }
 }

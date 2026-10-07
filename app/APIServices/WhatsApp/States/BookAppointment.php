@@ -36,7 +36,7 @@ class BookAppointment
             return InfoInquiry::execute($conversation, $message);
         }
 
-        $days = GetAvailableDays::execute($account->doctor_id);
+        $days = GetAvailableDays::execute($account->doctor_id, 10);
 
         SendMessage::list(
             $account->phone_number_id,
@@ -72,7 +72,7 @@ class BookAppointment
             return self::invalidResponse($conversation, $message);
         }
 
-        $availableDayIds = collect(GetAvailableDays::execute($account->doctor_id))
+        $availableDayIds = collect(GetAvailableDays::execute($account->doctor_id, 10))
             ->pluck('id')
             ->all();
 
