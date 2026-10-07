@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/assistants/{assistant}/roles/{role}', [AssistantController::class, 'removeRole']);
 
 
+    Route::get('/patients/availability', [PatientController::class, 'availability'])->name('patients.availability');
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
     Route::get('/patients/{patient}/pdf', [PatientController::class, 'pdf'])->name('patients.pdf');

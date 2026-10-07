@@ -2,23 +2,22 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use App\Enums\AssistantPermissionsEnum;
-use Illuminate\Http\Request;
-use App\APIServices\Patients\ListPatients;
-use App\APIServices\Patients\ShowPatient;
-use App\APIServices\Patients\FlagPatient;
-use App\APIServices\Patients\UnFlagPatient;
 use App\APIServices\Patients\BulkFlagPatient;
+use App\APIServices\Patients\FlagPatient;
+use App\APIServices\Patients\ListPatientsAvailability;
+use App\APIServices\Patients\ListPatients;
 use App\APIServices\Patients\NotePatient;
 use App\APIServices\Patients\PatientPdf;
+use App\APIServices\Patients\ShowPatient;
+use App\APIServices\Patients\UnFlagPatient;
 use App\APIServices\Patients\UpdatePatient;
-use App\Models\Patient;
+use App\Enums\AssistantPermissionsEnum;
+use App\Http\Controllers\Controller;
 use App\Models\Flag;
-
-
+use App\Models\Patient;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
 class PatientController extends Controller implements HasMiddleware
 {
@@ -26,31 +25,31 @@ class PatientController extends Controller implements HasMiddleware
     {
         return [
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_PATIENTS->value,
-                only: ['index']
+                'clinic.permission:'.AssistantPermissionsEnum::VIEW_ALL_PATIENTS->value,
+                only: ['index', 'availability']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::VIEW_SINGLE_PATIENT->value,
+                'clinic.permission:'.AssistantPermissionsEnum::VIEW_SINGLE_PATIENT->value,
                 only: ['show', 'pdf']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PATIENT->value,
+                'clinic.permission:'.AssistantPermissionsEnum::UPDATE_PATIENT->value,
                 only: ['update']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_FLAG->value . ',flag',
+                'clinic.permission:'.AssistantPermissionsEnum::UPDATE_FLAG->value.',flag',
                 only: ['flagPatient']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_FLAG->value . ',flag',
+                'clinic.permission:'.AssistantPermissionsEnum::UPDATE_FLAG->value.',flag',
                 only: ['unflagPatient']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_FLAG->value . ',flag',
+                'clinic.permission:'.AssistantPermissionsEnum::UPDATE_FLAG->value.',flag',
                 only: ['bulkFlag']
             ),
             new Middleware(
-                'clinic.permission:' . AssistantPermissionsEnum::CREATE_NOTE->value,
+                'clinic.permission:'.AssistantPermissionsEnum::CREATE_NOTE->value,
                 only: ['notePatient']
             ),
         ];
@@ -59,6 +58,11 @@ class PatientController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         return ListPatients::execute($request);
+    }
+
+    public function availability(Request $request)
+    {
+        return ListPatientsAvailability::execute($request);
     }
 
     public function show(Request $request, Patient $patient)
