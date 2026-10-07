@@ -18,6 +18,7 @@ class AddClinic
             'instgram' => ['nullable', 'string'],
             'linkedin' => ['nullable', 'string'],
             'vezeeta' => ['nullable', 'string'],
+            'notifications_phone' => ['nullable', 'string'],
         ])->validate();
 
         return StoreClinic::execute($request->user(), $validated);

@@ -9,8 +9,8 @@ class ListClinics
     public static function execute($request)
     {
         $clinics = ListService::execute($request->user())
-                ->select(self::getSelects())
-                ->get();
+            ->select(self::getSelects())
+            ->get();
 
         return $clinics;
     }
@@ -26,6 +26,8 @@ class ListClinics
             'clinics.instgram',
             'clinics.linkedin',
             'clinics.vezeeta',
+            'clinics.clinic_phone',
+            'clinics.notifications_phone',
         ];
     }
 }

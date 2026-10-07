@@ -19,6 +19,7 @@ class UpdateClinic
             'instgram' => ['nullable', 'string'],
             'linkedin' => ['nullable', 'string'],
             'vezeeta' => ['nullable', 'string'],
+            'notifications_phone' => ['nullable', 'string'],
         ])->validate();
 
         UpdateService::execute($clinic, $validated);

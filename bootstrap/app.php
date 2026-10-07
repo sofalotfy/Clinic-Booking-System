@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Middleware\ClinicPermission;
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\Notification\SyncNotification;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use App\Http\Middleware\Notification\SyncNotification;
-use App\Http\Middleware\ClinicPermission;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'sync.notification' => SyncNotification::class,
             'clinic.permission' => ClinicPermission::class,
+            'web-admin.only' => EnsureUserIsAdmin::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn () => route('web-admin.login'));
+        $middleware->redirectUsersTo(fn () => route('web-admin.dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

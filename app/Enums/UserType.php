@@ -7,4 +7,5 @@ enum UserType: string
     case PATIENT = 'Patient';
     case DOCTOR = 'Doctor';
     case ASSISTANT = 'Assistant';
+    case ADMIN = 'Admin';
 }

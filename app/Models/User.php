@@ -59,12 +59,18 @@ class User extends Authenticatable
             UserType::ASSISTANT => $this->hasOne(Assistant::class),
             UserType::DOCTOR    => $this->hasOne(Doctor::class),
             UserType::PATIENT   => $this->hasOne(Patient::class),
+            UserType::ADMIN     => null,
         };
     }
 
     public function assistant()
     {
         return $this->hasOne(Assistant::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->type === UserType::ADMIN;
     }
 
     /**
