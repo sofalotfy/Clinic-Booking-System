@@ -40,7 +40,7 @@ class Day extends Model
         return $query->whereIn('status', DayStatus::closed());
     }
 
-    public function isActive()
+    public function isActive(): bool
     {
         return $this->status === DayStatus::ACTIVE;
     }
