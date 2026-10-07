@@ -9,7 +9,7 @@ class DeletePlan
     public static function execute($request, $plan)
     {
         return response()->json([
-            "success" => DeleteService::execute($request, $plan),
+            "success" => DeleteService::execute($plan),
         ]);
     }
 }
