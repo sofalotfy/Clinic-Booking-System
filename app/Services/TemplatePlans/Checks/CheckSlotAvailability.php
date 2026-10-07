@@ -2,19 +2,18 @@
 
 namespace App\Services\TemplatePlans\Checks;
 
-use App\Models\Day;
-use App\Models\Appointment;
 use App\Enums\AppointmentStatus;
+use App\Models\Appointment;
 
 class CheckSlotAvailability
 {
     public static function execute($day, $time)
     {
-        $requestedDateTime = $day->date . ' ' . $time;
+        $requestedDateTime = $day->date.' '.$time;
 
-        return !Appointment::where('date', $requestedDateTime)
+        return ! Appointment::where('date', $requestedDateTime)
             ->where('doctor_id', $day->doctor_id)
-            ->whereNotIn('status', AppointmentStatus::working())
+            ->whereIn('status', AppointmentStatus::working())
             ->exists() && $day->isActive();
     }
 }

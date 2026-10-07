@@ -13,6 +13,10 @@ Schedule::command('app:prune-idempotency-keys')
 Schedule::command('app:send-appointment-reminders')
     ->dailyAt('08:00');
 
+Schedule::command('app:cancel-overdue-appointments')
+    ->dailyAt('00:00')
+    ->withoutOverlapping();
+
 Schedule::command('app:test-scheduler')
     ->everyMinute();
 
