@@ -10,6 +10,11 @@ class ListClinics
     {
         $clinics = ListService::execute($request->user())
             ->select(self::getSelects())
+            ->addSelect([
+                'description' => Doctor::select('description')
+                    ->whereColumn('doctors.id', 'clinics.doctor_id')
+                    ->limit(1),
+            ])
             ->get();
 
         return $clinics;
