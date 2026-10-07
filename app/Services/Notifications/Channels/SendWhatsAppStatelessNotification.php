@@ -14,18 +14,18 @@ class SendWhatsAppStatelessNotification
      * Returns null when the clinic has no active WhatsApp account, meaning
      * the channel was not applicable rather than attempted and failed.
      *
-     * @param string $templateName  technical template name, e.g. "doctor_appointment_cancel"
-     * @param array  $params        named variables, e.g. ['name' => 'Ahmed', 'date' => '...']
+     * @param  string  $templateName  technical template name, e.g. "doctor_appointment_cancel"
+     * @param  array  $params  named variables, e.g. ['name' => 'Ahmed', 'date' => '...']
      */
     public static function execute(
         User $sender,
-        User $receiver,
+        string $receiverPhone,
         int $clinicId,
         string $templateName,
         array $params = [],
         string $language = self::DEFAULT_LANGUAGE
     ): ?bool {
-        \Log::info("Creating whatsapp template notification '{$templateName}' for user {$receiver->name}");
+        \Log::info("Creating whatsapp template notification '{$templateName}' for {$receiverPhone}");
 
         $account = DoctorWhatsAppAccount::where('doctor_id', $clinicId)
             ->where('is_active', true)
@@ -40,7 +40,7 @@ class SendWhatsAppStatelessNotification
         return SendMessage::template(
             $account->phone_number_id,
             $account->access_token,
-            $receiver->phone,
+            $receiverPhone,
             $templateName,
             $language,
             bodyParams: $params

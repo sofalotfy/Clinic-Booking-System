@@ -2,9 +2,9 @@
 
 namespace App\Services\Notifications\WorkFlow;
 
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
-use App\Services\Clinics\GetClinicPriviligedUsers;
 use Illuminate\Database\Eloquent\Model;
 
 class GetNotificationReceivers
@@ -16,20 +16,30 @@ class GetNotificationReceivers
         if ($notification->notifiesPatient()) {
             $patient = Patient::find($model->patient_id);
 
-            if ($patient) {
-                $receivers->push($patient->user);
+            if ($patient && $patient->user) {
+                $receivers->push([
+                    'user' => $patient->user,
+                    'phone' => $patient->user->phone,
+                    'name' => $patient->user->name,
+                ]);
             }
         }
 
         if ($notification->notifiesClinic()) {
-            $receivers = $receivers->merge(
-                GetClinicPriviligedUsers::execute($clinicId, $notification->permission())
-            );
+            $clinic = Doctor::find($clinicId)?->clinic;
+
+            if ($clinic && $clinic->notifications_phone) {
+                $receivers->push([
+                    'user' => null,
+                    'phone' => $clinic->notifications_phone,
+                    'name' => null,
+                ]);
+            }
         }
 
         return $receivers
-            ->unique('id')
-            ->reject(fn ($receiver) => $receiver->id === $user->id)
+            ->unique('phone')
+            ->reject(fn ($receiver) => $receiver['phone'] === $user->phone)
             ->values();
     }
 }

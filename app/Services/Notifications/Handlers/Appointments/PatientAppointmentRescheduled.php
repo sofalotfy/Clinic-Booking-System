@@ -63,11 +63,11 @@ class PatientAppointmentRescheduled extends Handler
         ];
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
+    protected static function sendWhatsApp(User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
         return SendWhatsAppStatelessNotification::execute(
             $sender,
-            $receiver,
+            $receiver['phone'],
             $clinicId,
             $notification->templateName(),   // template comes from the notification
             self::buildWhatsAppParams($model)

@@ -17,11 +17,14 @@ class Handler
 
     protected static function dispatch(User $sender, int $clinicId, $notification, Collection $receivers, $model, string $title, string $body)
     {
-        \Log::info("in handler receivers " . $receivers->toJson());
-        foreach ($receivers as $receiver) {
-            \Log::info("in handler iteration for {$receiver->name}");
+        \Log::info('in handler receivers '.$receivers->toJson());
 
-            $systemNotification = PushSystemNotification::execute($sender, $receiver, $clinicId, $title, $body, $notification->link());
+        foreach ($receivers as $receiver) {
+            \Log::info('in handler iteration for '.($receiver['name'] ?? $receiver['phone']));
+
+            $systemNotification = $receiver['user'] !== null
+                ? PushSystemNotification::execute($sender, $receiver['user'], $clinicId, $title, $body, $notification->link())
+                : null;
 
             static::deliver($systemNotification, $sender, $receiver, $clinicId, $notification, $model, $title, $body);
         }
@@ -32,15 +35,21 @@ class Handler
      * the in-app notification. A channel failure must never bubble up into the
      * caller, which is usually mid-appointment inside a transaction.
      */
-    protected static function deliver(Notification $systemNotification, User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body)
+    protected static function deliver(?Notification $systemNotification, User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body)
     {
         try {
             $result = static::sendWhatsApp($sender, $receiver, $clinicId, $notification, $model, $title, $body, $systemNotification);
         } catch (\Throwable $exception) {
-            \Log::error("Notification {$systemNotification->id} whatsapp channel threw: " . $exception->getMessage());
+            if ($systemNotification) {
+                \Log::error("Notification {$systemNotification->id} whatsapp channel threw: ".$exception->getMessage());
 
-            $systemNotification->markFailed($exception->getMessage());
+                $systemNotification->markFailed($exception->getMessage());
+            }
 
+            return;
+        }
+
+        if (! $systemNotification) {
             return;
         }
 
@@ -49,7 +58,7 @@ class Handler
             : $systemNotification->markSent();
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
+    protected static function sendWhatsApp(User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
         return null;
     }

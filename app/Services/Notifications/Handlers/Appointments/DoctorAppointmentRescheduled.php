@@ -41,7 +41,7 @@ class DoctorAppointmentRescheduled extends Handler
         ]);
     }
 
-    protected static function sendWhatsApp(User $sender, User $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
+    protected static function sendWhatsApp(User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
         $data = [
             'appointment_id' => $model->id,
@@ -55,7 +55,7 @@ class DoctorAppointmentRescheduled extends Handler
 
         return SendWhatsAppStatefulNotification::execute(
             $sender,
-            $receiver,
+            $receiver['user'],
             $clinicId,
             $notification,
             $data,
