@@ -34,7 +34,6 @@ class UpdatePatient
             'age' => 'nullable|integer|min:0|max:150',
             'gender' => ['nullable', Rule::enum(Gender::class)],
             'area' => 'nullable|string',
-            'address' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ])->validate();
 
