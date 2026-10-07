@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
+    Route::get('/patients/{patient}/pdf', [PatientController::class, 'pdf'])->name('patients.pdf');
+    Route::put('/patients/{patient}', [PatientController::class, 'update'])->name('patients.update');
     Route::post('/patients/{patient}/flags/{flag}', [PatientController::class, 'flagPatient'])->name('patients.flagPatient');//added
     Route::post('/patients/flags/{flag}', [PatientController::class, 'bulkFlag'])->name('patients.bulkFlag');//added replaces /flag-patient
     Route::delete('/patients/{patient}/flags/{flag}', [PatientController::class, 'unflagPatient'])->name('patients.unflagPatient');//added replaces /unflag-patient

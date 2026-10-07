@@ -13,6 +13,8 @@ use App\APIServices\Patients\FlagPatient;
 use App\APIServices\Patients\UnFlagPatient;
 use App\APIServices\Patients\BulkFlagPatient;
 use App\APIServices\Patients\NotePatient;
+use App\APIServices\Patients\PatientPdf;
+use App\APIServices\Patients\UpdatePatient;
 use App\Models\Patient;
 use App\Models\Flag;
 
@@ -29,7 +31,11 @@ class PatientController extends Controller implements HasMiddleware
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_SINGLE_PATIENT->value,
-                only: ['show']
+                only: ['show', 'pdf']
+            ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::UPDATE_PATIENT->value,
+                only: ['update']
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::UPDATE_FLAG->value . ',flag',
@@ -58,6 +64,16 @@ class PatientController extends Controller implements HasMiddleware
     public function show(Request $request, Patient $patient)
     {
         return ShowPatient::execute($request, $patient);
+    }
+
+    public function pdf(Request $request, Patient $patient)
+    {
+        return PatientPdf::execute($request, $patient);
+    }
+
+    public function update(Request $request, Patient $patient)
+    {
+        return UpdatePatient::execute($request, $patient);
     }
 
     public function flagPatient(Request $request, Patient $patient, Flag $flag)

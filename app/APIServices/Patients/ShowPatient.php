@@ -43,7 +43,7 @@ class ShowPatient
         ]);
     }
 
-    private static function getSelects(): array
+    public static function getSelects(): array
     {
         return [
             'patients.id',
