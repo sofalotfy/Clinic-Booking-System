@@ -71,6 +71,9 @@ class SmartBookAppointment
                 $sameSlot = $appointment
                     && Carbon::parse($appointment->date)->format('Y-m-d H:i') === $dateTime->format('Y-m-d H:i');
 
+                \Log::info("same slot:" . $sameSlot);
+                \Log::info("status:" . $status);
+
                 $sameDay = $appointment
                     && Carbon::parse($appointment->date)->isSameDay($dateTime);
 
