@@ -33,6 +33,7 @@ class SmartBookAppointment
 
         [$appointment, $notificationType, $oldDate] = DB::transaction(
             function () use ($patient, $doctor, $dateTime, $time, $duration, $status) {
+                \Log::info("into transaction");
                 // LOCK ORDER: patient first, then day. Always the same order to avoid deadlocks.
                 // Locking the patient stops two simultaneous messages from the same
                 // person creating two appointments.
