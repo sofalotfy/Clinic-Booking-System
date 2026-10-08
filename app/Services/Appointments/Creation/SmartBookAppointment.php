@@ -53,7 +53,7 @@ class SmartBookAppointment
                     ]);
                 }
 
-                if ($status === AppointmentStatus::ACTIVE->value() && $dateTime->isPast()) {
+                if ($status === AppointmentStatus::ACTIVE->value && $dateTime->isPast()) {
                     throw ValidationException::withMessages([
                         'error' => 'This time has already passed.',
                     ]);
@@ -84,7 +84,7 @@ class SmartBookAppointment
                     ]);
                 }
 
-                if ($status === AppointmentStatus::ACTIVE->value()) {
+                if ($status === AppointmentStatus::ACTIVE->value) {
                     if (! $sameSlot) {
                         \Log::info("onto checks");
                         if (! CheckSlotExistance::execute($day, $time)) {
