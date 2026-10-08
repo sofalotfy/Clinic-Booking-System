@@ -82,6 +82,7 @@ class SmartBookAppointment
 
                 if ($status === AppointmentStatus::ACTIVE) {
                     if (! $sameSlot) {
+                        \Log::info("onto checks");
                         if (! CheckSlotExistance::execute($day, $time)) {
                             throw ValidationException::withMessages([
                                 'error' => 'This slot is not available.',
@@ -89,6 +90,7 @@ class SmartBookAppointment
                         }
 
                         if (! CheckSlotAvailability::execute($day, $time)) {
+                            \Log::info("checking slot availability");
                             throw ValidationException::withMessages([
                                 'error' => 'This slot is already booked.',
                             ]);
