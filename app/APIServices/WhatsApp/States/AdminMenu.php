@@ -28,57 +28,71 @@ class AdminMenu
             . "روزة تتمنى لك يوم جميل\n"
             . "كيف استطيع ان اساعدك";
 
+        return self::send($conversation, $message);
+    }
+
+    public static function send($conversation, string $body)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
         return SendMessage::list(
             $account->phone_number_id,
             $account->access_token,
             $conversation->phone_number,
-            $message,
+            $body,
             'عرض الخيارات',
-            [
-                [
-                    'id' => 'doctor_today_appointments',
-                    'title' => 'مواعيد اليوم',
-                    'description' => 'عرض مواعيد اليوم',
-                ],
-                [
-                    'id' => 'doctor_tomorrow_appointments',
-                    'title' => 'مواعيد غدا',
-                    'description' => 'عرض مواعيد غدا',
-                ],
-                [
-                    'id' => 'doctor_advance_one_hour',
-                    'title' => 'تقديم الموعد ساعة',
-                    'description' => 'تقديم موعد العيادة ساعة',
-                ],
-                [
-                    'id' => 'doctor_advance_two_hours',
-                    'title' => 'تقديم الموعد ساعتين',
-                    'description' => 'تقديم موعد العيادة ساعتين',
-                ],
-                [
-                    'id' => 'doctor_delay_one_hour',
-                    'title' => 'تأخير الموعد ساعة',
-                    'description' => 'تأخير موعد العيادة ساعة',
-                ],
-                [
-                    'id' => 'doctor_delay_two_hours',
-                    'title' => 'تأخير الموعد ساعتين',
-                    'description' => 'تأخير موعد العيادة ساعتين',
-                ],
-                [
-                    'id' => 'doctor_cancel_today',
-                    'title' => 'إلغاء مواعيد اليوم',
-                    'description' => 'إلغاء حجوزات اليوم',
-                ],
-                [
-                    'id' => 'doctor_replace_today',
-                    'title' => 'استبدال مواعيد اليوم',
-                    'description' => 'استبدال مواعيد اليوم بيوم آخر',
-                ],
-            ],
+            self::options(),
             '',
             'مواعيد العيادة'
         );
+    }
+
+    private static function options(): array
+    {
+        return [
+            [
+                'id' => 'doctor_today_appointments',
+                'title' => 'مواعيد اليوم',
+                'description' => 'عرض مواعيد اليوم',
+            ],
+            [
+                'id' => 'doctor_tomorrow_appointments',
+                'title' => 'مواعيد غدا',
+                'description' => 'عرض مواعيد غدا',
+            ],
+            [
+                'id' => 'doctor_advance_one_hour',
+                'title' => 'تقديم الموعد ساعة',
+                'description' => 'تقديم موعد العيادة ساعة',
+            ],
+            [
+                'id' => 'doctor_advance_two_hours',
+                'title' => 'تقديم الموعد ساعتين',
+                'description' => 'تقديم موعد العيادة ساعتين',
+            ],
+            [
+                'id' => 'doctor_delay_one_hour',
+                'title' => 'تأخير الموعد ساعة',
+                'description' => 'تأخير موعد العيادة ساعة',
+            ],
+            [
+                'id' => 'doctor_delay_two_hours',
+                'title' => 'تأخير الموعد ساعتين',
+                'description' => 'تأخير موعد العيادة ساعتين',
+            ],
+            [
+                'id' => 'doctor_cancel_today',
+                'title' => 'إلغاء مواعيد اليوم',
+                'description' => 'إلغاء حجوزات اليوم',
+            ],
+            [
+                'id' => 'doctor_replace_today',
+                'title' => 'استبدال مواعيد اليوم',
+                'description' => 'استبدال مواعيد اليوم بيوم آخر',
+            ],
+        ];
     }
 
     public static function handleResponse(WhatsAppConversation $conversation, array $message)

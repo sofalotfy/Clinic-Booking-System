@@ -6,7 +6,6 @@ use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\States\AdminMenu;
 use App\Models\Day;
 use App\Services\Appointments\Retrievals\ListAppointments;
-use App\APIServices\WhatsApp\SendMessage;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use App\Models\DoctorWhatsAppAccount;
@@ -64,13 +63,6 @@ class DoctorTodayAppointments
             }
         }
 
-        SendMessage::text(
-            $account->phone_number_id,
-            $account->access_token,
-            $conversation->phone_number,
-            trim($messageText)
-        );
-
-        AdminMenu::execute($conversation, []);
+        AdminMenu::send($conversation, trim($messageText));
     }
 }

@@ -5,7 +5,6 @@ namespace App\APIServices\WhatsApp\Services\DoctorMenu;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\States\AdminMenu;
 use App\Services\DaysInstances\Modifications\CancelDay;
-use App\APIServices\WhatsApp\SendMessage;
 use Carbon\Carbon;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Day;
@@ -30,13 +29,6 @@ class CancelTodayAppointments
                            "العودة إلى القائمة الرئيسية";
         }
 
-        SendMessage::text(
-            $account->phone_number_id,
-            $account->access_token,
-            $conversation->phone_number,
-            $messageText
-        );
-
-        AdminMenu::execute($conversation, []);
+        AdminMenu::send($conversation, $messageText);
     }
 }
