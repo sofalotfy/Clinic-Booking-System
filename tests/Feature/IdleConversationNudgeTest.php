@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\APIServices\WhatsApp\ConversationRouter;
 use App\APIServices\WhatsApp\States\IdleCheckState;
 use App\Enums\ConversationState;
+use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\DoctorWhatsAppAccount;
 use App\Models\Patient;
@@ -40,7 +41,7 @@ class IdleConversationNudgeTest extends TestCase
     // Fixtures
     // ---------------------------------------------------------------------
 
-    private function account(): DoctorWhatsAppAccount
+    private function account(?string $notificationsPhone = null): DoctorWhatsAppAccount
     {
         $unique = uniqid();
 
@@ -51,8 +52,17 @@ class IdleConversationNudgeTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
+        $doctor = Doctor::create(['user_id' => $doctorUser->id]);
+
+        if ($notificationsPhone !== null) {
+            Clinic::create([
+                'doctor_id' => $doctor->id,
+                'notifications_phone' => $notificationsPhone,
+            ]);
+        }
+
         return DoctorWhatsAppAccount::create([
-            'doctor_id' => Doctor::create(['user_id' => $doctorUser->id])->id,
+            'doctor_id' => $doctor->id,
             'phone_number_id' => 'pnid-'.$unique,
             'access_token' => 'token-'.$unique,
             'is_active' => true,
@@ -249,14 +259,28 @@ class IdleConversationNudgeTest extends TestCase
         $this->assertSame(ConversationState::MAIN_MENU, $conversation->fresh()->state);
     }
 
-    public function test_ending_the_conversation_sends_staff_to_the_staff_menu()
+    public function test_ending_the_conversation_sends_the_clinic_notifications_phone_to_the_staff_menu()
+    {
+        $this->fakeGraph();
+        $conversation = $this->prompted(
+            $this->staffUser(),
+            [],
+            $this->account('20123456789')
+        );
+
+        IdleCheckState::handleResponse($conversation, $this->reply(IdleCheckState::END_CONVERSATION));
+
+        $this->assertSame(ConversationState::ADMIN_MENU, $conversation->fresh()->state);
+    }
+
+    public function test_ending_the_conversation_sends_other_staff_to_the_patient_menu()
     {
         $this->fakeGraph();
         $conversation = $this->prompted($this->staffUser());
 
         IdleCheckState::handleResponse($conversation, $this->reply(IdleCheckState::END_CONVERSATION));
 
-        $this->assertSame(ConversationState::ADMIN_MENU, $conversation->fresh()->state);
+        $this->assertSame(ConversationState::MAIN_MENU, $conversation->fresh()->state);
     }
 
     public function test_back_to_main_menu_behaves_identically_to_ending_the_conversation()
