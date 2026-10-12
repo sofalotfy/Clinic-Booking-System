@@ -52,7 +52,8 @@ class DoctorAppointmentCancel extends Handler
             $receiver['phone'],
             $clinicId,
             $notification->templateName(),   // template comes from the notification
-            self::buildWhatsAppParams($receiver, $model)
+            self::buildWhatsAppParams($receiver, $model),
+            SendWhatsAppStatelessNotification::ENGLISH_LANGUAGE
         );
     }
 }

@@ -56,7 +56,8 @@ class PatientAppointmentBooked extends Handler
             $receiver['phone'],
             $clinicId,
             $notification->templateName(),   // template comes from the notification
-            self::buildWhatsAppParams($model)
+            self::buildWhatsAppParams($model),
+            SendWhatsAppStatelessNotification::ENGLISH_LANGUAGE
         );
     }
 }

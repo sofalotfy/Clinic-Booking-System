@@ -8,7 +8,9 @@ use App\Models\User;
 
 class SendWhatsAppStatelessNotification
 {
-    public const DEFAULT_LANGUAGE = 'ar_EG';
+    public const DEFAULT_LANGUAGE = SendMessage::LANGUAGE_ARABIC;
+
+    public const ENGLISH_LANGUAGE = SendMessage::LANGUAGE_ENGLISH;
 
     /**
      * Returns null when the clinic has no active WhatsApp account, meaning

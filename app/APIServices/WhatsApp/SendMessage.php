@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Http;
 
 class SendMessage
 {
+    public const LANGUAGE_ARABIC = 'ar_EG';
+
+    public const LANGUAGE_ENGLISH = 'en_US';
+
     public static function text(
         string $phoneNumberId,
         string $accessToken,
@@ -158,7 +162,7 @@ class SendMessage
         string $accessToken,
         string $to,
         string $templateName,
-        string $languageCode = 'ar_EG',
+        string $languageCode = self::LANGUAGE_ARABIC,
         array $bodyParams = [],
         ?array $header = null,
         array $urlButtons = [],

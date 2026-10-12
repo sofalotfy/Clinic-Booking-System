@@ -22,10 +22,6 @@ enum ConversationState: string
     case IDLE_CHECK = 'idle_check';
     case CHOOSE_REPLACE_DAY = 'choose_replace_day';
 
-    // Notification Status
-    case DOCTOR_APPOINTMENT_BOOKING = 'doctor_appointment_booking';
-    case DOCTOR_APPOINTMENT_RESCHEDULE = 'doctor_appointment_reschedule';
-
     /**
      * States that represent an entry point or a menu rather than productive
      * work. A conversation sitting in one of these is not stuck in anything,
@@ -36,8 +32,6 @@ enum ConversationState: string
         self::MAIN_MENU,
         self::ADMIN_MENU,
         self::IDLE_CHECK,
-        self::DOCTOR_APPOINTMENT_BOOKING,
-        self::DOCTOR_APPOINTMENT_RESCHEDULE,
     ];
 
     /**

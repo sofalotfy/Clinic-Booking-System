@@ -5,8 +5,9 @@ namespace App\Services\Notifications\Handlers\Appointments;
 use App\Enums\AppointmentStatus;
 use App\Models\Notification;
 use App\Models\User;
-use App\Services\Notifications\Channels\SendWhatsAppStatefulNotification;
+use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
 use App\Services\Notifications\Handlers\Handler;
+use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -41,25 +42,31 @@ class DoctorAppointmentRescheduled extends Handler
         ]);
     }
 
+    private static function buildWhatsAppParams(array $receiver, Model $model): array
+    {
+        $includeTime = $model->status != AppointmentStatus::QUEUED;
+
+        $format = fn ($raw) => ArabicDateFormatter::format(
+            Carbon::parse($raw),
+            includeTime: $includeTime
+        );
+
+        return [
+            'name' => $receiver['name'] ?? '',
+            'date_from' => $model->old_date ? $format($model->old_date) : '-',
+            'date_to' => $format($model->date),
+        ];
+    }
+
     protected static function sendWhatsApp(User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
-        $data = [
-            'appointment_id' => $model->id,
-            'is_queued' => $model->status == AppointmentStatus::QUEUED,
-        ];
-
-        // Raw value; the state class formats it in Arabic when sending the template
-        if ($model->old_date) {
-            $data['old_date'] = Carbon::parse($model->old_date)->toDateTimeString();
-        }
-
-        return SendWhatsAppStatefulNotification::execute(
+        return SendWhatsAppStatelessNotification::execute(
             $sender,
-            $receiver['user'],
+            $receiver['phone'],
             $clinicId,
-            $notification,
-            $data,
-            $systemNotification?->id,
+            $notification->templateName(),
+            self::buildWhatsAppParams($receiver, $model),
+            SendWhatsAppStatelessNotification::ENGLISH_LANGUAGE
         );
     }
 }

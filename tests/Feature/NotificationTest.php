@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\APIServices\WhatsApp\States\Notifications\Appointments\DoctorAppointmentBooking;
 use App\Enums\NotificationEnum;
 use App\Enums\NotificationStatus;
 use App\Models\Appointment;
@@ -11,7 +10,6 @@ use App\Models\DoctorWhatsAppAccount;
 use App\Models\Notification;
 use App\Models\Patient;
 use App\Models\User;
-use App\Models\WhatsAppConversation;
 use App\Services\Notifications\NotificationManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -227,43 +225,6 @@ class NotificationTest extends TestCase
         $this->assertTrue($this->dispatchDoctorBooked($fixture));
         $this->assertSame(1, Notification::count());
         $this->assertSame(NotificationStatus::FAILED, Notification::first()->status);
-    }
-
-    public function test_stateful_whatsapp_notification_stores_the_notification_id_on_the_conversation()
-    {
-        $this->fakeGraph();
-
-        $fixture = $this->appointmentFixture();
-        $this->createWhatsAppAccount($fixture);
-
-        $this->dispatchDoctorBooked($fixture);
-
-        $conversation = WhatsAppConversation::first();
-        $this->assertSame(Notification::first()->id, $conversation->data['notification_id']);
-    }
-
-    public function test_confirming_over_whatsapp_marks_the_linked_notification_viewed()
-    {
-        $this->fakeGraph();
-
-        $fixture = $this->appointmentFixture();
-        $this->createWhatsAppAccount($fixture);
-
-        $this->dispatchDoctorBooked($fixture);
-
-        $notification = Notification::first();
-        $this->assertFalse($notification->viewed);
-
-        DoctorAppointmentBooking::handleResponse(
-            WhatsAppConversation::first(),
-            [
-                'type' => 'interactive',
-                'value' => 'confirm',
-                'from' => $fixture['patientUser']->phone,
-            ]
-        );
-
-        $this->assertTrue($notification->fresh()->viewed);
     }
 
     private function dispatchDoctorBooked(array $fixture): bool

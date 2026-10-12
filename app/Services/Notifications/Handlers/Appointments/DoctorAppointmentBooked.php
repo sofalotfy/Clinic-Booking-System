@@ -4,8 +4,9 @@ namespace App\Services\Notifications\Handlers\Appointments;
 
 use App\Models\Notification;
 use App\Models\User;
-use App\Services\Notifications\Channels\SendWhatsAppStatefulNotification;
+use App\Services\Notifications\Channels\SendWhatsAppStatelessNotification;
 use App\Services\Notifications\Handlers\Handler;
+use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -34,20 +35,25 @@ class DoctorAppointmentBooked extends Handler
         ]);
     }
 
+    private static function buildWhatsAppParams(array $receiver, Model $model): array
+    {
+        return [
+            'name' => $receiver['name'] ?? '',
+            'date' => ArabicDateFormatter::format(
+                Carbon::parse($model->date)
+            ),
+        ];
+    }
+
     protected static function sendWhatsApp(User $sender, array $receiver, int $clinicId, $notification, $model, string $title, string $body, ?Notification $systemNotification = null)
     {
-        $dateTime = Carbon::parse($model->date)->format('M j, Y g:i A');
-
-        return SendWhatsAppStatefulNotification::execute(
+        return SendWhatsAppStatelessNotification::execute(
             $sender,
-            $receiver['user'],
+            $receiver['phone'],
             $clinicId,
-            $notification,
-            [
-                'appointment_id' => $model->id,
-                'new_date' => $dateTime,
-            ],
-            $systemNotification?->id,
+            $notification->templateName(),
+            self::buildWhatsAppParams($receiver, $model),
+            SendWhatsAppStatelessNotification::ENGLISH_LANGUAGE
         );
     }
 }
