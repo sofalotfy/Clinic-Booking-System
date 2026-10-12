@@ -26,6 +26,7 @@ enum AssistantPermissionsEnum: string {
     case CREATE_PLAN = 'create plan';
     case UPDATE_PLAN = 'update plan';
     case DELETE_PLAN = 'delete plan';
+    case DELETE_DAY = 'delete day';
 
     case VIEW_ALL_ASSISTANTS = 'view all assistants';
     case VIEW_SINGLE_ASSISTANT = 'view single assistant';

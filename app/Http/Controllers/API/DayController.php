@@ -15,6 +15,7 @@ use App\APIServices\Days\TransferDay;
 use App\APIServices\Days\GetAvailableDays;
 use App\APIServices\Days\GetEmptyDays;
 use App\APIServices\Days\GetAvailableSlots;
+use App\APIServices\Days\CancelDay;
 use Illuminate\Http\Request;
 use App\Models\Day;
 
@@ -43,6 +44,10 @@ class DayController extends Controller implements HasMiddleware
                 'clinic.permission:' . AssistantPermissionsEnum::VIEW_ALL_APPOINTMENTS->value,
                 only: ['dayAppointments','mapAppointments']
             ),
+            new Middleware(
+                'clinic.permission:' . AssistantPermissionsEnum::DELETE_DAY->value . ',day',
+                only: ['destroy']
+            ),
         ];
     }
 
@@ -60,6 +65,16 @@ class DayController extends Controller implements HasMiddleware
             'success' => true,
             'message' => 'Day updated successfully',
             'day'     => UpdateDay::execute($day, $request),
+        ]);
+    }
+
+    public function destroy(Day $day, Request $request)
+    {
+        CancelDay::execute($request->user(), $day);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Day cancelled successfully',
         ]);
     }
 

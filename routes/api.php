@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/day/appointments', [DayController::class, 'dayAppointments'])->name('day-appointments');
     Route::post('/days/{day}/update', [DayController::class, 'update'])->name('update');
+    Route::delete('/days/{day}', [DayController::class, 'destroy'])->name('days.destroy');
     Route::get('/days', [DayController::class, 'index'])->name('days');
     Route::get('/days/appointments', [DayController::class, 'mapAppointments'])->name('daysAppointments');
     Route::post('/days/{day}/transfer', [DayController::class, 'transfer'])->name('days.transfer');
