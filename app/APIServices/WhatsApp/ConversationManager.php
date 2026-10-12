@@ -54,6 +54,20 @@ class ConversationManager
             $user = StorePatient::execute($message['from'])->user;
         }
 
+        // 3b. Turn blocked patients away before a conversation is started.
+        $patient = $user->patient;
+
+        if ($patient && $doctorAccount->doctor && $patient->isBlocked($doctorAccount->doctor)) {
+            SendMessage::text(
+                $doctorAccount->phone_number_id,
+                $doctorAccount->access_token,
+                $message['from'],
+                'عذرا، تم حظر رقمك من التواصل مع العيادة عبر واتساب. برجاء التواصل مع العيادة مباشرة.'
+            );
+
+            return;
+        }
+
         // 4. Find or create the conversation
         $conversation = WhatsAppConversation::firstOrCreate(
             [
