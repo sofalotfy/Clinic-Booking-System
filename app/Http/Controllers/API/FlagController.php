@@ -10,6 +10,7 @@ use App\APIServices\Flags\ListFlags;
 use App\APIServices\Flags\AddFlag;
 use App\APIServices\Flags\UpdateFlag;
 use App\APIServices\Flags\DeleteFlag;
+use App\APIServices\Flags\CheckFlag;
 use Illuminate\Http\Request;
 use App\Models\Flag;
 
@@ -32,7 +33,7 @@ class FlagController extends Controller implements HasMiddleware
             ),
             new Middleware(
                 'clinic.permission:' . AssistantPermissionsEnum::DELETE_FLAG->value . ',flag',
-                only: ['destroy']
+                only: ['destroy', 'check']
             ),
         ];
     }
@@ -68,5 +69,10 @@ class FlagController extends Controller implements HasMiddleware
             'success' => true,
             'message' => 'Flag deleted successfully',
         ]);
+    }
+
+    public function check(Flag $flag)
+    {
+        return response()->json(CheckFlag::execute($flag));
     }
 }
