@@ -53,7 +53,7 @@ class MainMenu
                 ],
                 [
                     'id' => self::CLINIC_LOCATION,
-                    'title' => 'موقع العيادة',
+                    'title' => 'عن العيادة',
                 ],
                 [
                     'id' => self::ABOUT_DOCTOR,
@@ -129,6 +129,16 @@ class MainMenu
             $lines[] = "\n*العنوان*\n" . $clinic->address;
         }
 
+        $socialLinks = self::socialLinks($clinic);
+
+        if ($socialLinks) {
+            $lines[] = "\n*روابط التواصل الاجتماعي*";
+
+            foreach ($socialLinks as $link) {
+                $lines[] = $link;
+            }
+        }
+
         $contacts = self::contactNumbers($doctor);
 
         if ($contacts) {
@@ -142,6 +152,21 @@ class MainMenu
         }
 
         return implode("\n", $lines);
+    }
+
+    private static function socialLinks($clinic): array
+    {
+        $links = [];
+
+        if ($clinic?->facebook) {
+            $links[] = "*فيسبوك:*\n" . $clinic->facebook;
+        }
+
+        if ($clinic?->instgram) {
+            $links[] = "*إنستجرام:*\n" . $clinic->instgram;
+        }
+
+        return $links;
     }
 
     private static function contactNumbers($doctor): array
