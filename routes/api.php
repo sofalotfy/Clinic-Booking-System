@@ -82,7 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/flag', [FlagController::class, 'store'])->name('flag');
     Route::put('/flag/{flag}', [FlagController::class, 'update'])->name('update-flag');
     Route::delete('/flag/{flag}', [FlagController::class, 'destroy'])->name('delete-flag');
-    Route::delete('/flag/{flag}/check', [FlagController::class, 'check'])->name('check-flag');
+    Route::get('/flag/{flag}/check', [FlagController::class, 'check'])->name('check-flag');
 
     Route::get('/clinics', [ClinicController::class, 'index'])->name('clinics.index');
     Route::post('/clinics', [ClinicController::class, 'store'])->name('clinics.store');
