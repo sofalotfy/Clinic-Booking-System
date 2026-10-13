@@ -7,9 +7,9 @@ use App\Services\Doctors\ShowDoctor as ShowDoctorService;
 
 class ShowDoctor
 {
-    public static function execute(int $id)
+    public static function execute(Doctor $doctor)
     {
-        $doctor = ShowDoctorService::execute(Doctor::findOrFail($id));
+        $doctor = ShowDoctorService::execute($doctor);
 
         return [
             'id' => $doctor->id,

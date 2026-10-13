@@ -32,6 +32,10 @@ class UpdateDoctor
             'description' => 'nullable|string',
         ]);
 
-        return UpdateService::execute($doctor, $validated, $request);
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        return UpdateService::execute($doctor, $validated);
     }
 }

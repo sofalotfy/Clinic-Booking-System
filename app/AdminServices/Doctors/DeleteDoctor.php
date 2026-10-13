@@ -7,8 +7,8 @@ use App\Services\Doctors\DeleteDoctor as DeleteDoctorService;
 
 class DeleteDoctor
 {
-    public static function execute(int $id)
+    public static function execute(Doctor $doctor)
     {
-        return DeleteDoctorService::execute(Doctor::findOrFail($id));
+        return DeleteDoctorService::execute($doctor);
     }
 }

@@ -1,6 +1,7 @@
 @php
     $input = 'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200';
     $label = 'mb-1 block text-sm font-medium text-slate-700';
+    $optional = '<span class="font-normal text-slate-400">(optional)</span>';
     $editing = isset($doctor);
 @endphp
 
@@ -30,12 +31,12 @@
             </div>
 
             <div>
-                <label for="age" class="{{ $label }}">Age</label>
+                <label for="age" class="{{ $label }}">Age {!! $optional !!}</label>
                 <input id="age" type="number" name="age" min="0" max="150" value="{{ old('age', $doctor['age'] ?? '') }}" class="{{ $input }}">
             </div>
 
             <div>
-                <label for="gender" class="{{ $label }}">Gender</label>
+                <label for="gender" class="{{ $label }}">Gender {!! $optional !!}</label>
                 <select id="gender" name="gender" class="{{ $input }}">
                     <option value="">—</option>
                     @foreach (\App\Enums\Gender::cases() as $gender)
@@ -45,18 +46,18 @@
             </div>
 
             <div>
-                <label for="area" class="{{ $label }}">Area</label>
+                <label for="area" class="{{ $label }}">Area {!! $optional !!}</label>
                 <input id="area" type="text" name="area" value="{{ old('area', $doctor['area'] ?? '') }}" class="{{ $input }}">
             </div>
 
             <div>
-                <label for="image" class="{{ $label }}">Image</label>
+                <label for="image" class="{{ $label }}">Image {!! $optional !!}</label>
                 <input id="image" type="file" name="image" accept="image/*" class="{{ $input }}">
             </div>
 
             <div class="sm:col-span-2">
                 <label for="description" class="{{ $label }}">Description</label>
-                <textarea id="description" name="description" rows="4" class="{{ $input }}">{{ old('description', $doctor['description'] ?? '') }}</textarea>
+                <textarea id="description" name="description" rows="4" required class="{{ $input }}">{{ old('description', $doctor['description'] ?? '') }}</textarea>
             </div>
         </div>
     </div>
@@ -67,46 +68,46 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
                 <label for="clinic_name" class="{{ $label }}">Clinic Name</label>
-                <input id="clinic_name" type="text" name="clinic_name" value="{{ old('clinic_name', $doctor['clinic']['name'] ?? '') }}" {{ $editing ? '' : 'required' }} class="{{ $input }}">
+                <input id="clinic_name" type="text" name="clinic_name" value="{{ old('clinic_name', $doctor['clinic']['name'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="clinic_phone" class="{{ $label }}">Clinic Phone</label>
-                <input id="clinic_phone" type="text" name="clinic_phone" value="{{ old('clinic_phone', $doctor['clinic']['clinic_phone'] ?? '') }}" class="{{ $input }}">
+                <input id="clinic_phone" type="text" name="clinic_phone" value="{{ old('clinic_phone', $doctor['clinic']['clinic_phone'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="notifications_phone" class="{{ $label }}">Notifications Phone</label>
-                <input id="notifications_phone" type="text" name="notifications_phone" value="{{ old('notifications_phone', $doctor['clinic']['notifications_phone'] ?? '') }}" class="{{ $input }}">
+                <input id="notifications_phone" type="text" name="notifications_phone" value="{{ old('notifications_phone', $doctor['clinic']['notifications_phone'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="clinic_location_link" class="{{ $label }}">Location Link</label>
-                <input id="clinic_location_link" type="text" name="clinic_location_link" value="{{ old('clinic_location_link', $doctor['clinic']['location_link'] ?? '') }}" class="{{ $input }}">
+                <input id="clinic_location_link" type="text" name="clinic_location_link" value="{{ old('clinic_location_link', $doctor['clinic']['location_link'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="clinic_address" class="{{ $label }}">Address</label>
-                <input id="clinic_address" type="text" name="clinic_address" value="{{ old('clinic_address', $doctor['clinic']['address'] ?? '') }}" class="{{ $input }}">
+                <input id="clinic_address" type="text" name="clinic_address" value="{{ old('clinic_address', $doctor['clinic']['address'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="clinic_facebook" class="{{ $label }}">Facebook</label>
-                <input id="clinic_facebook" type="text" name="clinic_facebook" value="{{ old('clinic_facebook', $doctor['clinic']['facebook'] ?? '') }}" class="{{ $input }}">
+                <input id="clinic_facebook" type="text" name="clinic_facebook" value="{{ old('clinic_facebook', $doctor['clinic']['facebook'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
                 <label for="clinic_instgram" class="{{ $label }}">Instagram</label>
-                <input id="clinic_instgram" type="text" name="clinic_instgram" value="{{ old('clinic_instgram', $doctor['clinic']['instgram'] ?? '') }}" class="{{ $input }}">
+                <input id="clinic_instgram" type="text" name="clinic_instgram" value="{{ old('clinic_instgram', $doctor['clinic']['instgram'] ?? '') }}" required class="{{ $input }}">
             </div>
 
             <div>
-                <label for="clinic_linkedin" class="{{ $label }}">LinkedIn</label>
+                <label for="clinic_linkedin" class="{{ $label }}">LinkedIn {!! $optional !!}</label>
                 <input id="clinic_linkedin" type="text" name="clinic_linkedin" value="{{ old('clinic_linkedin', $doctor['clinic']['linkedin'] ?? '') }}" class="{{ $input }}">
             </div>
 
             <div>
-                <label for="clinic_vezeeta" class="{{ $label }}">Vezeeta</label>
+                <label for="clinic_vezeeta" class="{{ $label }}">Vezeeta {!! $optional !!}</label>
                 <input id="clinic_vezeeta" type="text" name="clinic_vezeeta" value="{{ old('clinic_vezeeta', $doctor['clinic']['vezeeta'] ?? '') }}" class="{{ $input }}">
             </div>
         </div>

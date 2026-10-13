@@ -1,7 +1,7 @@
 <header class="border-b border-slate-200 bg-white">
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a href="{{ route('web-admin.dashboard') }}" class="text-lg font-semibold text-slate-900">
-            {{ config('app.name') }} Admin
+            Roznama admin
         </a>
 
         <nav class="flex items-center gap-6 text-sm font-medium">

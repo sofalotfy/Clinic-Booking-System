@@ -7,13 +7,8 @@ use Illuminate\Support\Facades\Hash;
 
 class UpdateDoctor
 {
-    public static function execute(Doctor $doctor, array $data, $request = null)
+    public static function execute(Doctor $doctor, array $data)
     {
-        if ($request && $request->hasFile('image')) {
-            $path = $request->file('image')->store('users', 'public');
-            $data['image'] = $path;
-        }
-
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
@@ -36,6 +31,6 @@ class UpdateDoctor
 
         $doctor->load('user'); // Refresh the user relationship
 
-        return $doctor;
+        return ShowDoctor::execute($doctor);
     }
 }

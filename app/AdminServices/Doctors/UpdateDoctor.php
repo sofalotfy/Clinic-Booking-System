@@ -23,22 +23,26 @@ class UpdateDoctor
             'gender' => ['nullable', Rule::enum(Gender::class)],
             'area' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'description' => 'nullable|string',
-            'clinic_name' => 'nullable|string|max:255',
-            'clinic_location_link' => 'nullable|string',
-            'clinic_address' => 'nullable|string',
-            'clinic_facebook' => 'nullable|string',
-            'clinic_instgram' => 'nullable|string',
+            'description' => 'required|string',
+            'clinic_name' => 'required|string|max:255',
+            'clinic_location_link' => 'required|string',
+            'clinic_address' => 'required|string',
+            'clinic_facebook' => 'required|string',
+            'clinic_instgram' => 'required|string',
             'clinic_linkedin' => 'nullable|string',
             'clinic_vezeeta' => 'nullable|string',
-            'clinic_phone' => 'nullable|string|max:20',
-            'notifications_phone' => 'nullable|string|max:20',
+            'clinic_phone' => 'required|string|max:20',
+            'notifications_phone' => 'required|string|max:20',
             'whatsapp_phone_number_id' => 'nullable|string',
             'whatsapp_access_token' => 'nullable|string',
             'whatsapp_is_active' => 'nullable|in:0,1',
         ]);
 
-        UpdateDoctorService::execute($doctor, $validated, $request);
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        UpdateDoctorService::execute($doctor, $validated);
 
         if (! empty($validated['clinic_name'])) {
             $clinicData = [

@@ -36,14 +36,14 @@ class DoctorController extends Controller
     public function show(Doctor $doctor)
     {
         return view('admin.doctors.show', [
-            'doctor' => ShowDoctor::execute($doctor->id),
+            'doctor' => ShowDoctor::execute($doctor),
         ]);
     }
 
     public function edit(Doctor $doctor)
     {
         return view('admin.doctors.edit', [
-            'doctor' => ShowDoctor::execute($doctor->id),
+            'doctor' => ShowDoctor::execute($doctor),
         ]);
     }
 
@@ -57,7 +57,7 @@ class DoctorController extends Controller
 
     public function destroy(Doctor $doctor)
     {
-        DeleteDoctor::execute($doctor->id);
+        DeleteDoctor::execute($doctor);
 
         return redirect()->route('web-admin.doctors.index')
             ->with('status', 'Doctor deleted successfully.');

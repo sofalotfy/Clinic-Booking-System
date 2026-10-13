@@ -9,13 +9,8 @@ use Illuminate\Support\Facades\Hash;
 
 class StoreDoctor
 {
-    public static function execute(array $data, $request = null)
+    public static function execute(array $data)
     {
-        if ($request && $request->hasFile('image')) {
-            $path = $request->file('image')->store('users', 'public');
-            $data['image'] = $path;
-        }
-
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
