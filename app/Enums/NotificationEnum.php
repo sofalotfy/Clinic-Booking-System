@@ -15,6 +15,7 @@ enum NotificationEnum
     case DOCTOR_APPOINTMENT_CANCEL;
     case PATIENT_DAY_APPOINTMENT_REMINDER;
     case PATIENT_FEEDBACK;
+    case DOCTOR_DAY_APPOINTMENTS;
 
     public function type(): self
     {
@@ -33,6 +34,8 @@ enum NotificationEnum
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'Patient Day Appointment Reminder',
 
             self::PATIENT_FEEDBACK => 'Patient Sent Feedback',
+
+            self::DOCTOR_DAY_APPOINTMENTS => 'Doctor Day Appointments',
         };
     }
 
@@ -54,6 +57,8 @@ enum NotificationEnum
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder_notifications',
 
             self::PATIENT_FEEDBACK => 'patient_feedback_notifications',
+
+            self::DOCTOR_DAY_APPOINTMENTS => null,
         };
     }
 
@@ -75,7 +80,8 @@ enum NotificationEnum
             self::PATIENT_APPOINTMENT_BOOKED,
             self::PATIENT_APPOINTMENT_RESCHEDULED,
             self::PATIENT_APPOINTMENT_CANCEL,
-            self::PATIENT_FEEDBACK => true,
+            self::PATIENT_FEEDBACK,
+            self::DOCTOR_DAY_APPOINTMENTS => true,
 
             default => false,
         };
@@ -99,6 +105,8 @@ enum NotificationEnum
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'patient_day_appointment_reminder',
 
             self::PATIENT_FEEDBACK => 'feedback_by_patient',
+
+            self::DOCTOR_DAY_APPOINTMENTS => 'today_appointments_summary_doctor',
         };
     }
 
@@ -120,6 +128,9 @@ enum NotificationEnum
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'تذكير بموعد',
 
             self::PATIENT_FEEDBACK => 'رسالة جديدة',
+
+            // TODO: this notification is WhatsApp-only for now (stateless template).
+            self::DOCTOR_DAY_APPOINTMENTS => '',
         };
     }
 
@@ -152,6 +163,9 @@ enum NotificationEnum
             self::PATIENT_DAY_APPOINTMENT_REMINDER => 'لديك موعد الساعة '.$time('date'),
 
             self::PATIENT_FEEDBACK => "{$data['patient']} أرسل رسالة\n{$data['message']}\n{$data['phone']}",
+
+            // TODO: WhatsApp template only.
+            self::DOCTOR_DAY_APPOINTMENTS => '',
         };
     }
 

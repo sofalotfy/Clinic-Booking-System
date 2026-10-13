@@ -42,7 +42,7 @@ class AdminMenu
             $account->access_token,
             $conversation->phone_number,
             $body,
-            'عرض الخيارات',
+            'القائمة الرئيسية',
             self::options(),
             '',
             'مواعيد العيادة'

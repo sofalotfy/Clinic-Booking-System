@@ -24,6 +24,10 @@ Schedule::command('app:check-idle-conversations')
     ->everyMinute()
     ->withoutOverlapping();
 
+Schedule::command('app:notify-doctor-day-appointments')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
