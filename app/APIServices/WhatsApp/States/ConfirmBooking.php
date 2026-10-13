@@ -34,21 +34,31 @@ class ConfirmBooking
         $userName = $conversation->data['name'];
 
         if ($isAvailable) {
-            $state = AppointmentStatus::ACTIVE;
-            $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}";
-            $buttons = [
-                ['id' => 'confirm',    'title' => 'تأكيد الموعد'],
-                ['id' => 'reschedule', 'title' => 'اختيار موعد جديد'],
-                ['id' => 'cancel',     'title' => 'إلغاء الموعد'],
-            ];
-        } else {
-            $state = AppointmentStatus::QUEUED;
-            $text = "شكرا {$userName}\nتم حجز موعدك يوم {$formattedDate}\nعلى قائمة الانتظار";
-            $buttons = [
-                ['id' => 'confirm', 'title' => 'تأكيد الموعد'],
-                ['id' => 'cancel',  'title' => 'الغاء الحجز'],
-            ];
-        }
+
+    $state = AppointmentStatus::ACTIVE;
+
+    $text = "يتم حجز موعدك يوم {$formattedDate}.\n"
+            . "يرجى تأكيد الموعد.";
+
+        $buttons = [
+            ['id' => 'confirm',    'title' => 'تأكيد الموعد'],
+            ['id' => 'reschedule', 'title' => 'اختيار موعد جديد'],
+            ['id' => 'cancel',     'title' => 'إلغاء الموعد'],
+        ];
+
+    } else {
+
+        $state = AppointmentStatus::QUEUED;
+
+        $text = "يتم تسجيلك على قائمة الانتظار لموعد يوم {$formattedDate}.\n"
+            . "يرجى تأكيد اختيارك.";
+
+        $buttons = [
+            ['id' => 'confirm',    'title' => 'تأكيد الانتظار'],
+            ['id' => 'reschedule', 'title' => 'اختيار موعد جديد'],
+            ['id' => 'cancel',     'title' => 'إلغاء الحجز'],
+        ];
+    }
 
         $conversation->update([
             'data' => array_merge(
