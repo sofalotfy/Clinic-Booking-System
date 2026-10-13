@@ -12,7 +12,7 @@ use App\APIServices\Roles\ShowRole;
 use App\APIServices\Roles\StoreRole;
 use App\APIServices\Roles\UpdateRole;
 use App\APIServices\Roles\DeleteRole;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class RoleController extends Controller implements HasMiddleware
 {

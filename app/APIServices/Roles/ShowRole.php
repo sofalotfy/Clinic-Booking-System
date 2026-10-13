@@ -3,7 +3,7 @@
 namespace App\APIServices\Roles;
 
 use App\Services\Roles\ShowRoles as ShowService;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class ShowRole
 {

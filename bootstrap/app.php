@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminPermission;
 use App\Http\Middleware\ClinicPermission;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\Notification\SyncNotification;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'sync.notification' => SyncNotification::class,
             'clinic.permission' => ClinicPermission::class,
+            'admin.permission' => AdminPermission::class,
             'web-admin.only' => EnsureUserIsAdmin::class,
         ]);
 

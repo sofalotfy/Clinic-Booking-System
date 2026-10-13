@@ -58,7 +58,11 @@ class PermissionTableSeeder extends Seeder
             'doctor_id'  => null,
             'guard_name' => 'web',
         ]);
-        $superAdminRole->syncPermissions(Permission::pluck('id'));
+        // A role with no doctor_id is a platform admin role, so it may only
+        // hold admin-type permissions. Conversely an admin permission may only
+        // live on a global role, never on a doctor-scoped one.
+        $adminPermissionIds = Permission::where('type', PermissionsTypeEnum::ADMIN->value)->pluck('id');
+        $superAdminRole->syncPermissions($adminPermissionIds);
 
         // syncPermissions reconciles the pivot on every run, so permissions
         // added to the enums later are picked up without extra bookkeeping.

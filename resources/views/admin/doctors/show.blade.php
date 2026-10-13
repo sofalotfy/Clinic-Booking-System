@@ -3,11 +3,14 @@
 @section('title', 'Doctor Details')
 
 @section('content')
+    @php($user = auth()->user())
     <div class="mb-8 flex items-center justify-between">
         <h1 class="text-2xl font-semibold text-slate-900">{{ $doctor['name'] }}</h1>
         <div class="inline-flex items-center gap-3">
-            <a href="{{ route('web-admin.doctors.edit', $doctor['id']) }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Edit</a>
-            <a href="{{ route('web-admin.doctors.index') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Back</a>
+            @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::UPDATE_DOCTOR))
+                <a href="{{ route('web-admin.doctors.edit', $doctor['id']) }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Edit</a>
+            @endif
+            <a href="{{ $user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_DOCTORS) ? route('web-admin.doctors.index') : route('web-admin.dashboard') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">Back</a>
         </div>
     </div>
 
