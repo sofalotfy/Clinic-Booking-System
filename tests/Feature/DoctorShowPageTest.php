@@ -41,6 +41,8 @@ class DoctorShowPageTest extends TestCase
         $this->makeAppointment($doctor, $patient, now()->subDays(5), AppointmentStatus::DONE);
         $this->makeAppointment($doctor, $patient, now()->subDays(7), AppointmentStatus::CANCELLED);
         $this->makeAppointment($doctor, $otherPatient, now()->subDays(40), AppointmentStatus::ACTIVE);
+        $this->makeAppointment($doctor, $patient, now()->addDays(4), AppointmentStatus::ACTIVE);
+        $this->makeAppointment($doctor, $otherPatient, now()->addDays(40), AppointmentStatus::ACTIVE);
 
         PatientBlock::create([
             'doctor_id' => $doctor->id,
@@ -58,6 +60,7 @@ class DoctorShowPageTest extends TestCase
         $this->assertSame(1, $stats['appointments_by_status'][AppointmentStatus::ACTIVE->value]);
         $this->assertSame(1, $stats['appointments_by_status'][AppointmentStatus::DONE->value]);
         $this->assertSame(1, $stats['appointments_by_status'][AppointmentStatus::CANCELLED->value]);
+        $this->assertSame(1, $stats['appointments_upcoming_total']);
         $this->assertSame(2, $stats['patients']);
         $this->assertSame(1, $stats['blocked_patients']);
         $this->assertSame(1, $stats['assistants']);
@@ -85,6 +88,7 @@ class DoctorShowPageTest extends TestCase
             ->assertSee($doctor->user->email)
             ->assertSee('Bright Smile Clinic')
             ->assertSee('Appointments (last 30 days)')
+            ->assertSee('Appointments (next 30 days)')
             ->assertSee('Patients')
             ->assertSee('Blocked patients')
             ->assertSee('Assistants')

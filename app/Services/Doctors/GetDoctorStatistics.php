@@ -27,10 +27,16 @@ class GetDoctorStatistics
             $byStatus[$status->value] = (int) ($counts[$status->value] ?? 0);
         }
 
+        $upcomingAppointments = Appointment::query()
+            ->where('doctor_id', $doctor->id)
+            ->whereDate('date', '>', now())
+            ->whereDate('date', '<=', now()->addDays(self::WINDOW_DAYS)->endOfDay());
+
         return [
             'window_days' => self::WINDOW_DAYS,
             'appointments_total' => (int) $appointments->count(),
             'appointments_by_status' => $byStatus,
+            'appointments_upcoming_total' => (int) $upcomingAppointments->count(),
             'patients' => (int) Appointment::query()
                 ->where('doctor_id', $doctor->id)
                 ->distinct()
