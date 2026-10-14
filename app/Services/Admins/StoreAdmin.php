@@ -3,6 +3,7 @@
 namespace App\Services\Admins;
 
 use App\Enums\UserType;
+use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,6 +21,10 @@ class StoreAdmin
             'gender' => $data['gender'] ?? null,
             'area' => $data['area'] ?? null,
             'image' => $data['image'] ?? null,
+        ]);
+
+        Admin::create([
+            'user_id' => $user->id,
         ]);
 
         return ShowAdmin::execute($user);

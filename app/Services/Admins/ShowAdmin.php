@@ -8,6 +8,6 @@ class ShowAdmin
 {
     public static function execute(User $admin)
     {
-        return $admin->load('roles');
+        return $admin->load('roles', 'admin');
     }
 }
