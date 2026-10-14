@@ -2,8 +2,9 @@
 
 namespace App\APIServices\Roles;
 
+use App\Enums\PermissionsTypeEnum;
 use App\Services\Roles\StoreRole as StoreService;
-use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rule;
 
 class StoreRole
 {
@@ -12,7 +13,10 @@ class StoreRole
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'permissions.*' => [
+                'integer',
+                Rule::exists('permissions', 'id')->where('type', '!=', PermissionsTypeEnum::ADMIN->value),
+            ],
         ]);
 
         $role = StoreService::execute($request->user(), $validated['name'], $validated['permissions'] ?? []);

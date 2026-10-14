@@ -2,8 +2,10 @@
 
 namespace App\APIServices\Roles;
 
-use Spatie\Permission\Models\Role;
+use App\Enums\PermissionsTypeEnum;
+use App\Models\Role;
 use App\Services\Roles\UpdateRole as UpdateService;
+use Illuminate\Validation\Rule;
 
 class UpdateRole
 {
@@ -12,7 +14,10 @@ class UpdateRole
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id',
+            'permissions.*' => [
+                'integer',
+                Rule::exists('permissions', 'id')->where('type', '!=', PermissionsTypeEnum::ADMIN->value),
+            ],
         ]);
 
         $role = UpdateService::execute($request->user(), $role, $validated['name'], $validated['permissions']);

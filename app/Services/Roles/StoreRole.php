@@ -2,8 +2,10 @@
 
 namespace App\Services\Roles;
 
+use App\Enums\PermissionsTypeEnum;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Models\Role;
 
 class StoreRole
 {
@@ -15,8 +17,20 @@ class StoreRole
             'doctor_id' => $user->clinicDoctorId(),
         ]);
 
-        $role->syncPermissions($permissions);
+        $role->syncPermissions(self::clinicPermissionIds($permissions));
 
         return $role;
+    }
+
+    /**
+     * A doctor-scoped role may never hold a platform (admin) permission.
+     */
+    public static function clinicPermissionIds(array $permissions)
+    {
+        return Permission::query()
+            ->whereIn('id', array_map('intval', $permissions))
+            ->where('type', '!=', PermissionsTypeEnum::ADMIN->value)
+            ->pluck('id')
+            ->all();
     }
 }

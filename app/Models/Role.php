@@ -13,4 +13,14 @@ class Role extends SpatieRole
     {
         return $this->belongsTo(Doctor::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->doctor_id === null;
+    }
+
+    public function isClinic(): bool
+    {
+        return $this->doctor_id !== null;
+    }
 }

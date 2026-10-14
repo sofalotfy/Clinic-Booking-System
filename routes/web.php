@@ -1,12 +1,26 @@
 <?php
 
+use App\Enums\UserType;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminPermissionController;
+use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::bind('admin', function ($value) {
+    return User::where('type', UserType::ADMIN)->findOrFail($value);
+});
+
+Route::bind('adminRole', function ($value) {
+    return Role::whereNull('doctor_id')->findOrFail($value);
 });
 
 Route::prefix('web-admin')->name('web-admin.')->group(function () {
@@ -20,5 +34,8 @@ Route::prefix('web-admin')->name('web-admin.')->group(function () {
         Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
         Route::resource('doctors', DoctorController::class);
+        Route::resource('admins', AdminController::class);
+        Route::resource('roles', AdminRoleController::class)->parameters(['roles' => 'adminRole']);
+        Route::get('permissions', [AdminPermissionController::class, 'index'])->name('permissions.index');
     });
 });

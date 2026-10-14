@@ -2,7 +2,7 @@
 
 namespace App\APIServices\Roles;
 
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use App\Services\Roles\DeleteRole as DeleteService;
 
 class DeleteRole

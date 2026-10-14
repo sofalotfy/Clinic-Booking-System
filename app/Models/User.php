@@ -22,6 +22,8 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     protected $guarded = [];
+
+    protected ?array $adminPermissionNamesCache = null;
     /**
      * Get the attributes that should be cast.
      *
@@ -71,6 +73,32 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->type === UserType::ADMIN;
+    }
+
+    /**
+     * The platform (type = admin) permission names the user holds, whether
+     * assigned directly or inherited through one of their roles. Resolved by
+     * type so a same-named clinic permission can never satisfy an admin check.
+     *
+     * @return array<int, string>
+     */
+    public function adminPermissionNames(): array
+    {
+        if (! $this->isAdmin()) {
+            return [];
+        }
+
+        return $this->adminPermissionNamesCache ??= $this->getAllPermissions()
+            ->where('type', \App\Enums\PermissionsTypeEnum::ADMIN->value)
+            ->pluck('name')
+            ->all();
+    }
+
+    public function hasAdminPermission(\App\Enums\AdminPermissionsEnum|string $permission): bool
+    {
+        $name = $permission instanceof \App\Enums\AdminPermissionsEnum ? $permission->value : $permission;
+
+        return in_array($name, $this->adminPermissionNames(), true);
     }
 
     /**
