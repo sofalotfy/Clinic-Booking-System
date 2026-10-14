@@ -15,7 +15,7 @@ class UpdateAppointment
     {
         $validated = self::validate($changes);
 
-        return UpdateService::execute($user,  $appointment, $validated['status'] ?? null, $validated['time'] ?? null, $validated['grade'] ?? null);
+        return UpdateService::execute($user,  $appointment, $validated['status'] ?? null, $validated['date'] ?? null, $validated['grade'] ?? null);
     }
 
     private static function validate($changes)
@@ -33,10 +33,10 @@ class UpdateAppointment
                 Rule::enum(AppointmentGrade::class),
             ],
 
-            'time' => [
+            // Full date and time, e.g. 2026-10-20 14:30
+            'date' => [
                 'nullable',
-                'string',
-                'regex:/^\d{1,2}:\d{2}(:\d{2})?$/',
+                'date_format:Y-m-d H:i,Y-m-d H:i:s',
             ],
         ]);
 

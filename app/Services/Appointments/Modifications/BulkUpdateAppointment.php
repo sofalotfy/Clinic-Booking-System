@@ -2,87 +2,95 @@
 
 namespace App\Services\Appointments\Modifications;
 
-use App\Models\Day;
+use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
+use App\Models\Day;
 use Carbon\Carbon;
 use Exception;
-use App\APIServices\Appointments\UpdateAppointment;
-use App\Enums\AppointmentStatus;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class BulkUpdateAppointment
 {
-    public static function execute(array $updates): void
+    /**
+     * Each update is ['id' => int, 'changes' => ['status'?, 'date'?, 'grade'?]],
+     * where date is the full new date and time (Y-m-d H:i[:s]).
+     */
+    public static function execute($user, array $updates): void
     {
-        DB::transaction(function () use ($updates) {
+        DB::transaction(function () use ($user, $updates) {
             $changes = collect($updates)->keyBy('id');
 
-            $appointments = static::fetchAppointments($changes);
+            $appointments = Appointment::whereIn('id', $changes->keys())->get()->keyBy('id');
 
-            $groups = static::groupAppointmentsByDoctorAndDate($appointments);
+            static::validateDates($appointments, $changes);
 
-            foreach ($groups as $groupAppointments) {
-                static::validateGroup($groupAppointments, $changes);
+            foreach ($changes as $id => $update) {
+                $change = $update['changes'] ?? [];
+
+                UpdateAppointment::execute(
+                    $user,
+                    $appointments[$id],
+                    $change['status'] ?? null,
+                    $change['date'] ?? null,
+                    $change['grade'] ?? null
+                );
             }
-
-            static::applyUpdates($updates);
         });
     }
 
     /**
-     * Fetch the appointments referenced in the update payload.
+     * Validate that every requested new date is a valid, unoccupied slot on
+     * a scheduled day of the appointment's doctor. Throws if any is invalid.
      */
-    protected static function fetchAppointments(Collection $changes): Collection
+    protected static function validateDates(Collection $appointments, Collection $changes): void
     {
-        return Appointment::whereIn('id', $changes->keys())->get();
-    }
+        $ids = $appointments->keys();
 
-    /**
-     * Group appointments by "doctor_id_date" so each group can be
-     * validated against the same day's slots.
-     */
-    protected static function groupAppointmentsByDoctorAndDate(Collection $appointments): array
-    {
-        $groups = [];
+        // Slots already claimed by earlier changes in this batch, "doctor|Y-m-d H:i" => true
+        $claimed = [];
 
-        foreach ($appointments as $appointment) {
-            $key = $appointment->doctor_id . '_' . Carbon::parse($appointment->date)->toDateString();
+        // Per doctor/day cache of "H:i" => true slots and of untouched occupied times
+        $slotsByDay = [];
+        $occupiedByDay = [];
 
-            $groups[$key][] = $appointment;
+        foreach ($changes as $id => $update) {
+            $date = $update['changes']['date'] ?? null;
+
+            if (! $date) {
+                continue;
+            }
+
+            $appointment = $appointments[$id];
+            $target = Carbon::parse($date);
+            $dayKey = $appointment->doctor_id.'|'.$target->toDateString();
+
+            if (! isset($slotsByDay[$dayKey])) {
+                $day = static::findDay($appointment->doctor_id, $target);
+
+                $slotsByDay[$dayKey] = static::generateAvailableSlots($day);
+                $occupiedByDay[$dayKey] = static::getOccupiedSlots($day, $ids);
+            }
+
+            $time = $target->format('H:i');
+            $claimKey = $dayKey.'|'.$time;
+
+            if (! isset($slotsByDay[$dayKey][$time])) {
+                throw new Exception("Invalid slot {$target->toDateTimeString()} for appointment {$id}");
+            }
+
+            if (isset($occupiedByDay[$dayKey][$time]) || isset($claimed[$claimKey])) {
+                throw new Exception("Slot {$target->toDateTimeString()} is already occupied.");
+            }
+
+            $claimed[$claimKey] = true;
         }
-
-        return $groups;
     }
 
-    /**
-     * Validate that every requested time change within a doctor/date group
-     * is a valid, unoccupied slot. Throws if any change is invalid.
-     */
-    protected static function validateGroup(array $groupAppointments, Collection $changes): void
+    protected static function findDay(int $doctorId, Carbon $date): Day
     {
-        $referenceAppointment = $groupAppointments[0];
-
-        $day = static::findDayFor($referenceAppointment);
-
-        $slots = static::generateAvailableSlots($day);
-
-        $occupied = static::getOccupiedSlots($day, $groupAppointments);
-
-        foreach ($groupAppointments as $appointment) {
-            static::validateAppointmentChange($appointment, $changes, $slots, $occupied);
-        }
-    }
-
-    /**
-     * Find the Day record for the given appointment's doctor + date.
-     */
-    protected static function findDayFor(Appointment $appointment): Day
-    {
-        $date = Carbon::parse($appointment->date)->toDateString();
-
-        return Day::where('doctor_id', $appointment->doctor_id)
-            ->where('date', $date)
+        return Day::where('doctor_id', $doctorId)
+            ->where('date', $date->toDateString())
             ->firstOrFail();
     }
 
@@ -107,18 +115,16 @@ class BulkUpdateAppointment
     }
 
     /**
-     * Get the times ("H:i" => true) already occupied by appointments on this
-     * day that are NOT part of the current update group.
+     * Get the times ("H:i" => true) held on this day by working appointments
+     * that are NOT part of this update, since those are moving anyway.
      */
-    protected static function getOccupiedSlots(Day $day, array $groupAppointments): array
+    protected static function getOccupiedSlots(Day $day, Collection $updatedIds): array
     {
         $occupied = [];
 
-        $groupIds = collect($groupAppointments)->pluck('id');
-
         Appointment::whereDate('date', $day->date)
             ->where('doctor_id', $day->doctor_id)
-            ->whereNotIn('id', $groupIds)
+            ->whereNotIn('id', $updatedIds)
             ->whereIn('status', AppointmentStatus::working())
             ->get()
             ->each(function ($appointment) use (&$occupied) {
@@ -126,48 +132,5 @@ class BulkUpdateAppointment
             });
 
         return $occupied;
-    }
-
-    /**
-     * Validate a single appointment's requested time change (if any) against
-     * the available/occupied slots, marking it occupied once accepted.
-     */
-    protected static function validateAppointmentChange(
-        Appointment $appointment,
-        Collection $changes,
-        array $slots,
-        array &$occupied
-    ): void {
-        if (!$changes->has($appointment->id)) {
-            return;
-        }
-
-        $change = $changes[$appointment->id]['changes'];
-
-        if (!isset($change['time'])) {
-            return;
-        }
-
-        $time = $change['time'];
-
-        if (!isset($slots[$time])) {
-            throw new Exception("Invalid slot {$time} for appointment {$appointment->id}");
-        }
-
-        if (isset($occupied[$time])) {
-            throw new Exception("Slot {$time} is already occupied.");
-        }
-
-        $occupied[$time] = true;
-    }
-
-    /**
-     * Apply all updates now that every requested change has been validated.
-     */
-    protected static function applyUpdates(array $updates): void
-    {
-        foreach ($updates as $update) {
-            UpdateAppointment::execute($update);
-        }
     }
 }

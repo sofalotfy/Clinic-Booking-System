@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class UpdateAppointment 
 {
-    public static function execute($user, $appointment, $status = null, $time = null, $grade = null)
+    public static function execute($user, $appointment, $status = null, $date = null, $grade = null)
     {
         GradeAppointment::execute($user, $appointment, $grade);
         
@@ -25,8 +25,8 @@ class UpdateAppointment
 
             case AppointmentStatus::ACTIVE:
                 ActivateAppointment::execute($user, $appointment);
-                if ($time) { // RESCHEDULE APPOINTMENT
-                    $newDate = self::formatDate($appointment->date, $time);
+                if ($date) { // RESCHEDULE APPOINTMENT
+                    $newDate = self::formatDate($date);
                     ResheduleAppointment::execute($user, $appointment, $newDate, $appointment->duration);
                 }
                 break;
@@ -40,19 +40,17 @@ class UpdateAppointment
                 break;
         }
 
-        if ($time) {
+        if ($date) {
             $appointment->update([
-                "date"  => self::formatDate($appointment->date, $time),
+                "date"  => self::formatDate($date),
             ]);
         }
         
         return $appointment;
     }
 
-    private static function formatDate(string $dateTime, string $time): string
+    private static function formatDate(string $date): string
     {
-        return Carbon::parse($dateTime)
-            ->setTimeFromTimeString($time)
-            ->toDateTimeString();
+        return Carbon::parse($date)->toDateTimeString();
     }
 }
