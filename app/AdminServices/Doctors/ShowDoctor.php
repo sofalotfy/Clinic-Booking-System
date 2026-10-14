@@ -41,6 +41,14 @@ class ShowDoctor
                 'phone_number_id' => $doctor->whatsappAccount->phone_number_id,
                 'is_active' => $doctor->whatsappAccount->is_active,
             ] : null,
+            'suspended' => $doctor->isSuspended(),
+            'suspensions' => $doctor->suspensions->map(fn ($suspension) => [
+                'reason' => $suspension->reason,
+                'suspended_at' => $suspension->suspended_at?->format('Y-m-d H:i'),
+                'suspended_by' => $suspension->suspender?->name,
+                'lifted_at' => $suspension->lifted_at?->format('Y-m-d H:i'),
+                'lifted_by' => $suspension->lifter?->name,
+            ])->all(),
             'stats' => GetDoctorStatistics::execute($doctor),
         ];
     }

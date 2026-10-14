@@ -9,7 +9,7 @@ class ListDoctors
     public static function execute($filters = null)
     {
         return Doctor::query()
-            ->with(['user', 'clinic', 'whatsappAccount'])
+            ->with(['user', 'clinic', 'whatsappAccount', 'activeSuspension'])
             ->latest()
             ->when($filters, fn ($query) => self::filter($query, $filters));
     }

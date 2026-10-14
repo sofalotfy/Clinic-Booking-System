@@ -31,6 +31,7 @@ class NotifyDoctorDayAppointments extends Command
         $days = Day::query()
             ->with(['doctor.user', 'doctor.clinic'])
             ->active()
+            ->whereHas('doctor', fn ($query) => $query->notSuspended())
             ->whereDate('date', $target->toDateString())
             ->get();
 

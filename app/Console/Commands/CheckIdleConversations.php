@@ -34,6 +34,7 @@ class CheckIdleConversations extends Command
         $query = WhatsAppConversation::query()
             ->with(['user', 'doctorWhatsAppAccount'])
             ->whereIn('state', ConversationState::active())
+            ->whereHas('doctorWhatsAppAccount.doctor', fn ($query) => $query->notSuspended())
             ->where('last_activity_at', '<=', now()->subMinutes($minutes));
 
         $query->chunkById(self::CHUNK, function ($conversations) use (&$examined, &$prompted, &$failed) {

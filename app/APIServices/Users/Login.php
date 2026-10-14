@@ -21,6 +21,13 @@ class Login
             ], 401);
         }
 
+        // 3. Turn away doctors and assistants of a suspended clinic
+        if (Auth::user()->isClinicSuspended()) {
+            return response()->json([
+                'message' => 'This clinic account is suspended. Please contact support.'
+            ], 403);
+        }
+
         $response = ShowUser::execute($request, Auth::user());
         $data = $response->getData(true);
         $data['token'] = Auth::user()->createToken('api-token')->plainTextToken;

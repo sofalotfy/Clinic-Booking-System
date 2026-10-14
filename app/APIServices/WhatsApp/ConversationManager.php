@@ -47,6 +47,18 @@ class ConversationManager
             $message['phone_number_id']
         )->firstOrFail();
 
+        // 2b. A suspended clinic's bot stays silent apart from this notice.
+        if ($doctorAccount->doctor?->isSuspended()) {
+            SendMessage::text(
+                $doctorAccount->phone_number_id,
+                $doctorAccount->access_token,
+                $message['from'],
+                'عذرا، خدمة الحجز عبر واتساب غير متاحة حاليا لهذه العيادة. برجاء التواصل مع العيادة مباشرة.'
+            );
+
+            return;
+        }
+
         // 3. Find the patient by the sender's phone number
         $user = User::where('phone', $message['from'])->first();
 

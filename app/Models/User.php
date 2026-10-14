@@ -140,6 +140,15 @@ class User extends Authenticatable
         return $this->clinicDoctor()?->id;
     }
 
+    /**
+     * Whether the user is a doctor, or an assistant of a doctor, that is
+     * currently suspended from the platform.
+     */
+    public function isClinicSuspended(): bool
+    {
+        return (bool) $this->clinicDoctor()?->isSuspended();
+    }
+
     public function receivedNotifications()
     {
         if ($this->isPatient()) {

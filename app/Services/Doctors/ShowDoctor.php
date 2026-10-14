@@ -12,6 +12,8 @@ class ShowDoctor
             'user',
             'clinic',
             'whatsappAccount',
+            'activeSuspension',
+            'suspensions' => fn ($query) => $query->with(['suspender', 'lifter'])->latest('suspended_at'),
         ]);
     }
 }

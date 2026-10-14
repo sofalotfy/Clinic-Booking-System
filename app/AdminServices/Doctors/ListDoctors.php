@@ -21,6 +21,7 @@ class ListDoctors
                 'clinic_name' => $doctor->clinic?->name,
                 'whatsapp_active' => $doctor->whatsappAccount?->is_active,
                 'joined' => $doctor->user?->created_at?->format('Y-m-d'),
+                'suspended' => $doctor->isSuspended(),
             ]);
     }
 }

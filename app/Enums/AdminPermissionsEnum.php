@@ -7,7 +7,8 @@ enum AdminPermissionsEnum: string {
     case VIEW_SINGLE_DOCTOR = 'view single doctor';
     case CREATE_DOCTOR = 'create doctor';
     case UPDATE_DOCTOR = 'update doctor';
-    case DELETE_DOCTOR = 'delete doctor';
+    case SUSPEND_DOCTOR = 'suspend doctor';
+    case REINSTATE_DOCTOR = 'reinstate doctor';
 
     case VIEW_ALL_ADMINS = 'view all admins';
     case VIEW_SINGLE_ADMIN = 'view single admin';
@@ -30,7 +31,8 @@ enum AdminPermissionsEnum: string {
             self::VIEW_SINGLE_DOCTOR,
             self::CREATE_DOCTOR,
             self::UPDATE_DOCTOR,
-            self::DELETE_DOCTOR => 'Doctors',
+            self::SUSPEND_DOCTOR,
+            self::REINSTATE_DOCTOR => 'Doctors',
 
             self::VIEW_ALL_ADMINS,
             self::VIEW_SINGLE_ADMIN,

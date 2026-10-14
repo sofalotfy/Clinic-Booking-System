@@ -107,6 +107,31 @@ class Doctor extends Model
         return $this->hasOne(Clinic::class);
     }
 
+    public function suspensions()
+    {
+        return $this->hasMany(Suspension::class);
+    }
+
+    public function activeSuspension()
+    {
+        return $this->hasOne(Suspension::class)->active()->latestOfMany('suspended_at');
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->activeSuspension !== null;
+    }
+
+    public function scopeSuspended($query)
+    {
+        return $query->whereHas('suspensions', fn ($query) => $query->active());
+    }
+
+    public function scopeNotSuspended($query)
+    {
+        return $query->whereDoesntHave('suspensions', fn ($query) => $query->active());
+    }
+
     public function clinicId(): int
     {
         return $this->id;

@@ -31,6 +31,7 @@ class SendAppointmentReminders extends Command
         $appointments = Appointment::query()
             ->with(['patient.user', 'doctor.user'])
             ->active()
+            ->whereHas('doctor', fn ($query) => $query->notSuspended())
             ->whereDate('date', $date->toDateString())
             ->get();
 

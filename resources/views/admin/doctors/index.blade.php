@@ -22,6 +22,7 @@
                     <th class="px-6 py-3">Phone</th>
                     <th class="px-6 py-3">Clinic</th>
                     <th class="px-6 py-3">Joined</th>
+                    <th class="px-6 py-3">Status</th>
                     <th class="px-6 py-3 text-right">Actions</th>
                 </tr>
             </thead>
@@ -33,6 +34,13 @@
                         <td class="px-6 py-3 text-slate-600">{{ $doctor['phone'] }}</td>
                         <td class="px-6 py-3 text-slate-600">{{ $doctor['clinic_name'] ?? '—' }}</td>
                         <td class="px-6 py-3 text-slate-600">{{ $doctor['joined'] ?? '—' }}</td>
+                        <td class="px-6 py-3">
+                            @if ($doctor['suspended'])
+                                <span class="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Suspended</span>
+                            @else
+                                <span class="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-3 text-right">
                             <div class="inline-flex items-center gap-3">
                                 @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_SINGLE_DOCTOR))
@@ -43,15 +51,26 @@
                                     <a href="{{ route('web-admin.doctors.edit', $doctor['id']) }}" class="text-slate-600 hover:text-slate-900">Edit</a>
                                 @endif
 
-                                @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::DELETE_DOCTOR))
+                                @if ($doctor['suspended'])
+                                    @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::REINSTATE_DOCTOR))
+                                        <form
+                                            method="POST"
+                                            action="{{ route('web-admin.doctors.reinstate', $doctor['id']) }}"
+                                            onsubmit="return confirm('Reinstate this doctor? They and their assistants will be able to use the system again.');"
+                                        >
+                                            @csrf
+                                            <button type="submit" class="text-green-600 hover:text-green-800">Reinstate</button>
+                                        </form>
+                                    @endif
+                                @elseif ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::SUSPEND_DOCTOR))
                                     <form
                                         method="POST"
                                         action="{{ route('web-admin.doctors.destroy', $doctor['id']) }}"
-                                        onsubmit="return confirm('Delete this doctor and all related data (appointments, clinic, whatsapp)?');"
+                                        onsubmit="return confirm('Suspend this doctor? They, their assistants and their WhatsApp bot will be disabled until reinstated.');"
                                     >
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+                                        <button type="submit" class="text-red-600 hover:text-red-800">Suspend</button>
                                     </form>
                                 @endif
                             </div>
@@ -59,7 +78,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-slate-500">No doctors found.</td>
+                        <td colspan="7" class="px-6 py-10 text-center text-slate-500">No doctors found.</td>
                     </tr>
                 @endforelse
             </tbody>

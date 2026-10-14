@@ -11,7 +11,7 @@ class GetClinicDoctor
     {
         return match ($user->type) {
             UserType::DOCTOR => $user->doctor,
-            UserType::ASSISTANT => $user->assistant->doctor,
+            UserType::ASSISTANT => $user->assistant?->doctor,
             default => null,
         };
     }

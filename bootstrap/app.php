@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminPermission;
 use App\Http\Middleware\ClinicPermission;
+use App\Http\Middleware\EnsureClinicNotSuspended;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\Notification\SyncNotification;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'clinic.permission' => ClinicPermission::class,
             'admin.permission' => AdminPermission::class,
             'web-admin.only' => EnsureUserIsAdmin::class,
+            'clinic.not-suspended' => EnsureClinicNotSuspended::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('web-admin.login'));

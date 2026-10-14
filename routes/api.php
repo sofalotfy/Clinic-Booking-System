@@ -21,7 +21,7 @@ use App\Http\Controllers\API\WhatsAppController;
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'clinic.not-suspended'])->group(function () {
 
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
     Route::get('/me', [UserController::class, 'me'])->name('me');

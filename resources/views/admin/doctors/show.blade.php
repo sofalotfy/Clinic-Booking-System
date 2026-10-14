@@ -12,6 +12,9 @@
                 <span class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-200 text-lg font-semibold text-slate-500">{{ strtoupper(substr($doctor['name'] ?? '?', 0, 1)) }}</span>
             @endif
             <h1 class="text-2xl font-semibold text-slate-900">{{ $doctor['name'] }}</h1>
+            @if ($doctor['suspended'])
+                <span class="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Suspended</span>
+            @endif
         </div>
         <div class="inline-flex items-center gap-3">
             @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::UPDATE_DOCTOR))
@@ -184,6 +187,77 @@
                         </dd>
                     </div>
                 </dl>
+            </div>
+        @endif
+
+        @if (($doctor['suspended'] && $user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::REINSTATE_DOCTOR))
+            || (! $doctor['suspended'] && $user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::SUSPEND_DOCTOR))
+            || count($doctor['suspensions']) > 0)
+            <div class="rounded-lg bg-white p-6 shadow lg:col-span-2">
+                <h2 class="mb-4 text-lg font-semibold text-slate-900">Suspension</h2>
+
+                @if ($doctor['suspended'])
+                    @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::REINSTATE_DOCTOR))
+                        <form
+                            method="POST"
+                            action="{{ route('web-admin.doctors.reinstate', $doctor['id']) }}"
+                            onsubmit="return confirm('Reinstate this doctor? They and their assistants will be able to use the system again.');"
+                            class="mb-6"
+                        >
+                            @csrf
+                            <button type="submit" class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">Reinstate Doctor</button>
+                        </form>
+                    @endif
+                @elseif ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::SUSPEND_DOCTOR))
+                    <form
+                        method="POST"
+                        action="{{ route('web-admin.doctors.destroy', $doctor['id']) }}"
+                        onsubmit="return confirm('Suspend this doctor? They, their assistants and their WhatsApp bot will be disabled until reinstated.');"
+                        class="mb-6 space-y-3"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        <label for="reason" class="block text-sm font-medium text-slate-700">Reason (optional)</label>
+                        <textarea id="reason" name="reason" rows="2" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">{{ old('reason') }}</textarea>
+                        @error('reason')
+                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Suspend Doctor</button>
+                    </form>
+                @endif
+
+                @if (count($doctor['suspensions']) > 0)
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th class="px-4 py-2">Suspended</th>
+                                <th class="px-4 py-2">By</th>
+                                <th class="px-4 py-2">Reason</th>
+                                <th class="px-4 py-2">Lifted</th>
+                                <th class="px-4 py-2">By</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            @foreach ($doctor['suspensions'] as $suspension)
+                                <tr>
+                                    <td class="px-4 py-2 text-slate-900">{{ $suspension['suspended_at'] ?? '—' }}</td>
+                                    <td class="px-4 py-2 text-slate-600">{{ $suspension['suspended_by'] ?? '—' }}</td>
+                                    <td class="px-4 py-2 text-slate-600">{{ $suspension['reason'] ?? '—' }}</td>
+                                    <td class="px-4 py-2 text-slate-600">
+                                        @if ($suspension['lifted_at'])
+                                            {{ $suspension['lifted_at'] }}
+                                        @else
+                                            <span class="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">Active</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-slate-600">{{ $suspension['lifted_by'] ?? '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p class="text-sm text-slate-500">This doctor has never been suspended.</p>
+                @endif
             </div>
         @endif
     </div>

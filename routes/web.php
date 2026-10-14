@@ -33,6 +33,7 @@ Route::prefix('web-admin')->name('web-admin.')->group(function () {
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
+        Route::post('doctors/{doctor}/reinstate', [DoctorController::class, 'reinstate'])->name('doctors.reinstate');
         Route::resource('doctors', DoctorController::class);
         Route::resource('admins', AdminController::class);
         Route::resource('roles', AdminRoleController::class)->parameters(['roles' => 'adminRole']);

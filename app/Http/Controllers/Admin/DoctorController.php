@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\AdminServices\Doctors\DeleteDoctor;
 use App\AdminServices\Doctors\ListDoctors;
+use App\AdminServices\Doctors\ReinstateDoctor;
 use App\AdminServices\Doctors\ShowDoctor;
 use App\AdminServices\Doctors\StoreDoctor;
+use App\AdminServices\Doctors\SuspendDoctor;
 use App\AdminServices\Doctors\UpdateDoctor;
 use App\Enums\AdminPermissionsEnum;
 use App\Http\Controllers\Controller;
@@ -23,7 +24,8 @@ class DoctorController extends Controller implements HasMiddleware
             new Middleware('admin.permission:'.AdminPermissionsEnum::VIEW_SINGLE_DOCTOR->value, only: ['show']),
             new Middleware('admin.permission:'.AdminPermissionsEnum::CREATE_DOCTOR->value, only: ['create', 'store']),
             new Middleware('admin.permission:'.AdminPermissionsEnum::UPDATE_DOCTOR->value, only: ['edit', 'update']),
-            new Middleware('admin.permission:'.AdminPermissionsEnum::DELETE_DOCTOR->value, only: ['destroy']),
+            new Middleware('admin.permission:'.AdminPermissionsEnum::SUSPEND_DOCTOR->value, only: ['destroy']),
+            new Middleware('admin.permission:'.AdminPermissionsEnum::REINSTATE_DOCTOR->value, only: ['reinstate']),
         ];
     }
 
@@ -69,11 +71,21 @@ class DoctorController extends Controller implements HasMiddleware
             ->with('status', 'Doctor updated successfully.');
     }
 
-    public function destroy(Doctor $doctor)
+    /**
+     * Doctors are never hard deleted from the admin panel, they are suspended
+     * so their data is kept and they can be reinstated later.
+     */
+    public function destroy(Request $request, Doctor $doctor)
     {
-        DeleteDoctor::execute($doctor);
+        SuspendDoctor::execute($request, $doctor);
 
-        return redirect()->route('web-admin.doctors.index')
-            ->with('status', 'Doctor deleted successfully.');
+        return back()->with('status', 'Doctor suspended successfully.');
+    }
+
+    public function reinstate(Request $request, Doctor $doctor)
+    {
+        ReinstateDoctor::execute($request, $doctor);
+
+        return back()->with('status', 'Doctor reinstated successfully.');
     }
 }
