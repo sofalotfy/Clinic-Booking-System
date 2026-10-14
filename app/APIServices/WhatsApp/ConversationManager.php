@@ -55,22 +55,25 @@ class ConversationManager
         }
 
         // 3b. Turn blocked patients away before a conversation is started.
-        $patient = $user->patient;
+        if ($user->isPatient()) {
+            $patient = $user->patient;
 
-        \Log::info([
-            'patient' => $patient,
-            'doctorAccount' => $doctorAccount,
-            'patient->isBlocked($doctorAccount->doctor)' => $patient->isBlocked($doctorAccount->doctor),
-        ]);
-        if ($patient && $doctorAccount->doctor && $patient->isBlocked($doctorAccount->doctor)) {
-            SendMessage::text(
-                $doctorAccount->phone_number_id,
-                $doctorAccount->access_token,
-                $message['from'],
-                'عذرا، تم حظر رقمك من التواصل مع العيادة عبر واتساب. برجاء التواصل مع العيادة مباشرة.'
-            );
+            \Log::info([
+                'patient' => $patient,
+                'doctorAccount' => $doctorAccount,
+                'patient->isBlocked($doctorAccount->doctor)' => $patient->isBlocked($doctorAccount->doctor),
+            ]);
 
-            return;
+            if ($doctorAccount->doctor && $patient->isBlocked($doctorAccount->doctor)) {
+                SendMessage::text(
+                    $doctorAccount->phone_number_id,
+                    $doctorAccount->access_token,
+                    $message['from'],
+                    'عذرا، تم حظر رقمك من التواصل مع العيادة عبر واتساب. برجاء التواصل مع العيادة مباشرة.'
+                );
+
+                return;
+            }
         }
 
         // 4. Find or create the conversation
