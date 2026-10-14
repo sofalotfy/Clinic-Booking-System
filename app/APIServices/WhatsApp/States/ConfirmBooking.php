@@ -119,6 +119,8 @@ class ConfirmBooking
 
                 $conversation->update(['state' => ConversationState::START]);
 
+                return;
+
             case 'reschedule':
                 // Only shown on the available-slot (3-button) screen.
                 $conversation->update(['state' => ConversationState::BOOK_APPOINTMENT]);
