@@ -22,19 +22,35 @@ class UpdateAppointmentDateTest extends TestCase
         $this->actingAs($doctorUser, 'sanctum')
             ->putJson("/api/appointments/{$appointment->id}", [
                 'status' => AppointmentStatus::ACTIVE->value,
-                'date' => '2026-12-05 14:30',
+                'date' => '2026-12-05',
+                'time' => '14:30',
             ])
             ->assertOk();
 
         $this->assertSame('2026-12-05 14:30:00', $appointment->fresh()->date);
     }
 
-    public function test_time_only_values_are_rejected(): void
+    public function test_date_and_time_can_be_sent_alone(): void
     {
         [$doctorUser, $appointment] = $this->makeAppointment();
 
         $this->actingAs($doctorUser, 'sanctum')
-            ->putJson("/api/appointments/{$appointment->id}", ['date' => '14:30'])
+            ->putJson("/api/appointments/{$appointment->id}", ['date' => '2026-12-05'])
+            ->assertOk();
+        $this->assertSame('2026-12-05 10:00:00', $appointment->fresh()->date);
+
+        $this->actingAs($doctorUser, 'sanctum')
+            ->putJson("/api/appointments/{$appointment->id}", ['time' => '11:15'])
+            ->assertOk();
+        $this->assertSame('2026-12-05 11:15:00', $appointment->fresh()->date);
+    }
+
+    public function test_a_combined_datetime_in_date_is_rejected(): void
+    {
+        [$doctorUser, $appointment] = $this->makeAppointment();
+
+        $this->actingAs($doctorUser, 'sanctum')
+            ->putJson("/api/appointments/{$appointment->id}", ['date' => '2026-12-05 14:30'])
             ->assertUnprocessable();
     }
 
@@ -44,7 +60,7 @@ class UpdateAppointmentDateTest extends TestCase
 
         $this->actingAs($doctorUser, 'sanctum')
             ->putJson('/api/appointments', [
-                'updates' => [['id' => $appointment->id, 'changes' => ['date' => '2026-12-07 09:00:00']]],
+                'updates' => [['id' => $appointment->id, 'changes' => ['date' => '2026-12-07', 'time' => '09:00']]],
             ])
             ->assertOk();
 

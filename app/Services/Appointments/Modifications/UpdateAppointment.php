@@ -7,8 +7,10 @@ use Carbon\Carbon;
 
 class UpdateAppointment 
 {
-    public static function execute($user, $appointment, $status = null, $date = null, $grade = null)
+    public static function execute($user, $appointment, $status = null, $date = null, $time = null, $grade = null)
     {
+        $newDate = self::resolveDate($appointment->date, $date, $time);
+
         GradeAppointment::execute($user, $appointment, $grade);
         
         $status = $status?AppointmentStatus::from($status):$appointment->status;
@@ -25,8 +27,7 @@ class UpdateAppointment
 
             case AppointmentStatus::ACTIVE:
                 ActivateAppointment::execute($user, $appointment);
-                if ($date) { // RESCHEDULE APPOINTMENT
-                    $newDate = self::formatDate($date);
+                if ($newDate) { // RESCHEDULE APPOINTMENT
                     ResheduleAppointment::execute($user, $appointment, $newDate, $appointment->duration);
                 }
                 break;
@@ -40,17 +41,36 @@ class UpdateAppointment
                 break;
         }
 
-        if ($date) {
+        if ($newDate) {
             $appointment->update([
-                "date"  => self::formatDate($date),
+                "date"  => $newDate,
             ]);
         }
         
         return $appointment;
     }
 
-    private static function formatDate(string $date): string
+    /**
+     * Merge a new date (Y-m-d) and/or time (H:i[:s]) into the current
+     * datetime. Whichever is omitted keeps its current value. Returns null
+     * when neither is given.
+     */
+    public static function resolveDate(string $current, ?string $date, ?string $time): ?string
     {
-        return Carbon::parse($date)->toDateTimeString();
+        if (! $date && ! $time) {
+            return null;
+        }
+
+        $resolved = Carbon::parse($current);
+
+        if ($date) {
+            $resolved->setDateFrom(Carbon::parse($date));
+        }
+
+        if ($time) {
+            $resolved->setTimeFromTimeString($time);
+        }
+
+        return $resolved->toDateTimeString();
     }
 }

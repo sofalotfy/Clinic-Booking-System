@@ -14,7 +14,7 @@ class BulkUpdateAppointment
 {
     /**
      * Each update is ['id' => int, 'changes' => ['status'?, 'date'?, 'grade'?]],
-     * where date is the full new date and time (Y-m-d H:i[:s]).
+     * where date (Y-m-d) and time (H:i[:s]) may each be sent alone.
      */
     public static function execute($user, array $updates): void
     {
@@ -33,6 +33,7 @@ class BulkUpdateAppointment
                     $appointments[$id],
                     $change['status'] ?? null,
                     $change['date'] ?? null,
+                    $change['time'] ?? null,
                     $change['grade'] ?? null
                 );
             }
@@ -55,13 +56,18 @@ class BulkUpdateAppointment
         $occupiedByDay = [];
 
         foreach ($changes as $id => $update) {
-            $date = $update['changes']['date'] ?? null;
+            $appointment = $appointments[$id];
+
+            $date = UpdateAppointment::resolveDate(
+                $appointment->date,
+                $update['changes']['date'] ?? null,
+                $update['changes']['time'] ?? null
+            );
 
             if (! $date) {
                 continue;
             }
 
-            $appointment = $appointments[$id];
             $target = Carbon::parse($date);
             $dayKey = $appointment->doctor_id.'|'.$target->toDateString();
 
