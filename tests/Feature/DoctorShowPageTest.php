@@ -61,6 +61,8 @@ class DoctorShowPageTest extends TestCase
         $this->assertSame(1, $stats['appointments_by_status'][AppointmentStatus::DONE->value]);
         $this->assertSame(1, $stats['appointments_by_status'][AppointmentStatus::CANCELLED->value]);
         $this->assertSame(1, $stats['appointments_upcoming_total']);
+        $this->assertSame(1, $stats['appointments_upcoming_by_status'][AppointmentStatus::ACTIVE->value]);
+        $this->assertSame(0, $stats['appointments_upcoming_by_status'][AppointmentStatus::DONE->value]);
         $this->assertSame(2, $stats['patients']);
         $this->assertSame(1, $stats['blocked_patients']);
         $this->assertSame(1, $stats['assistants']);

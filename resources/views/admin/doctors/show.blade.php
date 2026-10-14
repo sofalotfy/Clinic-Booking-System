@@ -39,6 +39,15 @@
         <div class="rounded-lg bg-white p-6 shadow">
             <p class="text-sm font-medium text-slate-500">Appointments (next {{ $doctor['stats']['window_days'] }} days)</p>
             <p class="mt-2 text-3xl font-semibold text-slate-900">{{ $doctor['stats']['appointments_upcoming_total'] }}</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+                @foreach ($doctor['stats']['appointments_upcoming_by_status'] as $status => $count)
+                    @continue($count === 0)
+                    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                        {{ $status }}
+                        <span class="font-semibold text-slate-900">{{ $count }}</span>
+                    </span>
+                @endforeach
+            </div>
         </div>
 
         <div class="rounded-lg bg-white p-6 shadow">

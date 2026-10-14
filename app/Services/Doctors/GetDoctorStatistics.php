@@ -17,7 +17,32 @@ class GetDoctorStatistics
             ->whereDate('date', '>=', now()->subDays(self::WINDOW_DAYS)->startOfDay())
             ->whereDate('date', '<=', now());
 
-        $counts = (clone $appointments)
+        $upcomingAppointments = Appointment::query()
+            ->where('doctor_id', $doctor->id)
+            ->whereDate('date', '>', now())
+            ->whereDate('date', '<=', now()->addDays(self::WINDOW_DAYS)->endOfDay());
+
+        return [
+            'window_days' => self::WINDOW_DAYS,
+            'appointments_total' => (int) $appointments->count(),
+            'appointments_by_status' => self::statusCounts(clone $appointments),
+            'appointments_upcoming_total' => (int) $upcomingAppointments->count(),
+            'appointments_upcoming_by_status' => self::statusCounts(clone $upcomingAppointments),
+            'patients' => (int) Appointment::query()
+                ->where('doctor_id', $doctor->id)
+                ->distinct()
+                ->count('patient_id'),
+            'blocked_patients' => $doctor->blockedPatients()->active()->count(),
+            'assistants' => $doctor->assistants()->count(),
+        ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private static function statusCounts($query): array
+    {
+        $counts = $query
             ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
@@ -27,22 +52,6 @@ class GetDoctorStatistics
             $byStatus[$status->value] = (int) ($counts[$status->value] ?? 0);
         }
 
-        $upcomingAppointments = Appointment::query()
-            ->where('doctor_id', $doctor->id)
-            ->whereDate('date', '>', now())
-            ->whereDate('date', '<=', now()->addDays(self::WINDOW_DAYS)->endOfDay());
-
-        return [
-            'window_days' => self::WINDOW_DAYS,
-            'appointments_total' => (int) $appointments->count(),
-            'appointments_by_status' => $byStatus,
-            'appointments_upcoming_total' => (int) $upcomingAppointments->count(),
-            'patients' => (int) Appointment::query()
-                ->where('doctor_id', $doctor->id)
-                ->distinct()
-                ->count('patient_id'),
-            'blocked_patients' => $doctor->blockedPatients()->active()->count(),
-            'assistants' => $doctor->assistants()->count(),
-        ];
+        return $byStatus;
     }
 }
