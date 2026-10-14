@@ -30,9 +30,9 @@ class DoctorDayAppointmentsNotificationTest extends TestCase
         ]);
     }
 
-    public function test_it_notifies_the_clinic_two_hours_before_the_schedule_starts()
+    public function test_it_notifies_the_clinic_of_the_days_appointments()
     {
-        Carbon::setTestNow(Carbon::today()->setTime(8, 0, 0));
+        Carbon::setTestNow(Carbon::today());
         $fixture = $this->fixture();
 
         $this->artisan('app:notify-doctor-day-appointments')
@@ -51,23 +51,40 @@ class DoctorDayAppointmentsNotificationTest extends TestCase
         });
     }
 
-    public function test_it_ignores_schedules_outside_the_two_hour_window()
+    public function test_it_ignores_other_days()
     {
-        Carbon::setTestNow(Carbon::today()->setTime(7, 0, 0));
-        $this->fixture();
+        Carbon::setTestNow(Carbon::today());
+        $this->fixture(dayDate: Carbon::tomorrow()->toDateString());
 
         $this->artisan('app:notify-doctor-day-appointments')
+            ->expectsOutputToContain('No schedules for')
             ->assertExitCode(0);
 
         Http::assertNothingSent();
     }
 
+    public function test_at_option_runs_for_a_specific_date()
+    {
+        Carbon::setTestNow(Carbon::today());
+        $fixture = $this->fixture(dayDate: Carbon::tomorrow()->toDateString());
+
+        $this->artisan('app:notify-doctor-day-appointments', [
+            '--at' => Carbon::tomorrow()->toDateString(),
+        ])->assertExitCode(0);
+
+        Http::assertSent(function ($request) use ($fixture) {
+            return str_contains($request->url(), 'graph.facebook.com')
+                && ($request['to'] ?? null) === $fixture['clinic']->notifications_phone
+                && ($request['template']['name'] ?? null) === NotificationEnum::DOCTOR_DAY_APPOINTMENTS->templateName();
+        });
+    }
+
     public function test_it_reports_when_no_schedule_matches()
     {
-        Carbon::setTestNow(Carbon::today()->setTime(8, 0, 0));
+        Carbon::setTestNow(Carbon::today());
 
         $this->artisan('app:notify-doctor-day-appointments')
-            ->expectsOutputToContain('No schedules starting')
+            ->expectsOutputToContain('No schedules for')
             ->assertExitCode(0);
     }
 
@@ -88,9 +105,10 @@ class DoctorDayAppointmentsNotificationTest extends TestCase
             ->all();
     }
 
-    private function fixture(): array
+    private function fixture(?string $dayDate = null): array
     {
         $unique = uniqid();
+        $dayDate = Carbon::parse($dayDate ?? Carbon::today()->toDateString());
 
         $doctorUser = User::create([
             'name' => 'Doctor Name',
@@ -126,7 +144,7 @@ class DoctorDayAppointmentsNotificationTest extends TestCase
 
         $day = Day::create([
             'doctor_id' => $doctor->id,
-            'date' => Carbon::today()->toDateString(),
+            'date' => $dayDate->toDateString(),
             'start_time' => '10:00:00',
             'end_time' => '12:00:00',
             'appointment_duration' => 30,
@@ -138,7 +156,7 @@ class DoctorDayAppointmentsNotificationTest extends TestCase
             Appointment::create([
                 'doctor_id' => $doctor->id,
                 'patient_id' => $patient->id,
-                'date' => Carbon::today()->setTimeFromTimeString($time)->toDateTimeString(),
+                'date' => $dayDate->copy()->setTimeFromTimeString($time)->toDateTimeString(),
                 'duration' => 30,
             ]);
         }

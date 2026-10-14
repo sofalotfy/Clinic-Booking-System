@@ -25,7 +25,7 @@ Schedule::command('app:check-idle-conversations')
     ->withoutOverlapping();
 
 Schedule::command('app:notify-doctor-day-appointments')
-    ->everyMinute()
+    ->dailyAt('00:00')
     ->withoutOverlapping();
 
 Artisan::command('inspire', function () {

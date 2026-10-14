@@ -12,19 +12,18 @@ use Throwable;
 class NotifyDoctorDayAppointments extends Command
 {
     protected $signature = 'app:notify-doctor-day-appointments
-                            {--lead=2 : Hours before the schedule starts to notify}
-                            {--at= : Explicit target datetime (Y-m-d H:i) used instead of now + lead}';
+                            {--at= : Explicit date (Y-m-d) to run for instead of today}';
 
-    protected $description = 'Notify each doctor of their day appointments two hours before the schedule starts.';
+    protected $description = 'Notify each doctor of their appointments for the day.';
 
     public function handle(): int
     {
         try {
             $target = $this->option('at')
-                ? Carbon::parse($this->option('at'))
-                : now()->addHours((int) $this->option('lead'));
+                ? Carbon::createFromFormat('Y-m-d', $this->option('at'))->startOfDay()
+                : today();
         } catch (Throwable $exception) {
-            $this->error("Invalid --at value [{$this->option('at')}], expected Y-m-d H:i.");
+            $this->error("Invalid --at value [{$this->option('at')}], expected Y-m-d.");
 
             return self::FAILURE;
         }
@@ -33,14 +32,10 @@ class NotifyDoctorDayAppointments extends Command
             ->with(['doctor.user', 'doctor.clinic'])
             ->active()
             ->whereDate('date', $target->toDateString())
-            ->whereBetween('start_time', [
-                $target->format('H:i:00'),
-                $target->format('H:i:59'),
-            ])
             ->get();
 
         if ($days->isEmpty()) {
-            $this->info("No schedules starting at {$target->format('Y-m-d H:i')}.");
+            $this->info("No schedules for {$target->toDateString()}.");
 
             return self::SUCCESS;
         }
@@ -77,7 +72,7 @@ class NotifyDoctorDayAppointments extends Command
         }
 
         $this->info(
-            "Day appointments for {$target->format('Y-m-d H:i')}: {$sent} sent, {$skipped} skipped, {$failed} failed."
+            "Day appointments for {$target->toDateString()}: {$sent} sent, {$skipped} skipped, {$failed} failed."
         );
 
         return $failed > 0 ? self::FAILURE : self::SUCCESS;
