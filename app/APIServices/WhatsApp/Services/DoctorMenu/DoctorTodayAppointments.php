@@ -5,7 +5,6 @@ namespace App\APIServices\WhatsApp\Services\DoctorMenu;
 use App\Models\WhatsAppConversation;
 use App\APIServices\WhatsApp\States\AdminMenu;
 use App\Models\Day;
-use App\Services\Appointments\Retrievals\ListAppointments;
 use App\Support\ArabicDateFormatter;
 use Carbon\Carbon;
 use App\Models\DoctorWhatsAppAccount;
@@ -18,7 +17,6 @@ class DoctorTodayAppointments
             $conversation->doctor_whatsapp_account_id
         );
         $doctor = $account->doctor;
-        $user = $doctor->user;
 
         $day = Day::where('date', Carbon::today()->toDateString())
             ->where('doctor_id', $doctor->id)
@@ -28,39 +26,20 @@ class DoctorTodayAppointments
         if (!$day) {
             $messageText = "لا يوجد يوم عمل مسجل لليوم.";
         } else {
-            $appointments = ListAppointments::execute($user, [
-                'date_from' => Carbon::today(),
-                'date_to' => Carbon::today(),
-            ])
-            ->active()
-            ->orderBy('date', 'asc')
-            ->get();
-            
-            $start = Carbon::parse($day->date . ' ' . $day->start_time);
-            $end = Carbon::parse($day->date . ' ' . $day->end_time);
-
-            $totalSlots = intdiv(
-                $start->diffInMinutes($end),
-                $day->appointment_duration
-            );
-            
-            $availableSlots = max(0, ($totalSlots + $day->queue_length) - $appointments->count());
+            $appointments = $day->getAppointments();
 
             $arabicAppointmentsCount = ArabicDateFormatter::toArabicDigits($appointments->count());
-            $arabicAvailableSlots = ArabicDateFormatter::toArabicDigits($availableSlots);
-            
+            $arabicAvailableSlots = ArabicDateFormatter::toArabicDigits(
+                $day->getEmptySlots($appointments->count())
+            );
+
+            $messageText = "لديك اليوم {$arabicAppointmentsCount} مواعيد مؤكدة و {$arabicAvailableSlots} متاحين للحجز حتى الآن\n";
+
             if ($appointments->isNotEmpty()) {
-                $firstAppointment = $appointments->first();
-                $timeString = substr($firstAppointment->date, 11, 5);
-                $firstAppointmentTime = ArabicDateFormatter::formatTime($timeString);
-                
-                $messageText = "لديك اليوم {$arabicAppointmentsCount} مواعيد مؤكدة و {$arabicAvailableSlots} متاحين للحجز حتى الآن\n" .
-                               "أول موعد اليوم الساعة {$firstAppointmentTime}\n" .
-                               "العودة إلى القائمة الرئيسية";
-            } else {
-                $messageText = "لديك اليوم {$arabicAppointmentsCount} مواعيد مؤكدة و {$arabicAvailableSlots} متاحين للحجز حتى الآن\n" .
-                               "العودة إلى القائمة الرئيسية";
+                $messageText .= "أول موعد اليوم الساعة {$day->getFirstAppointmentTime($appointments)}\n";
             }
+
+            $messageText .= "العودة إلى القائمة الرئيسية";
         }
 
         AdminMenu::send($conversation, trim($messageText));

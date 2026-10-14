@@ -58,7 +58,7 @@ enum NotificationEnum
 
             self::PATIENT_FEEDBACK => 'patient_feedback_notifications',
 
-            self::DOCTOR_DAY_APPOINTMENTS => null,
+            self::DOCTOR_DAY_APPOINTMENTS => 'doctor_day_appointments_summary_notifications',
         };
     }
 
@@ -129,8 +129,7 @@ enum NotificationEnum
 
             self::PATIENT_FEEDBACK => 'رسالة جديدة',
 
-            // TODO: this notification is WhatsApp-only for now (stateless template).
-            self::DOCTOR_DAY_APPOINTMENTS => '',
+            self::DOCTOR_DAY_APPOINTMENTS => 'مواعيد اليوم',
         };
     }
 
@@ -164,8 +163,9 @@ enum NotificationEnum
 
             self::PATIENT_FEEDBACK => "{$data['patient']} أرسل رسالة\n{$data['message']}\n{$data['phone']}",
 
-            // TODO: WhatsApp template only.
-            self::DOCTOR_DAY_APPOINTMENTS => '',
+            self::DOCTOR_DAY_APPOINTMENTS => "مرحبا {$data['name']}\nلديك اليوم ".ArabicDateFormatter::toArabicDigits($data['confirmed'])
+                .' مواعيد مؤكدة و '.ArabicDateFormatter::toArabicDigits($data['available'])
+                ." متاحين للحجز حتى الآن\nأول موعد اليوم الساعة {$data['time']}",
         };
     }
 
