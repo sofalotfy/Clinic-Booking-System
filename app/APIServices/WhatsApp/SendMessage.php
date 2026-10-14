@@ -8,7 +8,7 @@ class SendMessage
 {
     public const LANGUAGE_ARABIC = 'ar_EG';
 
-    public const LANGUAGE_ENGLISH = 'en_US';
+    public const LANGUAGE_ENGLISH = 'en';
 
     public static function text(
         string $phoneNumberId,
