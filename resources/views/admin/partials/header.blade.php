@@ -13,6 +13,9 @@
                 @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_DOCTORS))
                     <a href="{{ route('web-admin.doctors.index') }}" class="text-slate-600 hover:text-slate-900">Doctors</a>
                 @endif
+                @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_ALL_MEDICINES))
+                    <a href="{{ route('web-admin.medicines.index') }}" class="text-slate-600 hover:text-slate-900">Medicines</a>
+                @endif
                 @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_ALL_LABS))
                     <a href="{{ route('web-admin.labs.index') }}" class="text-slate-600 hover:text-slate-900">Labs</a>
                 @endif

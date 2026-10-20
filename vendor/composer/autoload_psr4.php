@@ -56,6 +56,7 @@ return array(
     'Psr\\Clock\\' => array($vendorDir . '/psr/clock/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),
+    'OpenSpout\\' => array($vendorDir . '/openspout/openspout/src'),
     'OpenAI\\Laravel\\' => array($vendorDir . '/openai-php/laravel/src'),
     'OpenAI\\' => array($vendorDir . '/openai-php/client/src'),
     'NunoMaduro\\Collision\\' => array($vendorDir . '/nunomaduro/collision/src'),

@@ -68,4 +68,7 @@ enum AssistantPermissionsEnum: string {
 
     case VIEW_ALL_SCANS = 'view all scans';
     case VIEW_SINGLE_SCAN = 'view single scan';
+
+    case VIEW_ALL_MEDICINES = 'view all medicines';
+    case VIEW_SINGLE_MEDICINE = 'view single medicine';
 }

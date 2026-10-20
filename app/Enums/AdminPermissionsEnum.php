@@ -36,6 +36,13 @@ enum AdminPermissionsEnum: string {
     case UPDATE_SCAN = 'update scan';
     case DELETE_SCAN = 'delete scan';
 
+    case VIEW_ALL_MEDICINES = 'view all medicines';
+    case VIEW_SINGLE_MEDICINE = 'view single medicine';
+    case CREATE_MEDICINE = 'create medicine';
+    case UPDATE_MEDICINE = 'update medicine';
+    case DELETE_MEDICINE = 'delete medicine';
+    case IMPORT_MEDICINES = 'import medicines';
+
     public function group(): string
     {
         return match ($this) {
@@ -71,6 +78,13 @@ enum AdminPermissionsEnum: string {
             self::CREATE_SCAN,
             self::UPDATE_SCAN,
             self::DELETE_SCAN => 'Scans',
+
+            self::VIEW_ALL_MEDICINES,
+            self::VIEW_SINGLE_MEDICINE,
+            self::CREATE_MEDICINE,
+            self::UPDATE_MEDICINE,
+            self::DELETE_MEDICINE,
+            self::IMPORT_MEDICINES => 'Medicines',
         };
     }
 }
