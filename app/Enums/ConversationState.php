@@ -22,6 +22,9 @@ enum ConversationState: string
     case IDLE_CHECK = 'idle_check';
     case CHOOSE_REPLACE_DAY = 'choose_replace_day';
 
+    // Waiting on the patient's answer to a consultation reminder template
+    case CONSULTATION_REMINDER = 'consultation_reminder';
+
     /**
      * States that represent an entry point or a menu rather than productive
      * work. A conversation sitting in one of these is not stuck in anything,
@@ -32,6 +35,8 @@ enum ConversationState: string
         self::MAIN_MENU,
         self::ADMIN_MENU,
         self::IDLE_CHECK,
+        // The template may sit unanswered for days, it is not a stalled flow
+        self::CONSULTATION_REMINDER,
     ];
 
     /**

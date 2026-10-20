@@ -16,6 +16,8 @@ enum NotificationEnum
     case PATIENT_DAY_APPOINTMENT_REMINDER;
     case PATIENT_FEEDBACK;
     case DOCTOR_DAY_APPOINTMENTS;
+    case PATIENT_CONSULTATION_REMINDER_WEEK;
+    case PATIENT_CONSULTATION_REMINDER_DAY;
 
     public function type(): self
     {
@@ -36,6 +38,9 @@ enum NotificationEnum
             self::PATIENT_FEEDBACK => 'Patient Sent Feedback',
 
             self::DOCTOR_DAY_APPOINTMENTS => 'Doctor Day Appointments',
+
+            self::PATIENT_CONSULTATION_REMINDER_WEEK => 'Patient Consultation Reminder (1 week)',
+            self::PATIENT_CONSULTATION_REMINDER_DAY => 'Patient Consultation Reminder (1 day)',
         };
     }
 
@@ -59,6 +64,10 @@ enum NotificationEnum
             self::PATIENT_FEEDBACK => 'patient_feedback_notifications',
 
             self::DOCTOR_DAY_APPOINTMENTS => 'doctor_day_appointments_summary_notifications',
+
+            self::PATIENT_CONSULTATION_REMINDER_WEEK => 'patient_consultation_reminder_week_notifications',
+
+            self::PATIENT_CONSULTATION_REMINDER_DAY => 'patient_consultation_reminder_day_notifications',
         };
     }
 
@@ -68,7 +77,9 @@ enum NotificationEnum
             self::DOCTOR_APPOINTMENT_BOOKED,
             self::DOCTOR_APPOINTMENT_RESCHEDULED,
             self::DOCTOR_APPOINTMENT_CANCEL,
-            self::PATIENT_DAY_APPOINTMENT_REMINDER => true,
+            self::PATIENT_DAY_APPOINTMENT_REMINDER,
+            self::PATIENT_CONSULTATION_REMINDER_WEEK,
+            self::PATIENT_CONSULTATION_REMINDER_DAY => true,
 
             default => false,
         };
@@ -107,6 +118,10 @@ enum NotificationEnum
             self::PATIENT_FEEDBACK => 'feedback_by_patient',
 
             self::DOCTOR_DAY_APPOINTMENTS => 'today_appointments_summary_doctor',
+
+            self::PATIENT_CONSULTATION_REMINDER_WEEK => 'consultation_week_reminder',
+
+            self::PATIENT_CONSULTATION_REMINDER_DAY => 'consultation_day_reminder',
         };
     }
 
@@ -130,6 +145,9 @@ enum NotificationEnum
             self::PATIENT_FEEDBACK => 'رسالة جديدة',
 
             self::DOCTOR_DAY_APPOINTMENTS => 'مواعيد اليوم',
+
+            self::PATIENT_CONSULTATION_REMINDER_WEEK,
+            self::PATIENT_CONSULTATION_REMINDER_DAY => 'تذكير بموعد الاستشارة',
         };
     }
 
@@ -166,6 +184,26 @@ enum NotificationEnum
             self::DOCTOR_DAY_APPOINTMENTS => "مرحبا {$data['name']}\nلديك اليوم ".ArabicDateFormatter::toArabicDigits($data['confirmed'])
                 .' مواعيد مؤكدة و '.ArabicDateFormatter::toArabicDigits($data['available'])
                 ." متاحين للحجز حتى الآن\nأول موعد اليوم الساعة {$data['time']}",
+
+            self::PATIENT_CONSULTATION_REMINDER_WEEK,
+            self::PATIENT_CONSULTATION_REMINDER_DAY => 'موعد الاستشارة '.ArabicDateFormatter::format(
+                $data['date'] instanceof Carbon ? $data['date'] : Carbon::parse($data['date']),
+                includeTime: false
+            ),
+        };
+    }
+
+    /**
+     * The conversation state a stateful WhatsApp notification puts the
+     * patient's conversation in, so their button reply is routed back to it.
+     */
+    public function state(): ?ConversationState
+    {
+        return match ($this) {
+            self::PATIENT_CONSULTATION_REMINDER_WEEK,
+            self::PATIENT_CONSULTATION_REMINDER_DAY => ConversationState::CONSULTATION_REMINDER,
+
+            default => null,
         };
     }
 

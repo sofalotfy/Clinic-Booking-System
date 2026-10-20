@@ -14,6 +14,7 @@ use App\APIServices\WhatsApp\States\IdleCheckState;
 use App\APIServices\WhatsApp\States\InfoConfirmation;
 use App\APIServices\WhatsApp\States\InfoInquiry;
 use App\APIServices\WhatsApp\States\MainMenu;
+use App\APIServices\WhatsApp\States\Notifications\ConsultationReminder;
 use App\APIServices\WhatsApp\States\ManageAppointment;
 use App\APIServices\WhatsApp\States\Start;
 use App\APIServices\WhatsApp\States\SubmitFeedback;
@@ -29,6 +30,8 @@ class ConversationRouter
             null => Start::execute($conversation, $message),
 
             ConversationState::IDLE_CHECK => IdleCheckState::handleResponse($conversation, $message),
+
+            ConversationState::CONSULTATION_REMINDER => ConsultationReminder::handleResponse($conversation, $message),
 
             ConversationState::ADMIN_MENU => AdminMenu::handleResponse($conversation, $message),
 
