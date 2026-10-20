@@ -71,4 +71,10 @@ enum AssistantPermissionsEnum: string {
 
     case VIEW_ALL_MEDICINES = 'view all medicines';
     case VIEW_SINGLE_MEDICINE = 'view single medicine';
+
+    case VIEW_ALL_PRESCRIPTIONS = 'view all prescriptions';
+    case VIEW_SINGLE_PRESCRIPTION = 'view single prescription';
+    case CREATE_PRESCRIPTION = 'create prescription';
+    case UPDATE_PRESCRIPTION = 'update prescription';
+    case DELETE_PRESCRIPTION = 'delete prescription';
 }

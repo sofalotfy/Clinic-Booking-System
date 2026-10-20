@@ -19,6 +19,7 @@ use App\Http\Controllers\API\TestController;
 use App\Http\Controllers\API\WhatsAppController;
 use App\Http\Controllers\API\LabController;
 use App\Http\Controllers\API\MedicineController;
+use App\Http\Controllers\API\PrescriptionController;
 use App\Http\Controllers\API\ScanController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
@@ -121,6 +122,13 @@ Route::middleware(['auth:sanctum', 'clinic.not-suspended'])->group(function () {
 
     Route::get('/medicines', [MedicineController::class, 'index'])->name('medicines.index');
     Route::get('/medicines/{medicine}', [MedicineController::class, 'show'])->name('medicines.show');
+
+    Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+    Route::get('/prescriptions/{prescription}', [PrescriptionController::class, 'show'])->name('prescriptions.show');
+    Route::put('/prescriptions/{prescription}', [PrescriptionController::class, 'update'])->name('prescriptions.update');
+    Route::delete('/prescriptions/{prescription}', [PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
+    Route::get('/appointments/{appointment}/prescription', [PrescriptionController::class, 'showForAppointment'])->name('appointments.prescription.show');
+    Route::post('/appointments/{appointment}/prescription', [PrescriptionController::class, 'store'])->name('appointments.prescription.store');
 
     Route::put('/doctors/{doctor}', [App\Http\Controllers\API\DoctorController::class, 'update']);
 

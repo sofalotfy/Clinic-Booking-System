@@ -65,6 +65,11 @@ class Patient extends Model
                     ->withTimestamps();
     }
 
+    public function prescriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
     /**
      * Check If Blocked.
      */

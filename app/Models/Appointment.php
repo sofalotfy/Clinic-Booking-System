@@ -42,6 +42,11 @@ class Appointment extends Model
         return $this->belongsTo(Patient::class);
     }
 
+    public function prescription(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Prescription::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->whereIn('status', AppointmentStatus::working());
