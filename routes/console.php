@@ -24,6 +24,10 @@ Schedule::command('app:check-idle-conversations')
     ->everyMinute()
     ->withoutOverlapping();
 
+Schedule::command('app:send-consultation-reminders')
+    ->dailyAt('09:00')
+    ->withoutOverlapping();
+
 Schedule::command('app:notify-doctor-day-appointments')
     ->dailyAt('00:00')
     ->withoutOverlapping();

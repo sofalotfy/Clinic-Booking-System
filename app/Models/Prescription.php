@@ -12,7 +12,20 @@ class Prescription extends Model
 
     protected $casts = [
         'consultation_date' => 'date:Y-m-d',
+        'week_reminder_sent_at' => 'datetime',
+        'day_reminder_sent_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        // A moved consultation needs both reminders again for the new date
+        static::updating(function (Prescription $prescription) {
+            if ($prescription->isDirty('consultation_date')) {
+                $prescription->week_reminder_sent_at = null;
+                $prescription->day_reminder_sent_at = null;
+            }
+        });
+    }
 
     public function appointment(): BelongsTo
     {

@@ -8,6 +8,8 @@ use App\Models\DoctorWhatsAppAccount;
 use App\Services\Doctors\GetActivePlan;
 use App\Services\Assistants\GetAssistantsContacts;
 use App\APIServices\WhatsApp\Services\FormatPLanToMessage;
+use App\APIServices\WhatsApp\Services\FormatPrescriptionToMessage;
+use App\Models\Prescription;
 
 class MainMenu
 {
@@ -16,6 +18,7 @@ class MainMenu
     private const CLINIC_LOCATION = 'clinic_location';
     private const ABOUT_DOCTOR = 'about_doctor';
     private const SUBMIT_FEEDBACK = 'submit_feedback';
+    private const VIEW_PRESCRIPTION = 'view_prescription';
     private const BACK_TO_MAIN_MENU = 'back_to_mainmenu';
 
     private const MAX_BUTTON_BODY_LENGTH = 1024;
@@ -60,6 +63,10 @@ class MainMenu
                     'title' => 'عن الدكتور',
                 ],
                 [
+                    'id' => self::VIEW_PRESCRIPTION,
+                    'title' => 'الروشتة الحالية',
+                ],
+                [
                     'id' => self::SUBMIT_FEEDBACK,
                     'title' => 'تسجيل رأي او شكوي',
                 ],
@@ -102,6 +109,10 @@ class MainMenu
                 self::sendInfo($account, $message, (string) $doctor->description);
                 return;
 
+            case self::VIEW_PRESCRIPTION:
+                self::showPrescription($conversation, $message);
+                return;
+
             case self::BACK_TO_MAIN_MENU:
                 return self::execute($conversation, $message);
 
@@ -115,6 +126,46 @@ class MainMenu
         }
 
         return self::execute($conversation, $message);
+    }
+
+    /**
+     * Sends a prescription followed by the main menu button. Without one
+     * given, the patient's latest prescription from this clinic is shown.
+     */
+    public static function showPrescription($conversation, $message, ?Prescription $prescription = null)
+    {
+        $account = DoctorWhatsAppAccount::findOrFail(
+            $conversation->doctor_whatsapp_account_id
+        );
+
+        $conversation->update([
+            'state' => ConversationState::MAIN_MENU,
+        ]);
+
+        $prescription ??= self::latestPrescription($conversation, $account);
+
+        return self::sendInfo(
+            $account,
+            $message,
+            $prescription
+                ? FormatPrescriptionToMessage::execute($prescription)
+                : 'لا توجد روشتة مسجلة لك حتى الآن.'
+        );
+    }
+
+    private static function latestPrescription($conversation, $account): ?Prescription
+    {
+        $patient = $conversation->patient();
+
+        if (! $patient) {
+            return null;
+        }
+
+        return Prescription::query()
+            ->where('doctor_id', $account->doctor_id)
+            ->where('patient_id', $patient->id)
+            ->latest('id')
+            ->first();
     }
 
     private static function clinicInfo($doctor, $clinic): string
