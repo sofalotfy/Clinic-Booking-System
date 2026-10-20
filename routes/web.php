@@ -44,6 +44,7 @@ Route::prefix('web-admin')->name('web-admin.')->group(function () {
         Route::resource('scans', ScanController::class);
         Route::get('medicines/import', [MedicineImportController::class, 'create'])->name('medicines.import');
         Route::post('medicines/import', [MedicineImportController::class, 'store'])->name('medicines.import.store');
+        Route::post('medicines/import/chunk', [MedicineImportController::class, 'chunk'])->name('medicines.import.chunk');
         Route::resource('medicines', MedicineController::class);
         Route::resource('roles', AdminRoleController::class)->parameters(['roles' => 'adminRole']);
         Route::get('permissions', [AdminPermissionController::class, 'index'])->name('permissions.index');
