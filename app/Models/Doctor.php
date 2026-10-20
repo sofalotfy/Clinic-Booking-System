@@ -107,6 +107,11 @@ class Doctor extends Model
         return $this->hasOne(Clinic::class);
     }
 
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
     public function suspensions()
     {
         return $this->hasMany(Suspension::class);
