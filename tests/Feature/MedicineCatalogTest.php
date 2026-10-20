@@ -105,6 +105,70 @@ class MedicineCatalogTest extends TestCase
         $this->assertCount(2, $import->errors);
     }
 
+    public function test_large_sheets_upload_in_chunks_and_are_cleaned_up(): void
+    {
+        $admin = $this->makeAdmin(['IMPORT_MEDICINES']);
+        $rows = array_map(fn ($i) => $this->row("Medicine {$i}", $i), range(1, 300));
+        $bytes = file_get_contents($this->sheetPath($rows));
+        $uploadId = (string) \Illuminate\Support\Str::uuid();
+
+        // Small pieces so the test file is split several times
+        $pieces = str_split($bytes, 4096);
+
+        foreach ($pieces as $index => $piece) {
+            $this->actingAs($admin)
+                ->post(route('web-admin.medicines.import.chunk'), [
+                    'upload_id' => $uploadId,
+                    'index' => $index,
+                    'chunk' => UploadedFile::fake()->createWithContent('chunk', $piece),
+                ], ['Accept' => 'application/json'])
+                ->assertOk();
+        }
+
+        $this->actingAs($admin)
+            ->post(route('web-admin.medicines.import.store'), [
+                'upload_id' => $uploadId,
+                'chunks' => count($pieces),
+                'file_name' => 'big-sheet.xlsx',
+            ])
+            ->assertRedirect(route('web-admin.medicines.import'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertGreaterThan(1, count($pieces));
+        $this->assertSame(300, Medicine::count());
+        $this->assertSame('big-sheet.xlsx', MedicineImport::sole()->file_name);
+        $this->assertDirectoryDoesNotExist(storage_path("app/chunked-uploads/{$uploadId}"));
+    }
+
+    public function test_chunked_upload_rejects_missing_pieces_and_bad_ids(): void
+    {
+        $admin = $this->makeAdmin(['IMPORT_MEDICINES']);
+        $uploadId = (string) \Illuminate\Support\Str::uuid();
+
+        $this->actingAs($admin)->post(route('web-admin.medicines.import.chunk'), [
+            'upload_id' => $uploadId,
+            'index' => 0,
+            'chunk' => UploadedFile::fake()->createWithContent('chunk', 'part'),
+        ], ['Accept' => 'application/json'])->assertOk();
+
+        $this->actingAs($admin)
+            ->post(route('web-admin.medicines.import.store'), ['upload_id' => $uploadId, 'chunks' => 2, 'file_name' => 'x.xlsx'])
+            ->assertSessionHasErrors('file');
+        $this->assertDirectoryDoesNotExist(storage_path("app/chunked-uploads/{$uploadId}"));
+
+        $this->actingAs($admin)->post(route('web-admin.medicines.import.chunk'), [
+            'upload_id' => '../../etc',
+            'index' => 0,
+            'chunk' => UploadedFile::fake()->createWithContent('chunk', 'part'),
+        ], ['Accept' => 'application/json'])->assertUnprocessable();
+
+        $this->actingAs($admin)
+            ->post(route('web-admin.medicines.import.store'), ['upload_id' => $uploadId, 'chunks' => 1, 'file_name' => 'x.pdf'])
+            ->assertSessionHasErrors('file_name');
+
+        $this->assertSame(0, MedicineImport::count());
+    }
+
     public function test_sheet_without_the_trade_name_column_is_rejected(): void
     {
         $admin = $this->makeAdmin(['IMPORT_MEDICINES']);

@@ -23,7 +23,15 @@ class MedicineImportController extends Controller implements HasMiddleware
     {
         return view('admin.medicines.import', [
             'imports' => ListMedicineImports::execute(),
+            'chunkSize' => ImportMedicines::CHUNK_SIZE,
         ]);
+    }
+
+    public function chunk(Request $request)
+    {
+        ImportMedicines::storeChunk($request);
+
+        return response()->json(['success' => true]);
     }
 
     public function store(Request $request)
