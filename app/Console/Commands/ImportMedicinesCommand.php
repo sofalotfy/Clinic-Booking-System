@@ -22,6 +22,8 @@ class ImportMedicinesCommand extends Command
             return self::FAILURE;
         }
 
+        $this->info('Syncing '.basename($path).', this can take a minute...');
+
         try {
             $import = ImportMedicines::execute($path, basename($path));
         } catch (ValidationException $exception) {

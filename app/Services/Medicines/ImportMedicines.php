@@ -5,6 +5,7 @@ namespace App\Services\Medicines;
 use App\Models\Medicine;
 use App\Models\MedicineImport;
 use App\Models\User;
+use App\Support\InMemorySharedStringsFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -154,7 +155,7 @@ class ImportMedicines
     private static function readerFor(string $fileName): ReaderInterface
     {
         return match (Str::lower(pathinfo($fileName, PATHINFO_EXTENSION))) {
-            'xlsx' => new XlsxReader(),
+            'xlsx' => new XlsxReader(cachingStrategyFactory: new InMemorySharedStringsFactory()),
             'csv' => new CsvReader(),
             default => throw ValidationException::withMessages(['file' => 'Only .xlsx and .csv files are supported.']),
         };
