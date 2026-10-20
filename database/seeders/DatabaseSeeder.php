@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DemoPatientsSeeder::class,
             PermissionTableSeeder::class,
+            LabSeeder::class,
+            ScanSeeder::class,
         ]);
 
     }
