@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\LabController;
+use App\Http\Controllers\Admin\ScanController;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +38,8 @@ Route::prefix('web-admin')->name('web-admin.')->group(function () {
         Route::post('doctors/{doctor}/reinstate', [DoctorController::class, 'reinstate'])->name('doctors.reinstate');
         Route::resource('doctors', DoctorController::class);
         Route::resource('admins', AdminController::class);
+        Route::resource('labs', LabController::class);
+        Route::resource('scans', ScanController::class);
         Route::resource('roles', AdminRoleController::class)->parameters(['roles' => 'adminRole']);
         Route::get('permissions', [AdminPermissionController::class, 'index'])->name('permissions.index');
     });

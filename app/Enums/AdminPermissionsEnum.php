@@ -24,6 +24,18 @@ enum AdminPermissionsEnum: string {
 
     case VIEW_ALL_PERMISSIONS = 'view all permissions';
 
+    case VIEW_ALL_LABS = 'view all labs';
+    case VIEW_SINGLE_LAB = 'view single lab';
+    case CREATE_LAB = 'create lab';
+    case UPDATE_LAB = 'update lab';
+    case DELETE_LAB = 'delete lab';
+
+    case VIEW_ALL_SCANS = 'view all scans';
+    case VIEW_SINGLE_SCAN = 'view single scan';
+    case CREATE_SCAN = 'create scan';
+    case UPDATE_SCAN = 'update scan';
+    case DELETE_SCAN = 'delete scan';
+
     public function group(): string
     {
         return match ($this) {
@@ -47,6 +59,18 @@ enum AdminPermissionsEnum: string {
             self::DELETE_ROLE => 'Roles',
 
             self::VIEW_ALL_PERMISSIONS => 'Permissions',
+
+            self::VIEW_ALL_LABS,
+            self::VIEW_SINGLE_LAB,
+            self::CREATE_LAB,
+            self::UPDATE_LAB,
+            self::DELETE_LAB => 'Labs',
+
+            self::VIEW_ALL_SCANS,
+            self::VIEW_SINGLE_SCAN,
+            self::CREATE_SCAN,
+            self::UPDATE_SCAN,
+            self::DELETE_SCAN => 'Scans',
         };
     }
 }

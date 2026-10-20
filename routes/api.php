@@ -17,6 +17,8 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\TestController;
 use App\Http\Controllers\API\WhatsAppController;
+use App\Http\Controllers\API\LabController;
+use App\Http\Controllers\API\ScanController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -109,6 +111,12 @@ Route::middleware(['auth:sanctum', 'clinic.not-suspended'])->group(function () {
     Route::get('/notifications/historical', [NotificationController::class, 'historical']);
     Route::post('/notifications/view-bulk', [NotificationController::class, 'viewBulk']);
     Route::post('/notifications/{notification}', [NotificationController::class, 'view']);
+
+    Route::get('/labs', [LabController::class, 'index'])->name('labs.index');
+    Route::get('/labs/{lab}', [LabController::class, 'show'])->name('labs.show');
+
+    Route::get('/scans', [ScanController::class, 'index'])->name('scans.index');
+    Route::get('/scans/{scan}', [ScanController::class, 'show'])->name('scans.show');
 
     Route::put('/doctors/{doctor}', [App\Http\Controllers\API\DoctorController::class, 'update']);
 

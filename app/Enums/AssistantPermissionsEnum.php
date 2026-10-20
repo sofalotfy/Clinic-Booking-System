@@ -62,4 +62,10 @@ enum AssistantPermissionsEnum: string {
     case CREATE_BLOCKED_PATIENT = 'create blocked patient';
     case UPDATE_BLOCKED_PATIENT = 'update blocked patient';
     case DELETE_BLOCKED_PATIENT = 'delete blocked patient';
+
+    case VIEW_ALL_LABS = 'view all labs';
+    case VIEW_SINGLE_LAB = 'view single lab';
+
+    case VIEW_ALL_SCANS = 'view all scans';
+    case VIEW_SINGLE_SCAN = 'view single scan';
 }
