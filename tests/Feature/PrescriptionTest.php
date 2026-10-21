@@ -71,6 +71,7 @@ class PrescriptionTest extends TestCase
 
         $prescription = Prescription::sole();
         $this->assertSame($this->doctor->id, $prescription->doctor_id);
+        $this->assertSame(AppointmentStatus::DONE, $this->appointment->fresh()->status);
 
         $this->actingAs($this->doctor->user, 'sanctum')
             ->getJson("/api/appointments/{$this->appointment->id}/prescription")
@@ -100,6 +101,16 @@ class PrescriptionTest extends TestCase
             ->assertJsonValidationErrors('appointment');
 
         $this->assertSame(1, Prescription::count());
+        $this->assertSame(AppointmentStatus::CANCELLED, $cancelled->fresh()->status);
+    }
+
+    public function test_a_rejected_prescription_leaves_the_appointment_untouched(): void
+    {
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->postJson("/api/appointments/{$this->appointment->id}/prescription", ['consultation_date' => '2026-11-30'])
+            ->assertJsonValidationErrors('consultation_date');
+
+        $this->assertSame(AppointmentStatus::ACTIVE, $this->appointment->fresh()->status);
     }
 
     public function test_consultation_date_must_be_after_the_appointment_day(): void

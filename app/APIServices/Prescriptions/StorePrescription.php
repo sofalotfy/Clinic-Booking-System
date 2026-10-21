@@ -21,6 +21,6 @@ class StorePrescription
 
         $validated = $request->validate(PrescriptionRules::rules($appointment), PrescriptionRules::messages());
 
-        return FormatPrescription::execute(StoreService::execute($appointment, $validated));
+        return FormatPrescription::execute(StoreService::execute($request->user(), $appointment, $validated));
     }
 }
