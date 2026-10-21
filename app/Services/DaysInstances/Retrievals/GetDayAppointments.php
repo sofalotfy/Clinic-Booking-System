@@ -33,7 +33,7 @@ class GetDayAppointments
             "appointments.status",
             DB::raw('DATE(DATE_ADD(appointments.date, INTERVAL COALESCE(appointments.delay, 0) MINUTE)) as date'),
             DB::raw('TIME(DATE_ADD(appointments.date, INTERVAL COALESCE(appointments.delay, 0) MINUTE)) as time'),
-            "appointments.status",
+            "appointments.type",
             "appointments.grade",
             "users.name as patient_name",
             "users.phone as patient_phone",
