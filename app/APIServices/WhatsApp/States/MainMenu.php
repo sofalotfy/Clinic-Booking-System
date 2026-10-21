@@ -23,6 +23,8 @@ class MainMenu
 
     private const MAX_BUTTON_BODY_LENGTH = 1024;
 
+    private const MAX_TEXT_LENGTH = 3800;
+
     public static function execute($conversation, $message)
     {
         $account = DoctorWhatsAppAccount::findOrFail(
@@ -241,12 +243,14 @@ class MainMenu
     private static function sendInfo($account, $message, string $body)
     {
         if (mb_strlen($body) > self::MAX_BUTTON_BODY_LENGTH) {
-            SendMessage::text(
-                $account->phone_number_id,
-                $account->access_token,
-                $message['from'],
-                $body,
-            );
+            foreach (self::splitMessage($body) as $part) {
+                SendMessage::text(
+                    $account->phone_number_id,
+                    $account->access_token,
+                    $message['from'],
+                    $part,
+                );
+            }
 
             return self::sendBackToMainMenuButton($account, $message);
         }
@@ -258,6 +262,41 @@ class MainMenu
             $body,
             self::backToMainMenuButtons()
         );
+    }
+
+    /**
+     * WhatsApp rejects text over 4096 characters. Long messages are split
+     * between paragraphs (blank lines), never in the middle of one.
+     *
+     * @return array<int, string>
+     */
+    private static function splitMessage(string $body): array
+    {
+        $parts = [];
+        $current = '';
+
+        foreach (explode("\n\n", $body) as $paragraph) {
+            if ($current !== '' && mb_strlen($current."\n\n".$paragraph) > self::MAX_TEXT_LENGTH) {
+                $parts[] = $current;
+                $current = '';
+            }
+
+            // A single paragraph longer than the limit is cut as a last resort
+            foreach (mb_str_split($paragraph, self::MAX_TEXT_LENGTH) as $index => $piece) {
+                if ($index > 0) {
+                    $parts[] = $current;
+                    $current = '';
+                }
+
+                $current = $current === '' ? $piece : $current."\n\n".$piece;
+            }
+        }
+
+        if ($current !== '') {
+            $parts[] = $current;
+        }
+
+        return $parts;
     }
 
     private static function sendBackToMainMenuButton($account, $message)

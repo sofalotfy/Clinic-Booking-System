@@ -2,7 +2,9 @@
 
 namespace App\APIServices\Patients;
 
+use App\Enums\Gender;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use App\Services\Patients\Retrievals\ListDoctorPatients;
 
 class ListPatients
@@ -16,6 +18,7 @@ class ListPatients
             'date_to' => $request->input('date_to'),
             'has_upcoming_appointment' => $request->input('has_upcoming_appointment'),
             'search' => $request->input('search'),
+            ...self::newFilters($request),
         ];
         $user = $request->user();
         $doctor = $user->clinicDoctor();
@@ -56,6 +59,27 @@ class ListPatients
         });
 
         return $patients;
+    }
+
+    /**
+     * flags takes ids as a comma separated list or an array, and only this
+     * clinic's own flags are accepted:
+     * ?flags=3,5 (any of them), ?flags=3,5&flag_match=all, ?no_flags=1
+     */
+    private static function newFilters($request): array
+    {
+        if (is_string($request->input('flags'))) {
+            $request->merge(['flags' => array_filter(array_map('trim', explode(',', $request->input('flags'))))]);
+        }
+
+        return $request->validate([
+            'flags' => 'nullable|array',
+            'flags.*' => ['integer', Rule::exists('flags', 'id')->where('doctor_id', $request->user()->clinicDoctorId())],
+            'flag_match' => 'nullable|in:any,all',
+            'no_flags' => 'nullable|boolean',
+            'gender' => ['nullable', Rule::enum(Gender::class)],
+            'is_blocked' => 'nullable|boolean',
+        ]);
     }
 
     private static function getSelects()
