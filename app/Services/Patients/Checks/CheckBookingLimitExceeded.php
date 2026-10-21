@@ -16,6 +16,7 @@ class CheckBookingLimitExceeded
             'patient_id' => $patientId,
         ])
         ->whereIn('status', AppointmentStatus::working())
+        ->where('date', '>=', now())
         ->count() >= 1;
     }
 }
