@@ -163,11 +163,7 @@ class MainMenu
             return null;
         }
 
-        return Prescription::query()
-            ->where('doctor_id', $account->doctor_id)
-            ->where('patient_id', $patient->id)
-            ->latest('id')
-            ->first();
+        return $patient->activePrescription($account->doctor_id);
     }
 
     private static function clinicInfo($doctor, $clinic): string

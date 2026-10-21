@@ -3,6 +3,7 @@
 namespace App\Services\Appointments\Modifications;
 
 use App\Enums\AppointmentStatus;
+use App\Services\Appointments\Checks\ResolveAppointmentType;
 use App\Services\Notifications\NotificationManager;
 use App\Enums\NotificationEnum;
 use App\Services\Appointments\Modifications\UnConfirmAppointment;
@@ -22,6 +23,7 @@ class ResheduleAppointment
                 'date' => $new_date,
                 'duration' => $duration ?? $appointment->duration,
                 'isConfirmed' => false,
+                'type' => ResolveAppointmentType::execute($appointment->doctor_id, $appointment->patient, $new_date),
             ]
         );
 

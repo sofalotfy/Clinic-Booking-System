@@ -3,6 +3,7 @@
 namespace App\Services\Appointments\Modifications;
 
 use App\Enums\AppointmentStatus;
+use App\Services\Appointments\Checks\ResolveAppointmentType;
 use Carbon\Carbon;
 
 class UpdateAppointment 
@@ -44,6 +45,7 @@ class UpdateAppointment
         if ($newDate) {
             $appointment->update([
                 "date"  => $newDate,
+                "type"  => ResolveAppointmentType::execute($appointment->doctor_id, $appointment->patient, $newDate),
             ]);
         }
         

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AppointmentGrade;
 use App\Enums\AppointmentStatus;
+use App\Enums\AppointmentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,6 +23,7 @@ class Appointment extends Model
     {
         return [
             'status' => AppointmentStatus::class,
+            'type' => AppointmentType::class,
             'grade' => AppointmentGrade::class,
         ];
     }

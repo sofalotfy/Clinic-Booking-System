@@ -71,6 +71,18 @@ class Patient extends Model
     }
 
     /**
+     * The prescription currently in force with this doctor: the latest one
+     * written for the patient. Always go through here, never query it directly.
+     */
+    public function activePrescription(int $doctorId): ?Prescription
+    {
+        return $this->prescriptions()
+            ->where('doctor_id', $doctorId)
+            ->latest('id')
+            ->first();
+    }
+
+    /**
      * Check If Blocked.
      */
     public function isBlocked(Doctor $doctor): bool

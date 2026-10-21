@@ -6,6 +6,7 @@ use App\Enums\AppointmentStatus;
 use App\Enums\NotificationEnum;
 use App\Models\Appointment;
 use App\Models\Day;
+use App\Services\Appointments\Checks\ResolveAppointmentType;
 use App\Services\Appointments\Modifications\UnConfirmAppointment;
 use App\Services\Notifications\NotificationManager;
 use App\Services\Patients\Checks\CheckBookingLimitExceeded;
@@ -81,6 +82,7 @@ class BookAppointment
                 'date' => $date,
                 'duration' => $day->appointment_duration,
                 'status' => $status,
+                'type' => ResolveAppointmentType::execute($day->doctor_id, $patient, $date),
             ]);
 
             $notification = NotificationEnum::PATIENT_APPOINTMENT_BOOKED;

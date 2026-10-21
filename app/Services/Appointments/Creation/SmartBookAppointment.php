@@ -7,6 +7,7 @@ use App\Enums\NotificationEnum;
 use App\Models\Appointment;
 use App\Models\Day;
 use App\Models\Patient;
+use App\Services\Appointments\Checks\ResolveAppointmentType;
 use App\Services\Notifications\NotificationManager;
 use App\Services\Patients\Checks\CheckBookingLimitExceeded;
 use App\Services\TemplatePlans\Checks\CheckAvailability;
@@ -107,6 +108,7 @@ class SmartBookAppointment
                 }
 
                 $oldDate = null;
+                $type = ResolveAppointmentType::execute($doctor->id, $patient, $dateTime);
 
                 if ($appointment) {
                     $oldDate = $appointment->date;
@@ -115,6 +117,7 @@ class SmartBookAppointment
                         'date' => $dateTime->format('Y-m-d H:i:s'),
                         'duration' => $duration,
                         'status' => $status,
+                        'type' => $type,
                     ]);
 
                     $notificationType = NotificationEnum::PATIENT_APPOINTMENT_RESCHEDULED;
@@ -125,6 +128,7 @@ class SmartBookAppointment
                         'date' => $dateTime->format('Y-m-d H:i:s'),
                         'duration' => $duration,
                         'status' => $status,
+                        'type' => $type,
                     ]);
 
                     $notificationType = NotificationEnum::PATIENT_APPOINTMENT_BOOKED;
