@@ -37,8 +37,8 @@ class ConsultationReminder
      */
     private const BUTTONS = [
         0 => self::BOOK_APPOINTMENT,
-        1 => self::LATER,
-        2 => self::VIEW_PRESCRIPTION,
+        1 => self::VIEW_PRESCRIPTION,
+        2 => self::LATER,
     ];
 
     private const LATER_REPLY = 'تمام، يمكنك حجز موعد الاستشارة في أي وقت من القائمة الرئيسية.';

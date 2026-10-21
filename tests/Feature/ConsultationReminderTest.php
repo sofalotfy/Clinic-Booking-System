@@ -248,6 +248,53 @@ class ConsultationReminderTest extends TestCase
         Http::assertNotSent(fn (Request $request) => str_contains(json_encode($request->data(), JSON_UNESCAPED_UNICODE), 'Old Medicine'));
     }
 
+    public function test_prescription_message_is_labelled_and_right_to_left(): void
+    {
+        $prescription = $this->prescription('2026-11-08', medicine: 'Augmentin 1g');
+        $prescription->update(['diagnosis' => 'التهاب اللوزتين', 'notes' => 'سوائل كثيرة']);
+        $prescription->medicines()->updateExistingPivot(Medicine::first()->id, ['frequency' => 'كل 12 ساعة', 'instructions' => 'بعد الاكل']);
+        $prescription->labs()->attach(\App\Models\Lab::create(['name' => 'CBC', 'name_ar' => 'صورة دم', 'fasting_required' => true])->id);
+
+        $message = \App\APIServices\WhatsApp\Services\FormatPrescriptionToMessage::execute($prescription->fresh());
+
+        foreach (['الروشتة', 'التشخيص', 'الأدوية', '١- *Augmentin 1g*', 'الجرعة: 1 tablet', 'التكرار: كل 12 ساعة', 'تعليمات: بعد الاكل', 'التحاليل المطلوبة', 'يلزم الصيام', 'ملاحظات', 'موعد الاستشارة'] as $expected) {
+            $this->assertStringContainsString($expected, $message);
+        }
+
+        // Every non-empty line is forced right to left, so English names do not scramble the layout
+        foreach (explode("\n", $message) as $line) {
+            $this->assertTrue($line === '' || str_starts_with($line, "\u{200F}"), "Line not RTL: {$line}");
+        }
+
+        // Sections the prescription does not have are left out
+        $this->assertStringNotContainsString('الأشعة', $message);
+    }
+
+    public function test_long_prescriptions_are_sent_in_parts_under_the_whatsapp_limit(): void
+    {
+        $prescription = $this->prescription('2026-11-08');
+
+        foreach (range(1, 45) as $i) {
+            $prescription->medicines()->attach(
+                Medicine::create(['name' => "Medicine {$i} ".str_repeat('x', 20)])->id,
+                ['dose' => 'قرص', 'frequency' => str_repeat('كل 8 ساعات ', 8), 'instructions' => str_repeat('تعليمات مفصلة ', 12)]
+            );
+        }
+
+        $this->existingConversation(ConversationState::MAIN_MENU);
+        $this->webhook(['type' => 'interactive', 'interactive' => ['type' => 'list_reply', 'list_reply' => ['id' => 'view_prescription']]]);
+
+        $texts = Http::recorded()->map(fn ($pair) => $pair[0]['text']['body'] ?? null)->filter()->values();
+
+        $this->assertGreaterThan(1, $texts->count());
+        $texts->each(fn ($text) => $this->assertLessThanOrEqual(4096, mb_strlen($text)));
+        $this->assertStringContainsString('Medicine 1 ', $texts->first());
+        $this->assertStringContainsString('Medicine 45 ', $texts->last());
+
+        // The main menu button still comes last
+        Http::assertSent(fn (Request $request) => ($request['interactive']['action']['buttons'][0]['reply']['id'] ?? null) === 'back_to_mainmenu');
+    }
+
     private function assertTemplateSent(string $template): void
     {
         Http::assertSent(function (Request $request) use ($template) {
@@ -263,7 +310,7 @@ class ConsultationReminderTest extends TestCase
                 && $request['template']['language']['code'] === 'ar_EG'
                 && $body['name'] === 'Mona'
                 && str_contains($body['date'], 'نوفمبر')
-                && $payloads === [ConsultationReminder::BOOK_APPOINTMENT, ConsultationReminder::LATER, ConsultationReminder::VIEW_PRESCRIPTION];
+                && $payloads === [ConsultationReminder::BOOK_APPOINTMENT, ConsultationReminder::VIEW_PRESCRIPTION, ConsultationReminder::LATER];
         });
     }
 
