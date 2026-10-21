@@ -9,7 +9,7 @@ return [
         'https://roznama.dev',
         'http://localhost:5173',
         'http://localhost:3000',
-        'http://143.198.61.33:8081',
+        'https://stage.roznama.dev',
     ],
 
     'allowed_origins_patterns' => [],
