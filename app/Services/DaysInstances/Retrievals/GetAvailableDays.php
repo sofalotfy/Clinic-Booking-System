@@ -10,10 +10,21 @@ use Illuminate\Support\Facades\DB;
 
 class GetAvailableDays
 {
+    /**
+     * The stretch of time days are offered for: today up to a month ahead.
+     * Days further out have not been generated yet, so nothing can be said
+     * about their availability.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    public static function window(): array
+    {
+        return [now()->startOfDay(), now()->addMonth()->endOfDay()];
+    }
+
     public static function execute(int $doctorId, ?int $limit = null): array
     {
-        $start = now()->startOfDay();
-        $end = now()->addMonth()->endOfDay();
+        [$start, $end] = self::window();
 
         $days = Day::where('doctor_id', $doctorId)
             ->whereBetween('date', [$start, $end])

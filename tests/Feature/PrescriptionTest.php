@@ -7,7 +7,9 @@ use App\Enums\AssistantPermissionsEnum;
 use App\Enums\PermissionsTypeEnum;
 use App\Enums\UserType;
 use App\Models\Appointment;
+use App\Enums\DayStatus;
 use App\Models\Assistant;
+use App\Models\Day;
 use App\Models\Doctor;
 use App\Models\Lab;
 use App\Models\Medicine;
@@ -34,6 +36,9 @@ class PrescriptionTest extends TestCase
         parent::setUp();
 
         $this->seed(PermissionTableSeeder::class);
+
+        // Consultation dates are checked against the next month of schedule
+        $this->travelTo('2026-10-21 09:00:00');
 
         $this->doctor = $this->makeDoctor();
         $this->appointment = $this->makeAppointment($this->doctor);
@@ -124,6 +129,76 @@ class PrescriptionTest extends TestCase
         $this->actingAs($this->doctor->user, 'sanctum')
             ->postJson("/api/appointments/{$this->appointment->id}/prescription", ['consultation_date' => '2026-12-02'])
             ->assertCreated();
+    }
+
+    public function test_consultation_date_must_be_a_day_the_doctor_is_available(): void
+    {
+        $today = $this->makeAppointment($this->doctor, date: '2026-10-21 08:00:00');
+
+        $this->day('2026-11-05');
+        $this->day('2026-11-06', DayStatus::CANCELLED);
+        $full = $this->day('2026-11-09', queueLength: 0);
+        $this->bookOut($full);
+
+        // Inside the schedule window: no day, a cancelled day and a full day are all refused
+        foreach (['2026-11-04', '2026-11-06', '2026-11-09'] as $date) {
+            $this->actingAs($this->doctor->user, 'sanctum')
+                ->postJson("/api/appointments/{$today->id}/prescription", ['consultation_date' => $date])
+                ->assertUnprocessable()
+                ->assertJsonValidationErrors(['consultation_date' => 'The doctor is not available on this day, please choose another date.']);
+        }
+
+        $this->assertSame(0, Prescription::count());
+        $this->assertSame(AppointmentStatus::ACTIVE, $today->fresh()->status);
+
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->postJson("/api/appointments/{$today->id}/prescription", ['consultation_date' => '2026-11-05'])
+            ->assertCreated()
+            ->assertJsonPath('prescription.consultation_date', '2026-11-05');
+    }
+
+    public function test_another_clinics_schedule_does_not_make_a_day_available(): void
+    {
+        $today = $this->makeAppointment($this->doctor, date: '2026-10-21 08:00:00');
+
+        $this->day('2026-11-05', doctor: $this->makeDoctor());
+
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->postJson("/api/appointments/{$today->id}/prescription", ['consultation_date' => '2026-11-05'])
+            ->assertJsonValidationErrors('consultation_date');
+    }
+
+    public function test_dates_beyond_the_generated_schedule_are_accepted(): void
+    {
+        $today = $this->makeAppointment($this->doctor, date: '2026-10-21 08:00:00');
+
+        // Days are only generated a month ahead, so a later date cannot be checked yet
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->postJson("/api/appointments/{$today->id}/prescription", ['consultation_date' => '2027-01-15'])
+            ->assertCreated();
+    }
+
+    public function test_update_checks_a_changed_date_but_not_the_one_already_saved(): void
+    {
+        $today = $this->makeAppointment($this->doctor, date: '2026-10-21 08:00:00');
+
+        $day = $this->day('2026-11-05');
+
+        $id = $this->actingAs($this->doctor->user, 'sanctum')
+            ->postJson("/api/appointments/{$today->id}/prescription", ['consultation_date' => '2026-11-05'])
+            ->json('prescription.id');
+
+        // The day fills up afterwards
+        $day->update(['status' => DayStatus::CANCELLED]);
+
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->putJson("/api/prescriptions/{$id}", ['consultation_date' => '2026-11-05', 'diagnosis' => 'edited'])
+            ->assertOk()
+            ->assertJsonPath('prescription.diagnosis', 'edited');
+
+        $this->actingAs($this->doctor->user, 'sanctum')
+            ->putJson("/api/prescriptions/{$id}", ['consultation_date' => '2026-11-07'])
+            ->assertJsonValidationErrors('consultation_date');
     }
 
     public function test_items_must_exist_in_the_catalog_and_not_repeat(): void
@@ -264,6 +339,35 @@ class PrescriptionTest extends TestCase
         $this->assertModelExists($medicine);
     }
 
+    private function day(string $date, DayStatus $status = DayStatus::ACTIVE, int $queueLength = 3, ?Doctor $doctor = null): Day
+    {
+        return Day::create([
+            'doctor_id' => ($doctor ?? $this->doctor)->id,
+            'date' => $date,
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+            'appointment_duration' => 30,
+            'queue_length' => $queueLength,
+            'status' => $status,
+        ]);
+    }
+
+    /** Four 30 minute slots in the 2 hour day, all taken */
+    private function bookOut(Day $day): void
+    {
+        foreach (range(0, 3) as $slot) {
+            $patient = Patient::create(['user_id' => $this->makeUser(UserType::PATIENT)->id]);
+
+            Appointment::create([
+                'doctor_id' => $day->doctor_id,
+                'patient_id' => $patient->id,
+                'date' => $day->date.' 1'.$slot.':00:00',
+                'duration' => 30,
+                'status' => AppointmentStatus::ACTIVE,
+            ]);
+        }
+    }
+
     private function makeUser(UserType $type): User
     {
         return User::create([
@@ -280,14 +384,14 @@ class PrescriptionTest extends TestCase
         return Doctor::create(['user_id' => $this->makeUser(UserType::DOCTOR)->id])->load('user');
     }
 
-    private function makeAppointment(Doctor $doctor, AppointmentStatus $status = AppointmentStatus::ACTIVE): Appointment
+    private function makeAppointment(Doctor $doctor, AppointmentStatus $status = AppointmentStatus::ACTIVE, string $date = '2026-12-01 10:00:00'): Appointment
     {
         $patient = Patient::create(['user_id' => $this->makeUser(UserType::PATIENT)->id]);
 
         return Appointment::create([
             'doctor_id' => $doctor->id,
             'patient_id' => $patient->id,
-            'date' => '2026-12-01 10:00:00',
+            'date' => $date,
             'duration' => 30,
             'status' => $status,
         ]);
