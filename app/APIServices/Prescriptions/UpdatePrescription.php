@@ -9,7 +9,7 @@ class UpdatePrescription
 {
     public static function execute($request, Prescription $prescription)
     {
-        $validated = $request->validate(PrescriptionRules::rules($prescription->appointment), PrescriptionRules::messages());
+        $validated = $request->validate(PrescriptionRules::rules($prescription->appointment, $prescription), PrescriptionRules::messages());
 
         return FormatPrescription::execute(UpdateService::execute($prescription, $validated));
     }
