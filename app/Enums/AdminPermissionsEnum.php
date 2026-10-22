@@ -43,6 +43,12 @@ enum AdminPermissionsEnum: string {
     case DELETE_MEDICINE = 'delete medicine';
     case IMPORT_MEDICINES = 'import medicines';
 
+    case VIEW_ALL_COST_CATEGORIES = 'view all cost categories';
+    case VIEW_SINGLE_COST_CATEGORY = 'view single cost category';
+    case CREATE_COST_CATEGORY = 'create cost category';
+    case UPDATE_COST_CATEGORY = 'update cost category';
+    case DELETE_COST_CATEGORY = 'delete cost category';
+
     public function group(): string
     {
         return match ($this) {
@@ -85,6 +91,12 @@ enum AdminPermissionsEnum: string {
             self::UPDATE_MEDICINE,
             self::DELETE_MEDICINE,
             self::IMPORT_MEDICINES => 'Medicines',
+
+            self::VIEW_ALL_COST_CATEGORIES,
+            self::VIEW_SINGLE_COST_CATEGORY,
+            self::CREATE_COST_CATEGORY,
+            self::UPDATE_COST_CATEGORY,
+            self::DELETE_COST_CATEGORY => 'Cost Categories',
         };
     }
 }

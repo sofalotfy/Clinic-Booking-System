@@ -21,6 +21,8 @@ use App\Http\Controllers\API\LabController;
 use App\Http\Controllers\API\MedicineController;
 use App\Http\Controllers\API\PrescriptionController;
 use App\Http\Controllers\API\ScanController;
+use App\Http\Controllers\API\CostController;
+use App\Http\Controllers\API\CostCategoryController;
 
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -129,6 +131,14 @@ Route::middleware(['auth:sanctum', 'clinic.not-suspended'])->group(function () {
     Route::delete('/prescriptions/{prescription}', [PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
     Route::get('/appointments/{appointment}/prescription', [PrescriptionController::class, 'showForAppointment'])->name('appointments.prescription.show');
     Route::post('/appointments/{appointment}/prescription', [PrescriptionController::class, 'store'])->name('appointments.prescription.store');
+
+    Route::get('/cost-categories', [CostCategoryController::class, 'index'])->name('cost-categories.index');
+
+    Route::get('/costs', [CostController::class, 'index'])->name('costs.index');
+    Route::post('/costs', [CostController::class, 'store'])->name('costs.store');
+    Route::get('/costs/{cost}', [CostController::class, 'show'])->name('costs.show');
+    Route::put('/costs/{cost}', [CostController::class, 'update'])->name('costs.update');
+    Route::delete('/costs/{cost}', [CostController::class, 'destroy'])->name('costs.destroy');
 
     Route::put('/doctors/{doctor}', [App\Http\Controllers\API\DoctorController::class, 'update']);
 

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PermissionTableSeeder::class,
             LabSeeder::class,
             ScanSeeder::class,
+            CostCategorySeeder::class,
         ]);
 
     }

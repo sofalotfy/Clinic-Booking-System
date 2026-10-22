@@ -77,4 +77,12 @@ enum AssistantPermissionsEnum: string {
     case CREATE_PRESCRIPTION = 'create prescription';
     case UPDATE_PRESCRIPTION = 'update prescription';
     case DELETE_PRESCRIPTION = 'delete prescription';
+
+    case VIEW_ALL_COSTS = 'view all costs';
+    case VIEW_SINGLE_COST = 'view single cost';
+    case CREATE_COST = 'create cost';
+    case UPDATE_COST = 'update cost';
+    case DELETE_COST = 'delete cost';
+
+    case VIEW_ALL_COST_CATEGORIES = 'view all cost categories';
 }

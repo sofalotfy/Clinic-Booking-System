@@ -22,6 +22,9 @@
                 @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_ALL_SCANS))
                     <a href="{{ route('web-admin.scans.index') }}" class="text-slate-600 hover:text-slate-900">Scans</a>
                 @endif
+                @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_ALL_COST_CATEGORIES))
+                    <a href="{{ route('web-admin.cost-categories.index') }}" class="text-slate-600 hover:text-slate-900">Cost Categories</a>
+                @endif
                 @if ($user->hasAdminPermission(\App\Enums\AdminPermissionsEnum::VIEW_ALL_ADMINS))
                     <a href="{{ route('web-admin.admins.index') }}" class="text-slate-600 hover:text-slate-900">Admins</a>
                 @endif

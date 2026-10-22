@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminPermissionController;
 use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\CostCategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\LabController;
@@ -42,6 +43,7 @@ Route::prefix('web-admin')->name('web-admin.')->group(function () {
         Route::resource('admins', AdminController::class);
         Route::resource('labs', LabController::class);
         Route::resource('scans', ScanController::class);
+        Route::resource('cost-categories', CostCategoryController::class)->parameters(['cost-categories' => 'costCategory']);
         Route::get('medicines/import', [MedicineImportController::class, 'create'])->name('medicines.import');
         Route::post('medicines/import', [MedicineImportController::class, 'store'])->name('medicines.import.store');
         Route::post('medicines/import/chunk', [MedicineImportController::class, 'chunk'])->name('medicines.import.chunk');
